@@ -1,0 +1,178 @@
+{% extends 'user_base.html' %}
+{% block title %}Contact – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .contact-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 5% 4rem;
+  }
+
+  .contact-page h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .contact-page .subtitle {
+    text-align: center;
+    color: var(--text-mid);
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .contact-form {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-mid);
+    margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    border-color: var(--teal);
+    outline: none;
+  }
+  .form-group textarea { resize: vertical; min-height: 120px; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-submit:hover { background: var(--teal-dark); }
+
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .info-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .info-card .info-icon { font-size: 1.5rem; }
+  .info-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.2rem;
+  }
+  .info-card p {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  .flash-msg {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .flash-msg.success { background: #d1fae5; color: #065f46; }
+  .flash-msg.error { background: #fee2e2; color: #991b1b; }
+
+  @media (max-width: 640px) {
+    .contact-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-page">
+  <h1>Get in Touch</h1>
+  <p class="subtitle">We'd love to hear from you. Questions, feedback, or just a salaam — reach out anytime.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-msg {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="contact-grid">
+    <form method="POST" class="contact-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" name="name" required placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" name="email" required placeholder="your@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Message *</label>
+        <textarea name="message" required placeholder="How can we help you?"></textarea>
+      </div>
+      <button type="submit" class="btn-submit">Send Message</button>
+    </form>
+
+    <div class="contact-info">
+      <div class="info-card">
+        <div class="info-icon">📧</div>
+        <div>
+          <h4>Email</h4>
+          <p>hello@talbeena.com</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">📍</div>
+        <div>
+          <h4>Location</h4>
+          <p>India</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">🕐</div>
+        <div>
+          <h4>Hours</h4>
+          <p>Monday – Saturday<br />10:00 AM – 6:00 PM IST</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

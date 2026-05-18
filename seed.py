@@ -8,6 +8,23 @@ import db
 
 print("Seeding database...")
 
+# ── Helper: create a media row and return its ID ──────────────────────────────
+def create_media(filename):
+    mid = str(uuid.uuid4())
+    db.execute("INSERT INTO media (id, file_url) VALUES (?,?)",
+               [mid, f"images/{filename}"])
+    return mid
+
+# ── 0. Clear existing data (for re-runs) ──────────────────────────────────────
+for table in ["variation_images", "variation_attribute_values", "product_variations",
+              "product_attribute_values", "product_attributes", "product_images",
+              "order_items", "coupon_usages", "coupons", "orders",
+              "user_addresses", "attribute_values", "attributes",
+              "products", "categories", "brands", "media", "users"]:
+    try: db.execute(f"DELETE FROM {table}", [])
+    except: pass
+print("✓ Old data cleared")
+
 # ── 1. Admin user ─────────────────────────────────────────────────────────────
 hashed = bcrypt.hashpw("admin123"[:72].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 db.execute(
@@ -16,50 +33,66 @@ db.execute(
 )
 print("✓ Admin user created (admin@talbeena.com / admin123)")
 
-# ── 2. Categories ─────────────────────────────────────────────────────────────
-cat_barley  = str(uuid.uuid4())
-cat_drinks  = str(uuid.uuid4())
-cat_snacks  = str(uuid.uuid4())
-db.execute("INSERT INTO categories (id, name, slug, is_active, is_featured, display_order) VALUES (?,?,?,1,1,1)", [cat_barley, "Barley Products", "barley-products"])
-db.execute("INSERT INTO categories (id, name, slug, parent_id, is_active, display_order) VALUES (?,?,?,?,1,2)", [cat_drinks, "Talbeena Drinks", "talbeena-drinks", cat_barley])
-db.execute("INSERT INTO categories (id, name, slug, parent_id, is_active, display_order) VALUES (?,?,?,?,1,3)", [cat_snacks, "Talbeena Snacks", "talbeena-snacks", cat_barley])
-print("✓ Categories created")
+# ── 2. Media entries for sample images ────────────────────────────────────────
+image_files = [
+    "sample1.png", "sample2.jpg", "sample3.webp", "sample4.webp",
+    "sample5.webp", "sample6.webp", "sample7.webp", "sample8.jpg",
+    "sample9.webp", "sample10.jpg", "sample11.png",
+]
+media_ids = {f: create_media(f) for f in image_files}
+print(f"✓ {len(media_ids)} media entries created")
 
-# ── 3. Attributes ─────────────────────────────────────────────────────────────
-# Primary: Flavor
+# ── 3. Categories ─────────────────────────────────────────────────────────────
+cat_barley = str(uuid.uuid4())
+cat_drinks = str(uuid.uuid4())
+cat_snacks = str(uuid.uuid4())
+db.execute("INSERT INTO categories (id, name, slug, image_url, is_active, is_featured, display_order) VALUES (?,?,?,?,1,1,1)",
+           [cat_barley, "Barley Products", "barley-products", "images/sample4.webp"])
+db.execute("INSERT INTO categories (id, name, slug, parent_id, image_url, is_active, display_order) VALUES (?,?,?,?,?,1,2)",
+           [cat_drinks, "Talbeena Drinks", "talbeena-drinks", cat_barley, "images/sample5.webp"])
+db.execute("INSERT INTO categories (id, name, slug, parent_id, image_url, is_active, display_order) VALUES (?,?,?,?,?,1,3)",
+           [cat_snacks, "Talbeena Snacks", "talbeena-snacks", cat_barley, "images/sample6.webp"])
+print("✓ Categories created (with images)")
+
+# ── 4. Attributes ─────────────────────────────────────────────────────────────
 attr_flavor = str(uuid.uuid4())
-db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'primary',1)", [attr_flavor, "Flavor", "flavor"])
-# Secondary: Weight
 attr_weight = str(uuid.uuid4())
-db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'secondary',2)", [attr_weight, "Weight", "weight"])
-# Optional: Add-ons
-attr_addon = str(uuid.uuid4())
-db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'optional',3)", [attr_addon, "Add-ons", "addons"])
+attr_addon  = str(uuid.uuid4())
+db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'primary',1)",
+           [attr_flavor, "Flavor", "flavor"])
+db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'secondary',2)",
+           [attr_weight, "Weight", "weight"])
+db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'optional',3)",
+           [attr_addon, "Add-ons", "addons"])
 
-# ── Attribute Values ─────────────────────────────────────────────────────────
+# ── Attribute Values (with swatch images for flavors) ─────────────────────────
+flavor_swatches = ["sample2.jpg", "sample3.webp", "sample4.webp", "sample5.webp", "sample6.webp"]
 flavors = ["Chocolate", "Vanilla", "Strawberry", "Saffron", "Cardamom"]
 flavor_ids = {}
-for f in flavors:
+for i, f_name in enumerate(flavors):
     fid = str(uuid.uuid4())
-    db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)", [fid, attr_flavor, f])
-    flavor_ids[f] = fid
+    db.execute("INSERT INTO attribute_values (id, attribute_id, value, image_url) VALUES (?,?,?,?)",
+               [fid, attr_flavor, f_name, f"images/{flavor_swatches[i]}"])
+    flavor_ids[f_name] = fid
 
 weights = ["250g", "500g", "1kg", "2kg"]
 weight_ids = {}
 for w in weights:
     wid = str(uuid.uuid4())
-    db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)", [wid, attr_weight, w])
+    db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)",
+               [wid, attr_weight, w])
     weight_ids[w] = wid
 
 addons = ["Gift Wrapping", "Sugar-Free", "Extra Nuts"]
 addon_ids = {}
 for a in addons:
     aid = str(uuid.uuid4())
-    db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)", [aid, attr_addon, a])
+    db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)",
+               [aid, attr_addon, a])
     addon_ids[a] = aid
-print("✓ Attributes and values created")
+print("✓ Attributes and values created (flavors have swatch images)")
 
-# ── 4. Variable Product: Talbeena Drink Mix ───────────────────────────────────
+# ── 5. Variable Product: Talbeena Drink Mix ───────────────────────────────────
 prod_id = str(uuid.uuid4())
 db.execute(
     """INSERT INTO products (id, name, slug, sku, type, description, short_description,
@@ -75,39 +108,65 @@ db.execute(
      299, 100, "in_stock", cat_drinks, 1, 1],
 )
 
-# Link attributes to product
-db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, attr_flavor])
-db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, attr_weight])
-db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, attr_addon])
+# Primary product image
+db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)",
+           [str(uuid.uuid4()), prod_id, media_ids["sample1.png"]])
 
-# Link attribute values to product
+# Gallery images
+for fname in ["sample7.webp", "sample8.jpg", "sample9.webp"]:
+    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,0,1)",
+               [str(uuid.uuid4()), prod_id, media_ids[fname]])
+
+# Link attributes
+for aid in [attr_flavor, attr_weight, attr_addon]:
+    db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (?,?,?)",
+               [str(uuid.uuid4()), prod_id, aid])
+
+# Link values
 for f in flavors:
-    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, flavor_ids[f]])
+    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)",
+               [str(uuid.uuid4()), prod_id, flavor_ids[f]])
 for w in weights:
-    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, weight_ids[w]])
+    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)",
+               [str(uuid.uuid4()), prod_id, weight_ids[w]])
 for a in addons:
-    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), prod_id, addon_ids[a]])
+    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)",
+               [str(uuid.uuid4()), prod_id, addon_ids[a]])
 
-# Generate variations (calls our new generate_variations logic)
+# Generate variations
 from routes.admin import generate_variations
 generate_variations(prod_id)
-print("✓ Variable product created with variations")
+print("✓ Variable product created with images & variations")
 
-# ── 5. Simple Products ────────────────────────────────────────────────────────
+# ── 6. Simple Products (with images) ──────────────────────────────────────────
 simple_products = [
-    ("Talbeena Barley Flour", "talbeena-barley-flour", "TLB-BF-001", "Pure stone-ground barley flour for baking.", 199, cat_snacks),
-    ("Talbeena Energy Bites", "talbeena-energy-bites", "TLB-EB-001", "On-the-go barley energy bites with dates and nuts.", 349, cat_snacks),
-    ("Talbeena Roasted Barley Tea", "talbeena-roasted-barley-tea", "TLB-RT-001", "Traditional roasted barley tea bags – 20 count.", 249, cat_drinks),
+    ("Talbeena Barley Flour", "talbeena-barley-flour", "TLB-BF-001",
+     "Pure stone-ground barley flour for baking. Perfect for breads, rotis, and traditional recipes.",
+     199, cat_snacks, "sample10.jpg", ["sample11.png"]),
+    ("Talbeena Energy Bites", "talbeena-energy-bites", "TLB-EB-001",
+     "On-the-go barley energy bites with dates and nuts. A healthy snack for the whole family.",
+     349, cat_snacks, "sample11.png", ["sample1.png"]),
+    ("Talbeena Roasted Barley Tea", "talbeena-roasted-barley-tea", "TLB-RT-001",
+     "Traditional roasted barley tea bags - 20 count. Caffeine-free, naturally nutty flavor.",
+     249, cat_drinks, "sample9.webp", ["sample8.jpg"]),
 ]
-for name, slug, sku, desc, price, cat_id in simple_products:
+for name, slug, sku, desc, price, cat_id, primary_img, gallery_imgs in simple_products:
+    pid = str(uuid.uuid4())
     db.execute(
         """INSERT INTO products (id, name, slug, sku, type, description, price, stock_quantity, stock_status, category_id, is_active)
            VALUES (?,?,?,?,'simple',?,?,?,?,?,1)""",
-        [str(uuid.uuid4()), name, slug, sku, desc, price, 50, "in_stock", cat_id],
+        [pid, name, slug, sku, desc, price, 50, "in_stock", cat_id],
     )
-print("✓ Simple products created")
+    # Primary image
+    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)",
+               [str(uuid.uuid4()), pid, media_ids[primary_img]])
+    # Gallery
+    for gimg in gallery_imgs:
+        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,0,1)",
+                   [str(uuid.uuid4()), pid, media_ids[gimg]])
+print("✓ Simple products created (with images)")
 
-# ── 6. Store Settings ─────────────────────────────────────────────────────────
+# ── 7. Store Settings ─────────────────────────────────────────────────────────
 db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_name', 'Talbeena')")
 db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_email', 'hello@talbeena.com')")
 print("✓ Store settings configured")

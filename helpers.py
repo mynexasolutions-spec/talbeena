@@ -148,7 +148,11 @@ def resolve_image(image_url):
     if image_url.startswith("/uploads/") or image_url.startswith("uploads/"):
         return url_for("static", filename=image_url.lstrip("/"))
         
-    # Fallback to static images folder for remaining local assets
+    # Already a valid static path (images/ or css/ etc.)
+    if "/" in image_url.lstrip("/"):
+        return url_for("static", filename=image_url.lstrip("/"))
+        
+    # Fallback to static images folder for bare filenames
     return url_for("static", filename=f"images/{image_url.lstrip('/')}")
 
 
@@ -202,3 +206,23 @@ def register_jinja(app):
     app.jinja_env.globals["resolve_image"] = resolve_image
     app.jinja_env.filters["format_description"] = format_description
     app.jinja_env.filters["format_short_desc"] = format_short_desc
+
+    # ── URL helpers for templates ──────────────────────────────────────────────
+    def _remove_param(key, value):
+        """Return a query string with the given key=value pair removed."""
+        from flask import request as _req
+        params = [(k, v) for k, v in _req.args.items(multi=True)
+                  if not (k == key and (not value or str(v) == str(value)))]
+        import urllib.parse
+        return urllib.parse.urlencode(params, doseq=True)
+
+    def _page_url(page_num):
+        """Return the current query string with the page parameter updated."""
+        from flask import request as _req
+        params = [(k, v) for k, v in _req.args.items(multi=True) if k != "page"]
+        params.append(("page", str(page_num)))
+        import urllib.parse
+        return urllib.parse.urlencode(params, doseq=True)
+
+    app.jinja_env.globals["remove_param"] = _remove_param
+    app.jinja_env.globals["page_url"]     = _page_url

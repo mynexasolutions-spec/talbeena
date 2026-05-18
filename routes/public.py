@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, Response, jsonify
 import db
+from helpers import resolve_image
 from queries import (
     get_products, get_categories, get_brands,
     get_product_detail, get_related_products,
@@ -312,7 +313,7 @@ def api_product_variation(product_id):
             "values": [{
                 "id":        v["id"],
                 "value":     v["value"],
-                "image_url": v.get("image_url") or "",
+                "image_url": resolve_image(v.get("image_url") or ""),
             } for v in vals],
         })
 
