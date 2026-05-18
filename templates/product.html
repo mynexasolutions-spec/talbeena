@@ -357,12 +357,12 @@
       </form>
 
       <!-- ── Description ── -->
-      {% if product.description %}
-      <div class="product-desc">
+      <div class="product-desc" id="productDescription">
+        {% if product.description %}
         <h3>Description</h3>
         {{ product.description|format_description }}
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 
@@ -395,6 +395,7 @@
   let variationData = null;
   let currentSelections = {};  // { attribute_id: value_id }
   let originalGalleryHTML = "";  // saved on load, restored on reset
+  let originalDescriptionHTML = "";  // saved on load, restored on reset
 
   // ── Fetch variation data on page load ──
   async function loadVariations() {
@@ -402,6 +403,8 @@
       // Save original gallery state
       const gallery = document.getElementById("productGallery");
       if (gallery) originalGalleryHTML = gallery.innerHTML;
+      const descEl = document.getElementById("productDescription");
+      if (descEl) originalDescriptionHTML = descEl.innerHTML;
 
       const resp = await fetch(`/api/product/${productId}/variation`);
       if (!resp.ok) return;
@@ -507,7 +510,7 @@
     const selectedIds = Object.values(currentSelections).join(",");
     if (!selectedIds) {
       // Reset to base product data and original gallery
-      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", []);
+      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "");
       return;
     }
 
@@ -517,21 +520,21 @@
     try {
       const resp = await fetch(`/api/product/${productId}/variation?selected=${selectedIds}`);
       if (!resp.ok) {
-        updateDisplay(basePrice, 0, "out_of_stock", "", "", []);
+        updateDisplay(basePrice, 0, "out_of_stock", "", "", [], "", "");
         return;
       }
       const data = await resp.json();
       if (data.found) {
-        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id, data.images || []);
+        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id, data.images || [], data.description || "", data.short_description || "");
       } else {
-        updateDisplay(basePrice, 0, "out_of_stock", "", "", []);
+        updateDisplay(basePrice, 0, "out_of_stock", "", "", [], "", "");
       }
     } catch (e) {
       console.error("Variation lookup failed:", e);
     }
   }
 
-  function updateDisplay(price, stock, status, sku, varId, varImages) {
+  function updateDisplay(price, stock, status, sku, varId, varImages, varDesc, varShortDesc) {
     document.getElementById("currentPrice").textContent = "₹" + Math.round(price);
     document.getElementById("productSku").textContent = sku || "N/A";
     document.getElementById("varIdInput").value = varId || "";

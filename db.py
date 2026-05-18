@@ -228,7 +228,7 @@ _MIGRATIONS = [
         value TEXT NOT NULL DEFAULT '',
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
-    
+
     # 2. User addresses
     """CREATE TABLE IF NOT EXISTS user_addresses (
         id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
@@ -259,7 +259,7 @@ _MIGRATIONS = [
     "ALTER TABLE orders ADD COLUMN customer_email TEXT DEFAULT ''",
     "ALTER TABLE orders ADD COLUMN customer_phone TEXT DEFAULT ''",
     "ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''",
-    
+
     # 4. Order items updates
     "ALTER TABLE order_items ADD COLUMN variation_id TEXT",
     "ALTER TABLE order_items ADD COLUMN quantity INTEGER DEFAULT 1",
@@ -369,6 +369,11 @@ _MIGRATIONS = [
         display_order INTEGER DEFAULT 0
     )""",
     "CREATE INDEX IF NOT EXISTS idx_variation_images_var ON variation_images(variation_id)",
+
+    # 14. Per-variation product details
+    "ALTER TABLE product_variations ADD COLUMN name TEXT DEFAULT ''",
+    "ALTER TABLE product_variations ADD COLUMN short_description TEXT DEFAULT ''",
+    "ALTER TABLE product_variations ADD COLUMN description TEXT DEFAULT ''",
 ]
 
 def migrate():

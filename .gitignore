@@ -8,6 +8,8 @@ venv/
 dist/
 build/
 *.db
+*.db-journal
+*.db-wal
 *.egg-info/
 .DS_Store
 Thumbs.db

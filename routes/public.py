@@ -367,6 +367,9 @@ def api_product_variation(product_id):
                     "value_id":     r["attribute_value_id"],
                     "value":        r["value"],
                 } for r in vav_map.get(vid, [])],
+                "name":             v.get("name") or "",
+                "short_description": v.get("short_description") or "",
+                "description":      v.get("description") or "",
             })
 
     # ── If ?selected= is provided, find the matching variation ──
@@ -388,6 +391,9 @@ def api_product_variation(product_id):
                 "sku":            match["sku"],
                 "variation_id":   match["id"],
                 "images":         match["images"],
+                "name":           match.get("name", ""),
+                "short_description": match.get("short_description", ""),
+                "description":    match.get("description", ""),
             })
         else:
             return jsonify({"found": False, "message": "No matching variation"}), 404

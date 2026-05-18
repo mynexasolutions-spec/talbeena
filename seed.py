@@ -170,6 +170,71 @@ for v in variations:
 
 print(f"✓ Variable product created with images, variations & {vi_count} variation images")
 
+# ── Set per-flavor descriptions ──
+flavor_descriptions = {
+    "Chocolate":  (
+        "<h3>Chocolate Talbeena</h3>"
+        "<p>Rich, velvety cocoa blended with pure barley for a comforting drink "
+        "that satisfies your sweet cravings naturally.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Deep cocoa with malty undertones</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Warm with a dash of milk</td></tr>"
+        "</tbody></table>"
+    ),
+    "Vanilla": (
+        "<h3>Vanilla Talbeena</h3>"
+        "<p>Smooth, aromatic vanilla bean paired with wholesome barley — a classic "
+        "flavor the whole family will love.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Creamy vanilla with subtle sweetness</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Cold with ice or warm with honey</td></tr>"
+        "</tbody></table>"
+    ),
+    "Strawberry": (
+        "<h3>Strawberry Talbeena</h3>"
+        "<p>Bright, fruity strawberry blended into nourishing barley — a refreshing "
+        "twist on traditional talbeena.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Sweet berry with a hint of tartness</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Chilled, garnished with fresh mint</td></tr>"
+        "</tbody></table>"
+    ),
+    "Saffron": (
+        "<h3>Saffron Talbeena</h3>"
+        "<p>Luxurious Kashmiri saffron infused into pure barley — a golden, aromatic "
+        "experience fit for special occasions.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Earthy saffron with floral notes</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Warm, with crushed almonds on top</td></tr>"
+        "</tbody></table>"
+    ),
+    "Cardamom": (
+        "<h3>Cardamom Talbeena</h3>"
+        "<p>Fragrant green cardamom pods ground with stone-milled barley — a soul-warming "
+        "blend rooted in tradition.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Warm cardamom with a gentle spice kick</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Hot, with a sprinkle of cinnamon</td></tr>"
+        "</tbody></table>"
+    ),
+}
+
+for flavor_name, desc_html in flavor_descriptions.items():
+    if desc_html:
+        # Batch-update all variations for this flavor
+        db.execute(
+            """UPDATE product_variations SET description = ?, short_description = ?
+               WHERE id IN (
+                   SELECT pv.id FROM product_variations pv
+                   JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+                   JOIN attribute_values av ON av.id = vav.attribute_value_id
+                   WHERE pv.product_id = ? AND av.value = ?
+               )""",
+            [desc_html, f"{flavor_name} Talbeena drink mix", prod_id, flavor_name],
+        )
+
+print(f"✓ Per-flavor descriptions set for {len(flavor_descriptions)} flavors")
+
 # ── 6. Simple Products (with images) ──────────────────────────────────────────
 simple_products = [
     ("Talbeena Barley Flour", "talbeena-barley-flour", "TLB-BF-001",
