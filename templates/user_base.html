@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Talbeena – Pure Barley Wellness{% endblock %}</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --gold: #C8922A;
+      --gold-light: #E8B96A;
+      --gold-pale: #F5E6C8;
+      --teal: #1A6B72;
+      --teal-dark: #0D4A50;
+      --teal-light: #D6ECEE;
+      --cream: #FBF6EE;
+      --warm-white: #FFFDF8;
+      --text-dark: #2A1F0E;
+      --text-mid: #5C4A2A;
+      --text-soft: #8A7455;
+      --border: #E8D9BC;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--warm-white);
+      color: var(--text-dark);
+      overflow-x: hidden;
+      padding-top: 70px; /* Leave space for fixed navbar */
+    }
+
+    /* ── NAV CSS ── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 200;
+      background: rgba(251, 246, 238, 0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+      letter-spacing: 0.04em;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-cta {
+      background: var(--teal);
+      color: #fff !important;
+      padding: 0.5rem 1.2rem;
+      border-radius: 3px;
+    }
+    .nav-cta:hover { background: var(--teal-dark) !important; }
+
+    .hamburger { display: none; }
+    .mobile-menu { display: none; }
+
+    /* ── FOOTER CSS ── */
+    footer {
+      background: var(--teal-dark);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 6rem 5% 2.5rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto 5rem;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-col h5 {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ── FLASH MESSAGES ── */
+    .flash-messages {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 600px;
+    }
+    .alert {
+      padding: 15px 20px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  {% include 'partials/_navbar.html' %}
+
+  <!-- Flash Messages -->
+  <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+  </div>
+
+  <!-- Main Content Area -->
+  <main>
+      {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  {% include 'partials/_footer.html' %}
+
+  <!-- Scripts -->
+  <script>
+    // Minimal script for mobile menu toggle if you decide to implement it later
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if(hamburger) {
+      hamburger.addEventListener('click', e => {
+        e.stopPropagation();
+        hamburger.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+      });
+    }
+  </script>
+  
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

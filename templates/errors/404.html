@@ -1,0 +1,12 @@
+{% extends "user_base.html" %}
+{% block title %}Page Not Found – Talbeena{% endblock %}
+{% block content %}
+<div style="min-height:70vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:2rem;">
+  <div>
+    <div style="font-size:6rem; font-weight:900; color:var(--primary); line-height:1;">404</div>
+    <h2 style="font-size:1.8rem; margin:1rem 0 0.5rem;">Page Not Found</h2>
+    <p style="color:var(--text-muted); margin-bottom:2rem;">The page you're looking for doesn't exist or was moved.</p>
+    <a href="{{ url_for('public.index') }}" style="display:inline-block; padding:0.875rem 2rem; background:var(--primary); color:white; border-radius:0.75rem; font-weight:700; text-decoration:none;">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

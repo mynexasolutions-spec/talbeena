@@ -1,0 +1,240 @@
+{% extends 'user_base.html' %}
+
+{% block title %}Talbeena – Pure Barley Wellness{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── HERO — image collage with overlay text ── */
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-collage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    animation: heroZoom 14s ease-out forwards;
+  }
+
+  .hero-collage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg,
+        rgba(13, 74, 80, 0.78) 0%,
+        rgba(13, 74, 80, 0.60) 45%,
+        rgba(20, 10, 3, 0.72) 100%);
+  }
+
+  @keyframes heroZoom {
+    from { transform: scale(1.05); }
+    to { transform: scale(1.00); }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 100px 6%;
+    max-width: 860px;
+    margin: 0 auto;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    color: #fff;
+    margin-bottom: 1.2rem;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero h1 em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+
+  .hero p {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 560px;
+    margin: 0 auto 2.6rem;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: #fff;
+    padding: 0.95rem 2.2rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.97rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.3s, transform 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    filter: brightness(0.9);
+    transform: translateY(-2px);
+  }
+
+  /* ── SHOP OUR PRODUCTS ── */
+  .shop-section {
+    padding: 90px 5%;
+    background: var(--cream);
+  }
+
+  .shop-header {
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .shop-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.9rem, 3.5vw, 3rem);
+    color: var(--teal-dark);
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.13);
+  }
+
+  .product-img-wrap {
+    position: relative;
+    overflow: hidden;
+    background: var(--cream);
+  }
+
+  .product-img-wrap img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s;
+  }
+
+  .product-card:hover .product-img-wrap img {
+    transform: scale(1.05);
+  }
+
+  .product-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    color: var(--teal-dark);
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+  }
+
+  .product-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="hero-collage">
+    <img src="https://images.unsplash.com/photo-1542691457-cbe4df041eb2?w=800&q=80" alt="Talbeena">
+    <img src="https://images.unsplash.com/photo-1596647413522-835697a264a7?w=800&q=80" alt="Ingredients">
+    <img src="https://images.unsplash.com/photo-1517093728432-a0440f8d45af?w=800&q=80" alt="Healthy food">
+    <img src="https://images.unsplash.com/photo-1605330310243-2df73eafe0bb?w=800&q=80" alt="Barley">
+  </div>
+  <div class="hero-overlay"></div>
+  
+  <div class="hero-content">
+    <h1>The Sunnah of <em>Nourishment</em></h1>
+    <p>Pure barley, lovingly crafted into warm, healing Talbeena for your whole family. Rooted in 1,400 years of Islamic heritage.</p>
+    <a href="/shop" class="btn-primary">Shop Our Blends</a>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="shop-section">
+  <div class="shop-header">
+    <div style="font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 0.8rem;">Our Products</div>
+    <h2>Featured Blends</h2>
+  </div>
+
+  <div class="shop-grid">
+    {% for product in featured %}
+      <a href="{{ url_for('public.product_detail', product_id=product.id) }}" class="product-card">
+        <div class="product-img-wrap">
+          <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" onerror="this.src='https://images.unsplash.com/photo-1517093728432-a0440f8d45af?w=400&q=80'">
+        </div>
+        <div class="product-body">
+          <div class="product-name">{{ product.name }}</div>
+          <div style="font-size: 0.88rem; color: var(--text-soft);">{{ product.brand_name }}</div>
+          
+          <div class="product-price">
+            {% if product.sale_price and product.sale_price < product.price %}
+              £{{ "%.2f"|format(product.sale_price) }}
+              <s style="font-size: 1rem; color: var(--text-soft);">£{{ "%.2f"|format(product.price) }}</s>
+            {% else %}
+              £{{ "%.2f"|format(product.price) }}
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: var(--text-mid);">No featured products available yet. Check back soon!</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

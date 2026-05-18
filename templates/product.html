@@ -1,0 +1,570 @@
+{% extends 'user_base.html' %}
+{% block title %}{{ product.name }} – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .product-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 5% 4rem;
+  }
+
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-bottom: 2rem;
+  }
+  .breadcrumb a { color: var(--teal); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb span { margin: 0 0.4rem; }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* ── Gallery ── */
+  .gallery-main {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f5f0e8;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s;
+  }
+  .gallery-thumbs {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .gallery-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+  .gallery-thumb.active, .gallery-thumb:hover {
+    border-color: var(--gold);
+    opacity: 1;
+  }
+  .gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Info ── */
+  .product-info h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+  .product-meta {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-bottom: 1.2rem;
+  }
+  .product-meta span { margin-right: 1rem; }
+
+  .price-block {
+    margin-bottom: 1.8rem;
+  }
+  .current-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+  }
+  .original-price {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    text-decoration: line-through;
+    margin-left: 0.8rem;
+  }
+  .stock-badge {
+    display: inline-block;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-left: 0.8rem;
+  }
+  .stock-badge.in-stock { background: #d1fae5; color: #065f46; }
+  .stock-badge.out-of-stock { background: #fee2e2; color: #991b1b; }
+
+  /* ── Variation selectors ── */
+  .var-section {
+    margin-bottom: 1.5rem;
+  }
+  .var-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-mid);
+    margin-bottom: 0.6rem;
+  }
+  .var-label .selected-val {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--teal);
+    margin-left: 0.3rem;
+  }
+
+  /* Swatches (primary) */
+  .swatch-list {
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  .swatch {
+    padding: 0.6rem 1.2rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fff;
+    min-width: 80px;
+    position: relative;
+  }
+  .swatch:hover { border-color: var(--gold); }
+  .swatch.selected {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    color: var(--teal-dark);
+  }
+  .swatch.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    text-decoration: line-through;
+  }
+  .swatch.has-img {
+    padding: 0.4rem;
+    min-width: 90px;
+    max-width: 110px;
+  }
+  .swatch.has-img img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 0.3rem;
+  }
+
+  /* Dropdown (secondary) */
+  .var-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .var-select:focus {
+    border-color: var(--teal);
+    outline: none;
+  }
+
+  /* Checkbox (optional) */
+  .opt-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .opt-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--teal);
+  }
+
+  /* ── Add to cart ── */
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  .qty-input {
+    width: 70px;
+    padding: 0.6rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .btn-add-cart {
+    flex: 1;
+    padding: 0.85rem 2rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .btn-add-cart:hover { background: var(--teal-dark); }
+  .btn-add-cart:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* ── Description ── */
+  .product-desc {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    line-height: 1.8;
+    color: var(--text-mid);
+  }
+
+  /* ── Related ── */
+  .related-section {
+    margin-top: 4rem;
+  }
+  .related-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .related-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.3s;
+  }
+  .related-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .related-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+  .related-card .rc-info {
+    padding: 0.8rem;
+  }
+  .related-card .rc-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+  .related-card .rc-price {
+    color: var(--teal);
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .product-layout { grid-template-columns: 1fr; }
+    .related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-page">
+  <div class="breadcrumb">
+    <a href="{{ url_for('public.index') }}">Home</a>
+    <span>/</span>
+    <a href="{{ url_for('public.shop') }}">Shop</a>
+    {% if product.category_name %}
+      <span>/</span>
+      <a href="{{ url_for('public.shop', category=product.category_slug) }}">{{ product.category_name }}</a>
+    {% endif %}
+    <span>/</span>
+    <strong>{{ product.name }}</strong>
+  </div>
+
+  <div class="product-layout">
+    <!-- ── Gallery ── -->
+    <div class="gallery" id="productGallery">
+      <div class="gallery-main" id="galleryMain">
+        <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" id="mainImage" />
+      </div>
+      <div class="gallery-thumbs" id="galleryThumbs">
+        {% for img in images %}
+        <div class="gallery-thumb {% if img.is_primary %}active{% endif %}" data-url="{{ resolve_image(img.image_url) }}" data-alt="{{ img.alt_text or product.name }}">
+          <img src="{{ resolve_image(img.image_url) }}" alt="{{ img.alt_text or product.name }}" loading="lazy" />
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Info ── -->
+    <div class="product-info">
+      <h1>{{ product.name }}</h1>
+      <div class="product-meta">
+        {% if product.brand_name %}<span>Brand: <strong>{{ product.brand_name }}</strong></span>{% endif %}
+        <span>SKU: <strong id="productSku">{{ product.sku or 'N/A' }}</strong></span>
+      </div>
+
+      <div class="price-block">
+        <span class="current-price" id="currentPrice">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+        {% if product.sale_price and product.price and product.sale_price < product.price %}
+        <span class="original-price" id="originalPrice">₹{{ "%.0f"|format(product.price) }}</span>
+        {% endif %}
+        <span class="stock-badge {{ product.stock_status }}" id="stockBadge">{{ product.stock_status|replace('_', ' ')|title }}</span>
+      </div>
+
+      <!-- ── Dynamic Variation Selectors (populated by JS) ── -->
+      <div id="variationSelectors"></div>
+
+      <!-- ── Add to Cart ── -->
+      <form method="POST" action="{{ url_for('cart.cart_add') }}" id="addToCartForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="product_id" value="{{ product.id }}" />
+        <input type="hidden" name="variation_id" id="varIdInput" value="" />
+        <input type="hidden" name="selected_options" id="selectedOptionsInput" value="" />
+
+        <div class="qty-row">
+          <input type="number" name="qty" value="1" min="1" max="99" class="qty-input" id="qtyInput" />
+          <button type="submit" class="btn-add-cart" id="addToCartBtn">Add to Cart</button>
+        </div>
+      </form>
+
+      <!-- ── Description ── -->
+      {% if product.description %}
+      <div class="product-desc">
+        <h3>Description</h3>
+        {{ product.description|format_description }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Related Products ── -->
+  {% if related %}
+  <div class="related-section">
+    <h2>You May Also Like</h2>
+    <div class="related-grid">
+      {% for r in related %}
+      <a href="{{ url_for('public.product_detail', product_id=r.id) }}" class="related-card">
+        <img src="{{ resolve_image(r.image_url) }}" alt="{{ r.name }}" loading="lazy" />
+        <div class="rc-info">
+          <div class="rc-name">{{ r.name }}</div>
+          <div class="rc-price">₹{{ "%.0f"|format(r.sale_price or r.price or 0) }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const productId = "{{ product.id }}";
+  const basePrice = {{ product.sale_price or product.price or 0 }};
+  const baseStock = {{ product.stock_quantity or 0 }};
+  let variationData = null;
+  let currentSelections = {};  // { attribute_id: value_id }
+
+  // ── Fetch variation data on page load ──
+  async function loadVariations() {
+    try {
+      const resp = await fetch(`/api/product/${productId}/variation`);
+      if (!resp.ok) return;
+      variationData = await resp.json();
+      buildSelectors(variationData.attributes);
+    } catch (e) {
+      console.error("Failed to load variations:", e);
+    }
+  }
+
+  // ── Build the selector UI from attribute groups ──
+  function buildSelectors(attributes) {
+    const container = document.getElementById("variationSelectors");
+    if (!container || !attributes.length) return;
+    container.innerHTML = "";
+
+    attributes.forEach(attr => {
+      const section = document.createElement("div");
+      section.className = "var-section";
+
+      const label = document.createElement("div");
+      label.className = "var-label";
+      label.innerHTML = `${attr.name} <span class="selected-val" id="selLabel_${attr.id}"></span>`;
+      section.appendChild(label);
+
+      if (attr.variation_type === "primary") {
+        // ── Swatch buttons ──
+        const swatchList = document.createElement("div");
+        swatchList.className = "swatch-list";
+        attr.values.forEach(val => {
+          const btn = document.createElement("div");
+          btn.className = "swatch";
+          if (val.image_url) {
+            btn.classList.add("has-img");
+            btn.innerHTML = `<img src="${val.image_url}" alt="${val.value}" />${val.value}`;
+          } else {
+            btn.textContent = val.value;
+          }
+          btn.dataset.attrId = attr.id;
+          btn.dataset.valId = val.id;
+          btn.dataset.valName = val.value;
+          btn.addEventListener("click", () => onPrimarySelect(attr, val, btn, swatchList));
+          swatchList.appendChild(btn);
+        });
+        section.appendChild(swatchList);
+      } else if (attr.variation_type === "secondary") {
+        // ── Dropdown ──
+        const select = document.createElement("select");
+        select.className = "var-select";
+        select.dataset.attrId = attr.id;
+        select.innerHTML = `<option value="">Select ${attr.name}...</option>`;
+        attr.values.forEach(val => {
+          const opt = document.createElement("option");
+          opt.value = val.id;
+          opt.textContent = val.value;
+          select.appendChild(opt);
+        });
+        select.addEventListener("change", () => onSecondaryChange(attr, select));
+        section.appendChild(select);
+      } else if (attr.variation_type === "optional") {
+        // ── Checkboxes ──
+        attr.values.forEach(val => {
+          const chk = document.createElement("label");
+          chk.className = "opt-checkbox";
+          chk.innerHTML = `<input type="checkbox" data-attr-id="${attr.id}" data-val-id="${val.id}" data-val-name="${val.value}" /> ${val.value}`;
+          chk.querySelector("input").addEventListener("change", () => onOptionalChange());
+          section.appendChild(chk);
+        });
+      }
+      container.appendChild(section);
+    });
+  }
+
+  // ── Selection handlers ──
+  function onPrimarySelect(attr, val, btn, swatchList) {
+    swatchList.querySelectorAll(".swatch").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    currentSelections[attr.id] = val.id;
+    document.getElementById(`selLabel_${attr.id}`).textContent = `: ${val.value}`;
+    updateVariation();
+  }
+
+  function onSecondaryChange(attr, select) {
+    if (select.value) {
+      currentSelections[attr.id] = select.value;
+      document.getElementById(`selLabel_${attr.id}`).textContent = `: ${select.options[select.selectedIndex].text}`;
+    } else {
+      delete currentSelections[attr.id];
+      document.getElementById(`selLabel_${attr.id}`).textContent = "";
+    }
+    updateVariation();
+  }
+
+  function onOptionalChange() {
+    // Optional selections don't change product data — just collect for cart
+    const checks = document.querySelectorAll(".opt-checkbox input:checked");
+    const opts = Array.from(checks).map(c => c.dataset.valName).join(", ");
+    document.getElementById("selectedOptionsInput").value = opts;
+  }
+
+  // ── Match selection to a variation and update UI ──
+  async function updateVariation() {
+    const selectedIds = Object.values(currentSelections).join(",");
+    if (!selectedIds) {
+      // Reset to base product data
+      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "");
+      return;
+    }
+
+    // Update hidden form fields
+    document.getElementById("selectedOptionsInput").value = getSelectionLabel();
+
+    try {
+      const resp = await fetch(`/api/product/${productId}/variation?selected=${selectedIds}`);
+      if (!resp.ok) {
+        updateDisplay(basePrice, 0, "out_of_stock", "", "");
+        return;
+      }
+      const data = await resp.json();
+      if (data.found) {
+        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id);
+      } else {
+        updateDisplay(basePrice, 0, "out_of_stock", "", "");
+      }
+    } catch (e) {
+      console.error("Variation lookup failed:", e);
+    }
+  }
+
+  function updateDisplay(price, stock, status, sku, varId) {
+    document.getElementById("currentPrice").textContent = "₹" + Math.round(price);
+    document.getElementById("productSku").textContent = sku || "N/A";
+    document.getElementById("varIdInput").value = varId || "";
+
+    const badge = document.getElementById("stockBadge");
+    badge.textContent = (status || "in_stock").replace(/_/g, " ");
+    badge.className = "stock-badge " + (status === "out_of_stock" ? "out-of-stock" : "in-stock");
+
+    const btn = document.getElementById("addToCartBtn");
+    btn.disabled = (stock <= 0);
+    btn.textContent = stock <= 0 ? "Out of Stock" : "Add to Cart";
+
+    // Hide original price if no sale
+    const origEl = document.getElementById("originalPrice");
+    if (origEl) origEl.style.display = (price < basePrice && basePrice > 0) ? "" : "none";
+  }
+
+  function getSelectionLabel() {
+    const parts = [];
+    document.querySelectorAll("#variationSelectors .swatch.selected").forEach(s => parts.push(s.dataset.valName));
+    document.querySelectorAll("#variationSelectors .var-select").forEach(s => {
+      if (s.value) parts.push(s.options[s.selectedIndex].text);
+    });
+    document.querySelectorAll(".opt-checkbox input:checked").forEach(c => parts.push(c.dataset.valName));
+    return parts.join(", ");
+  }
+
+  // ── Gallery thumb clicks ──
+  document.querySelectorAll(".gallery-thumb").forEach(thumb => {
+    thumb.addEventListener("click", function() {
+      document.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+      document.getElementById("mainImage").src = this.dataset.url;
+    });
+  });
+
+  // ── Init ──
+  loadVariations();
+})();
+</script>
+{% endblock %}
