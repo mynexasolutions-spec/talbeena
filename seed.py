@@ -138,6 +138,38 @@ from routes.admin import generate_variations
 generate_variations(prod_id)
 print("✓ Variable product created with images & variations")
 
+# ── Assign images to variations by flavor ──
+variations = db.query("SELECT pv.id, av.value as flavor FROM product_variations pv "
+                      "JOIN variation_attribute_values vav ON vav.variation_id = pv.id "
+                      "JOIN attribute_values av ON av.id = vav.attribute_value_id "
+                      "JOIN attributes a ON a.id = av.attribute_id "
+                      "WHERE pv.product_id = ? AND a.variation_type = 'primary'",
+                      [prod_id])
+
+# Map each flavor to a set of gallery images
+flavor_gallery = {
+    "Chocolate":  ["sample7.webp", "sample8.jpg"],
+    "Vanilla":    ["sample9.webp", "sample1.png"],
+    "Strawberry": ["sample10.jpg", "sample11.png"],
+    "Saffron":    ["sample2.jpg", "sample3.webp"],
+    "Cardamom":   ["sample4.webp", "sample5.webp"],
+}
+
+vi_count = 0
+for v in variations:
+    flavor = v["flavor"]
+    imgs = flavor_gallery.get(flavor, ["sample6.webp"])
+    for idx, fname in enumerate(imgs):
+        db.execute(
+            "INSERT INTO variation_images (id, variation_id, media_id, is_primary, display_order) "
+            "VALUES (?,?,?,?,?)",
+            [str(uuid.uuid4()), v["id"], media_ids.get(fname, list(media_ids.values())[0]),
+             1 if idx == 0 else 0, idx],
+        )
+        vi_count += 1
+
+print(f"✓ Variable product created with images, variations & {vi_count} variation images")
+
 # ── 6. Simple Products (with images) ──────────────────────────────────────────
 simple_products = [
     ("Talbeena Barley Flour", "talbeena-barley-flour", "TLB-BF-001",

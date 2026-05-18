@@ -338,6 +338,21 @@ def api_product_variation(product_id):
         for r in vav_rows:
             vav_map.setdefault(str(r["variation_id"]), []).append(r)
 
+        # Batch-load variation images
+        vi_rows = db.query(
+            f"SELECT vi.variation_id, m.file_url, vi.is_primary "
+            f"FROM variation_images vi "
+            f"JOIN media m ON m.id = vi.media_id "
+            f"WHERE vi.variation_id IN ({ph2}) "
+            f"ORDER BY vi.is_primary DESC, vi.display_order",
+            var_ids,
+        )
+        var_image_map = {}
+        for r in vi_rows:
+            var_image_map.setdefault(str(r["variation_id"]), []).append(
+                resolve_image(r["file_url"] or "")
+            )
+
         for v in variations:
             vid = str(v["id"])
             var_data.append({
@@ -346,6 +361,7 @@ def api_product_variation(product_id):
                 "price":          float(v.get("sale_price") or v.get("price") or 0),
                 "stock_quantity": int(v.get("stock_quantity") or 0),
                 "stock_status":   v.get("stock_status"),
+                "images":         var_image_map.get(vid, []),
                 "values": [{
                     "attribute_id": r["attribute_id"],
                     "value_id":     r["attribute_value_id"],
@@ -371,6 +387,7 @@ def api_product_variation(product_id):
                 "stock_status":   match["stock_status"],
                 "sku":            match["sku"],
                 "variation_id":   match["id"],
+                "images":         match["images"],
             })
         else:
             return jsonify({"found": False, "message": "No matching variation"}), 404

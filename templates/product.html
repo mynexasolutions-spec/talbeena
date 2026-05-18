@@ -394,10 +394,15 @@
   const baseStock = {{ product.stock_quantity or 0 }};
   let variationData = null;
   let currentSelections = {};  // { attribute_id: value_id }
+  let originalGalleryHTML = "";  // saved on load, restored on reset
 
   // ── Fetch variation data on page load ──
   async function loadVariations() {
     try {
+      // Save original gallery state
+      const gallery = document.getElementById("productGallery");
+      if (gallery) originalGalleryHTML = gallery.innerHTML;
+
       const resp = await fetch(`/api/product/${productId}/variation`);
       if (!resp.ok) return;
       variationData = await resp.json();
@@ -501,8 +506,8 @@
   async function updateVariation() {
     const selectedIds = Object.values(currentSelections).join(",");
     if (!selectedIds) {
-      // Reset to base product data
-      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "");
+      // Reset to base product data and original gallery
+      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", []);
       return;
     }
 
@@ -512,21 +517,21 @@
     try {
       const resp = await fetch(`/api/product/${productId}/variation?selected=${selectedIds}`);
       if (!resp.ok) {
-        updateDisplay(basePrice, 0, "out_of_stock", "", "");
+        updateDisplay(basePrice, 0, "out_of_stock", "", "", []);
         return;
       }
       const data = await resp.json();
       if (data.found) {
-        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id);
+        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id, data.images || []);
       } else {
-        updateDisplay(basePrice, 0, "out_of_stock", "", "");
+        updateDisplay(basePrice, 0, "out_of_stock", "", "", []);
       }
     } catch (e) {
       console.error("Variation lookup failed:", e);
     }
   }
 
-  function updateDisplay(price, stock, status, sku, varId) {
+  function updateDisplay(price, stock, status, sku, varId, varImages) {
     document.getElementById("currentPrice").textContent = "₹" + Math.round(price);
     document.getElementById("productSku").textContent = sku || "N/A";
     document.getElementById("varIdInput").value = varId || "";
@@ -542,6 +547,39 @@
     // Hide original price if no sale
     const origEl = document.getElementById("originalPrice");
     if (origEl) origEl.style.display = (price < basePrice && basePrice > 0) ? "" : "none";
+
+    // ── Swap gallery to variation images (or restore original) ──
+    const gallery = document.getElementById("productGallery");
+    if (!gallery) return;
+    if (varImages && varImages.length > 0) {
+      let html = '<div class="gallery-main"><img src="' + varImages[0] + '" alt="" id="mainImage" /></div>';
+      html += '<div class="gallery-thumbs" id="galleryThumbs">';
+      varImages.forEach((url, i) => {
+        html += '<div class="gallery-thumb' + (i === 0 ? ' active' : '') + '" data-url="' + url + '">';
+        html += '<img src="' + url + '" alt="" loading="lazy" />';
+        html += '</div>';
+      });
+      html += '</div>';
+      gallery.innerHTML = html;
+      // Re-attach thumb click handlers
+      gallery.querySelectorAll(".gallery-thumb").forEach(thumb => {
+        thumb.addEventListener("click", function() {
+          gallery.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+          this.classList.add("active");
+          document.getElementById("mainImage").src = this.dataset.url;
+        });
+      });
+    } else {
+      // No variation images — restore original gallery
+      gallery.innerHTML = originalGalleryHTML;
+      gallery.querySelectorAll(".gallery-thumb").forEach(thumb => {
+        thumb.addEventListener("click", function() {
+          gallery.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+          this.classList.add("active");
+          document.getElementById("mainImage").src = this.dataset.url;
+        });
+      });
+    }
   }
 
   function getSelectionLabel() {
