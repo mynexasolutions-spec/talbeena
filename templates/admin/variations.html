@@ -75,41 +75,51 @@
       </div>
 
       <div style="overflow-x:auto;">
-        <form id="bulkUpdateForm" method="post" action="{{ url_for('admin_variations_bulk_update', product_id=product.id) }}">
+        <form id="bulkUpdateForm" method="post" enctype="multipart/form-data" action="{{ url_for('admin_variations_bulk_update', product_id=product.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <table class="admin-table" style="width:100%; min-width:800px;">
+          <table class="admin-table" style="width:100%; min-width:1000px;">
             <thead>
               <tr>
-                <th style="padding-left:1.5rem;">Configuration</th>
-                <th style="width:180px;">SKU</th>
-                <th style="width:140px;">Price (₹)</th>
-                <th style="width:120px;">Stock</th>
-                <th style="text-align:right; padding-right:1.5rem; width:100px;">Actions</th>
+                <th style="padding-left:1rem;">Combo</th>
+                <th style="width:110px;">SKU</th>
+                <th style="width:110px;">Name</th>
+                <th style="width:90px;">Price</th>
+                <th style="width:70px;">Stock</th>
+                <th style="width:100px;">Image</th>
+                <th style="text-align:right; padding-right:1rem; width:80px;">Actions</th>
               </tr>
             </thead>
             <tbody>
               {% for v in variations %}
               <tr>
-                <td style="padding-left:1.5rem;">
-                  <div style="font-weight:700; color:var(--admin-primary); font-size:0.9rem;">{{ v.option_names }}</div>
+                <td style="padding-left:1rem; font-weight:700; color:var(--admin-primary); font-size:0.85rem;">{{ v.option_names or v.sku }}</td>
+                <td>
+                  <input type="text" name="sku_{{ v.id }}" value="{{ v.sku or '' }}" class="admin-input" style="height:32px; font-family:monospace; font-size:0.7rem; width:100px;" />
                 </td>
                 <td>
-                  <input type="text" name="sku_{{ v.id }}" value="{{ v.sku }}" class="admin-input" style="height:36px; font-family:monospace; font-size:0.75rem;" />
+                  <input type="text" name="name_{{ v.id }}" value="{{ v.name or '' }}" placeholder="Override name" class="admin-input" style="height:32px; font-size:0.75rem; width:100px;" />
                 </td>
                 <td>
-                  <input type="number" step="0.01" name="price_{{ v.id }}" value="{{ "%.2f"|format(v.price) }}" class="admin-input" style="height:36px; padding:0.4rem; font-size:0.875rem;" />
+                  <input type="number" step="0.01" name="price_{{ v.id }}" value="{{ '%.2f'|format(v.price or 0) }}" class="admin-input" style="height:32px; width:80px; font-size:0.8rem;" />
                 </td>
                 <td>
-                  <input type="number" name="stock_{{ v.id }}" value="{{ v.stock_quantity }}" class="admin-input" style="height:36px; padding:0.4rem; font-size:0.875rem; {% if v.stock_quantity <= 5 %}border-color:#ef4444; color:#ef4444;{% endif %}" />
+                  <input type="number" name="stock_{{ v.id }}" value="{{ v.stock_quantity or 0 }}" class="admin-input" style="height:32px; width:60px; font-size:0.8rem; {% if (v.stock_quantity or 0) <= 5 %}border-color:#ef4444;{% endif %}" />
                 </td>
-                <td style="text-align:right; padding-right:1.5rem;">
-                  <button type="button" onclick="if(confirm('Delete this variation?')) { document.getElementById('delete_form_{{ v.id }}').submit(); }" class="admin-btn" style="padding:0.4rem; color:#ef4444; background:rgba(239,68,68,0.05); border:none; border-radius:6px;" title="Delete">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  </button>
+                <td>
+                  <input type="file" name="image_{{ v.id }}" accept="image/*" style="font-size:0.7rem; width:90px;" />
+                </td>
+                <td style="text-align:right; padding-right:1rem;">
+                  <button type="button" onclick="if(confirm('Delete?')){document.getElementById('df_{{ v.id }}').submit()}" class="admin-btn" style="padding:0.3rem 0.5rem; color:#ef4444; font-size:0.75rem;">Del</button>
+                </td>
+              </tr>
+              <tr style="background:#fafafa;">
+                <td colspan="7" style="padding:0.3rem 1rem;">
+                  <input type="text" name="short_desc_{{ v.id }}" value="{{ v.short_description or '' }}" placeholder="Short description (optional)" class="admin-input" style="height:28px; font-size:0.7rem; width:100%; border:none; background:transparent;" />
+                  <textarea name="description_{{ v.id }}" placeholder="Full description / details (optional)" class="admin-input" style="height:40px; font-size:0.7rem; width:100%; border:none; background:transparent; resize:vertical; margin-top:2px;">{{ v.description or '' }}</textarea>
                 </td>
               </tr>
               {% else %}
-              <tr><td colspan="5" style="text-align:center; padding:4rem; color:var(--admin-text-muted);">
+              <tr><td colspan="7" style="text-align:center; padding:4rem; color:var(--admin-text-muted);">
                 <div style="font-size:2rem; margin-bottom:1rem;">📦</div>
                 No variations yet. Use the form on the left to add one.
               </td></tr>
@@ -124,7 +134,7 @@
 
 <!-- Hidden Delete Forms -->
 {% for v in variations %}
-<form id="delete_form_{{ v.id }}" action="{{ url_for('admin_variation_delete', var_id=v.id) }}" method="post" style="display:none;">
+<form id="df_{{ v.id }}" action="{{ url_for('admin_variation_delete', var_id=v.id) }}" method="post" style="display:none;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="product_id" value="{{ product.id }}" />
 </form>

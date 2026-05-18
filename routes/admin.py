@@ -900,22 +900,47 @@ def register(app):
     @require_admin
     def admin_variations_bulk_update(product_id):
         try:
-            product = db.query_one("SELECT sku, price, sale_price, stock_quantity FROM products WHERE id = ?", [product_id]) or {}
-            base_sku = product.get("sku")
-            base_price = float(product.get("sale_price") or product.get("price") or 0)
-            base_stock = int(product.get("stock_quantity") or 0)
-            # First, fetch all variation IDs for this product to validate
-            rows = db.query("SELECT id FROM product_variations WHERE product_id = ?", [product_id])
+            rows = db.query("SELECT id, sku FROM product_variations WHERE product_id = ?", [product_id])
             var_ids = [r["id"] for r in rows]
-            
+
             for vid in var_ids:
-                sku = (request.form.get(f"sku_{vid}") or "").strip()
-                final_sku = sku or generate_unique_variation_sku(base_sku, exclude_id=vid)
-                
+                sku     = (request.form.get(f"sku_{vid}") or "").strip()
+                price   = request.form.get(f"price_{vid}", "").strip()
+                stock   = request.form.get(f"stock_{vid}", "").strip()
+                var_name = (request.form.get(f"name_{vid}") or "").strip()
+                short_desc = (request.form.get(f"short_desc_{vid}") or "").strip()
+                desc    = (request.form.get(f"description_{vid}") or "").strip()
+
                 db.execute(
-                    "UPDATE product_variations SET sku=?, price=?, sale_price=?, stock_quantity=? WHERE id=?",
-                    [final_sku, base_price, None, base_stock, vid]
+                    """UPDATE product_variations
+                       SET sku=?, price=?, stock_quantity=?, stock_status=?,
+                           name=?, short_description=?, description=?
+                       WHERE id=?""",
+                    [
+                        sku or f"VAR-{vid[:8].upper()}",
+                        float(price) if price else 0,
+                        int(stock) if stock else 0,
+                        "out_of_stock" if (int(stock or 0) <= 0) else "in_stock",
+                        var_name, short_desc, desc, vid,
+                    ],
                 )
+
+                # Handle variation image upload
+                img_file = request.files.get(f"image_{vid}")
+                if img_file and img_file.filename:
+                    url = handle_upload(img_file, folder="talbeena-variations")
+                    if url:
+                        mid = str(uuid.uuid4())
+                        db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                        # Mark existing images as non-primary
+                        db.execute("UPDATE variation_images SET is_primary=0 WHERE variation_id=?", [vid])
+                        db.execute(
+                            "INSERT INTO variation_images (id, variation_id, media_id, is_primary, display_order) "
+                            "VALUES (?,?,?,1,0)",
+                            [str(uuid.uuid4()), vid, mid],
+                        )
+
+            get_products.cache_clear()
             flash("All variations updated successfully.", "success")
         except Exception as e:
             flash(f"Error during bulk update: {e}", "error")

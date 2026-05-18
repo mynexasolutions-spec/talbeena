@@ -95,6 +95,9 @@
         <td>
           <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
             <a href="{{ url_for('admin_product_edit', product_id=p.id) }}" class="admin-btn btn-outline" style="padding:0.375rem 0.75rem; font-size:0.8125rem;">Edit</a>
+            {% if p.type == 'variable' %}
+            <a href="{{ url_for('admin_product_variations', product_id=p.id) }}" class="admin-btn btn-outline" style="padding:0.375rem 0.75rem; font-size:0.8125rem; color:var(--admin-primary);">Variations</a>
+            {% endif %}
             <form action="{{ url_for('admin_product_delete', product_id=p.id) }}" method="post" onsubmit="return confirm('Archive this product?')">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit" class="admin-btn" style="padding:0.375rem 0.75rem; font-size:0.8125rem; color:#ef4444; background:rgba(239,68,68,0.05); border:none;">Archive</button>
