@@ -74,11 +74,16 @@ def generate_variations(product_id):
     if not value_groups:
         return
 
-    # 3. Get base product data
-    product = db.query_one(
-        "SELECT price, sale_price, stock_quantity, sku, name FROM products WHERE id = ?",
-        [product_id],
-    )
+    # 3. Get base product data (use shared connection for speed)
+    conn = db.get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT price, sale_price, stock_quantity, sku, name FROM products WHERE id = ?", [product_id])
+        product = cur.fetchone()
+        product = dict(product) if product else None
+    finally:
+        conn.close()
+
     if not product:
         return
 
@@ -86,35 +91,40 @@ def generate_variations(product_id):
     base_stock = int(product.get("stock_quantity") or 0)
     base_sku   = product.get("sku") or "VAR"
 
-    # 4. Delete existing variations and their attribute links
-    existing_vars = db.query("SELECT id FROM product_variations WHERE product_id = ?", [product_id])
-    for ev in existing_vars:
-        db.execute("DELETE FROM variation_attribute_values WHERE variation_id = ?", [ev["id"]])
-    db.execute("DELETE FROM product_variations WHERE product_id = ?", [product_id])
+    # 4. Delete existing variations and their attribute links (single connection)
+    conn = db.get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM variation_images WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
+        cur.execute("DELETE FROM variation_attribute_values WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
+        cur.execute("DELETE FROM product_variations WHERE product_id = ?", [product_id])
 
-    # 5. Generate cartesian product and insert
-    created = 0
-    for combo in itertools.product(*value_groups):
-        var_id  = str(uuid.uuid4())
-        var_sku = generate_unique_variation_sku(base_sku)
-        # Build a short label like "Chocolate, 500g"
-        label   = ", ".join(v[2] for v in combo)
+        # 5. Batch-insert all variations + attribute-value links
+        created = 0
+        for combo in itertools.product(*value_groups):
+            var_id  = str(uuid.uuid4())
+            var_sku = generate_unique_variation_sku(base_sku)
 
-        db.execute(
-            "INSERT INTO product_variations (id, product_id, sku, price, sale_price, stock_quantity) "
-            "VALUES (?,?,?,?,?,?)",
-            [var_id, product_id, var_sku, base_price, product.get("sale_price"), base_stock],
-        )
-
-        for attr_id, val_id, _ in combo:
-            db.execute(
-                "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) "
-                "VALUES (?,?,?)",
-                [str(uuid.uuid4()), var_id, val_id],
+            cur.execute(
+                "INSERT INTO product_variations (id, product_id, sku, price, sale_price, stock_quantity) "
+                "VALUES (?,?,?,?,?,?)",
+                [var_id, product_id, var_sku, base_price, product.get("sale_price"), base_stock],
             )
-        created += 1
+
+            for attr_id, val_id, _ in combo:
+                cur.execute(
+                    "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) "
+                    "VALUES (?,?,?)",
+                    [str(uuid.uuid4()), var_id, val_id],
+                )
+            created += 1
+
+        conn.commit()
+    finally:
+        conn.close()
 
     print(f"DEBUG: Generated {created} variations for product {product_id}")
+
 
 def require_admin(f):
     @wraps(f)

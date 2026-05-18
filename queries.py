@@ -50,104 +50,99 @@ PRODUCTS_MINIMAL_SELECT = """
 
 
 @ttl_cache(ttl_seconds=120)
-def _get_primary_variation_products():
+def _get_variation_cards():
     """
     Returns a lookup: { product_id: [ expanded_row_dict, ... ] }
-    for all active variable products that have at least one primary attribute.
-    Each expanded row represents one primary attribute value with its own
-    image / price / stock / SKU.
+    where EVERY variation of a variable product becomes its own listing card.
+    Each card has its own name, image, price, stock, SKU, and description.
     """
-    # Find products that have primary-type attributes
-    primary_products = db.query("""
-        SELECT DISTINCT p.id
+    variable_products = db.query("""
+        SELECT DISTINCT p.id, p.name
         FROM products p
-        JOIN product_attributes pa ON pa.product_id = p.id
-        JOIN attributes a ON a.id = pa.attribute_id
-        WHERE p.is_active = 1 AND p.type = 'variable' AND a.variation_type = 'primary'
+        WHERE p.is_active = 1 AND p.type = 'variable'
     """)
-    if not primary_products:
+    if not variable_products:
         return {}
 
+    product_ids = [str(p["id"]) for p in variable_products]
+    if not product_ids:
+        return {}
+
+    ph = ",".join(["?"] * len(product_ids))
+
+    # Fetch all variations with their attribute values in one query
+    rows = db.query(f"""
+        SELECT
+            pv.product_id,
+            pv.id AS var_id, pv.sku, pv.price, pv.sale_price,
+            pv.stock_quantity, pv.stock_status,
+            pv.name AS var_name, pv.description AS var_desc,
+            pv.short_description AS var_short_desc,
+            GROUP_CONCAT(av.value, ', ') AS label,
+            (SELECT m.file_url
+             FROM variation_images vi
+             JOIN media m ON m.id = vi.media_id
+             WHERE vi.variation_id = pv.id AND vi.is_primary = 1
+             LIMIT 1) AS var_image,
+            (SELECT m.file_url
+             FROM product_images pi2
+             JOIN media m ON m.id = pi2.media_id
+             WHERE pi2.product_id = pv.product_id AND pi2.is_primary = 1
+             LIMIT 1) AS product_image
+        FROM product_variations pv
+        LEFT JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+        LEFT JOIN attribute_values av ON av.id = vav.attribute_value_id
+        WHERE pv.product_id IN ({ph})
+        GROUP BY pv.id
+        ORDER BY pv.product_id, pv.price
+    """, product_ids)
+
     result = {}
-    for pp in primary_products:
-        pid = str(pp["id"])
+    product_names = {str(p["id"]): p["name"] for p in variable_products}
 
-        # Get the primary attribute(s) and their values for this product
-        primary_attrs = db.query("""
-            SELECT a.id AS attr_id, a.name AS attr_name
-            FROM product_attributes pa
-            JOIN attributes a ON a.id = pa.attribute_id
-            WHERE pa.product_id = ? AND a.variation_type = 'primary'
-            ORDER BY a.display_order
-        """, [pid])
+    for r in rows:
+        pid = str(r["product_id"])
+        if pid not in result:
+            result[pid] = []
 
-        if not primary_attrs:
-            continue
+        label = r.get("label") or ""
+        base_name = product_names.get(pid, "")
 
-        # For each primary attribute value, find the best matching variation
-        # (with the lowest price among those that contain that value)
-        expanded = []
-        for pa in primary_attrs:
-            attr_id = str(pa["attr_id"])
-
-            # Get the values + best variation for each
-            value_rows = db.query("""
-                SELECT
-                    av.id AS value_id, av.value AS value_name, av.image_url AS swatch_url,
-                    pv.id AS var_id, pv.sku, pv.price, pv.sale_price,
-                    pv.stock_quantity, pv.stock_status,
-                    (SELECT m.file_url
-                     FROM variation_images vi
-                     JOIN media m ON m.id = vi.media_id
-                     WHERE vi.variation_id = pv.id AND vi.is_primary = 1
-                     LIMIT 1) AS var_image
-                FROM product_attribute_values pav
-                JOIN attribute_values av ON av.id = pav.attribute_value_id
-                JOIN variation_attribute_values vav ON vav.attribute_value_id = av.id
-                JOIN product_variations pv ON pv.id = vav.variation_id
-                WHERE pav.product_id = ? AND av.attribute_id = ?
-                GROUP BY av.id
-                ORDER BY av.value
-            """, [pid, attr_id])
-
-            for vr in value_rows:
-                expanded.append({
-                    "value_id":      vr["value_id"],
-                    "value_name":    vr["value_name"],
-                    "attr_id":       attr_id,
-                    "attr_name":     pa["attr_name"],
-                    "var_id":        vr["var_id"],
-                    "sku":           vr["sku"],
-                    "price":         float(vr.get("sale_price") or vr.get("price") or 0),
-                    "stock_quantity": int(vr.get("stock_quantity") or 0),
-                    "stock_status":  vr.get("stock_status", "in_stock"),
-                    "image_url":     vr.get("var_image") or vr.get("swatch_url") or "",
-                })
-
-        if expanded:
-            result[pid] = expanded
+        result[pid].append({
+            "var_id":         r["var_id"],
+            "sku":            r["sku"],
+            "price":          float(r.get("sale_price") or r.get("price") or 0),
+            "stock_quantity": int(r.get("stock_quantity") or 0),
+            "stock_status":   r.get("stock_status", "in_stock"),
+            "name_override":  r.get("var_name") or f"{base_name} – {label}" if label else base_name,
+            "image_url":      r.get("var_image") or r.get("product_image") or "",
+            "description":    r.get("var_desc") or "",
+            "short_description": r.get("var_short_desc") or "",
+            "label":          label,
+        })
 
     return result
 
 
 def _expand_product_list(products):
-    """Apply primary-variation expansion to a plain list of product dicts."""
-    primary_map = _get_primary_variation_products()
+    """Expand every variation into a separate listing card."""
+    var_map = _get_variation_cards()
     expanded = []
     for p in (products or []):
         pid = str(p["id"])
-        if pid in primary_map:
-            for ev in primary_map[pid]:
+        if pid in var_map:
+            for ev in var_map[pid]:
                 row = dict(p)
                 row["id"]             = pid
-                row["name"]           = f"{p['name']} – {ev['value_name']}"
+                row["name"]           = ev["name_override"]
                 row["price"]          = ev["price"]
                 row["sale_price"]     = None
                 row["stock_quantity"] = ev["stock_quantity"]
                 row["stock_status"]   = ev["stock_status"]
                 row["sku"]            = ev["sku"]
                 row["image_url"]      = ev["image_url"] or p.get("image_url") or ""
-                row["_primary_value"] = ev["value_id"]
+                row["description"]    = ev.get("description") or row.get("description") or ""
+                row["short_description"] = ev.get("short_description") or row.get("short_description") or ""
                 expanded.append(row)
         else:
             expanded.append(p)
@@ -237,9 +232,9 @@ def get_products(search=None, categories=(), brands=(),
         params + [per_page, offset],
     )
 
-    # ── Expand primary variations into separate listing cards ──
+    # ── Expand all variations into separate listing cards ──
     expanded = _expand_product_list(products)
-    return expanded, total, total_pages
+    return expanded, len(expanded), total_pages
 
 
 @ttl_cache(ttl_seconds=120)
