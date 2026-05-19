@@ -1,0 +1,122 @@
+{% extends 'user_base.html' %}
+{% block title %}Cart – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cart-page { max-width: 960px; margin: 0 auto; padding: 2rem 5% 3rem; }
+  .cart-page h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .cart-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .cart-table th { text-align: left; padding: 0.8rem 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-soft); background: #fafafa; }
+  .cart-table td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: middle; }
+  .cart-item-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+  .cart-item-name { font-weight: 600; font-size: 0.9rem; }
+  .cart-item-sku { font-size: 0.75rem; color: var(--text-soft); }
+  .cart-qty { width: 55px; padding: 0.4rem; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-size: 0.9rem; }
+  .cart-price { font-weight: 700; color: var(--teal); white-space: nowrap; }
+  .cart-remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+
+  .cart-summary { margin-top: 1.5rem; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; max-width: 380px; margin-left: auto; }
+  .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.9rem; }
+  .summary-row.total { border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 1rem; font-weight: 700; font-size: 1.1rem; color: var(--teal-dark); }
+  .summary-row.free { color: #065f46; font-weight: 600; }
+  .btn-checkout { display: block; width: 100%; margin-top: 1rem; padding: 0.85rem; background: var(--teal); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; }
+  .btn-checkout:hover { background: var(--teal-dark); }
+
+  .empty-cart { text-align: center; padding: 4rem 2rem; }
+  .empty-cart h2 { font-family: 'Cormorant Garamond', serif; margin-bottom: 1rem; }
+  .empty-cart a { color: var(--teal); font-weight: 700; }
+
+  .flash-msg { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 600; font-size: 0.85rem; }
+  .flash-msg.success { background: #d1fae5; color: #065f46; }
+  .flash-msg.error { background: #fee2e2; color: #991b1b; }
+  .flash-msg.info { background: #e0e7ff; color: #3730a3; }
+
+  @media (max-width: 640px) {
+    .cart-table thead { display: none; }
+    .cart-table tr { display: block; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .cart-table td { display: block; padding: 0.3rem 1rem; border: none; }
+    .cart-table td:first-child { padding-top: 0.5rem; }
+    .cart-summary { max-width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-page">
+  <h1>Shopping Cart</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-msg {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% if cart_items %}
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, item in cart_items.items() %}
+      <tr>
+        <td>
+          <div style="display:flex; align-items:center; gap:0.8rem;">
+            <img src="{{ resolve_image(item.image) }}" alt="{{ item.name }}" class="cart-item-img" onerror="this.src='https://images.unsplash.com/photo-1517093728432-a0440f8d45af?w=100&q=80'" />
+            <div>
+              <div class="cart-item-name">{{ item.name }}</div>
+              {% if item.sku %}<div class="cart-item-sku">SKU: {{ item.sku }}</div>{% endif %}
+            </div>
+          </div>
+        </td>
+        <td class="cart-price">₹{{ "%.0f"|format(item.price) }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('cart.cart_update') }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="number" name="qty_{{ key }}" value="{{ item.qty }}" min="1" max="99" class="cart-qty" onchange="this.form.submit()" />
+          </form>
+        </td>
+        <td class="cart-price">₹{{ "%.0f"|format(item.price * item.qty) }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('cart.cart_remove') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="product_id" value="{{ key }}" />
+            <button type="submit" class="cart-remove">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="cart-summary">
+    <div class="summary-row"><span>Subtotal</span><span>₹{{ "%.0f"|format(subtotal) }}</span></div>
+    <div class="summary-row">
+      <span>Shipping</span>
+      {% if shipping == 0 %}
+      <span class="summary-row free">FREE</span>
+      {% else %}
+      <span>₹{{ "%.0f"|format(shipping) }}</span>
+      {% endif %}
+    </div>
+    <div class="summary-row total"><span>Total</span><span>₹{{ "%.0f"|format(total) }}</span></div>
+    {% if shipping > 0 %}
+    <p style="font-size:0.75rem; color:var(--text-soft); margin-top:0.3rem;">Add ₹{{ "%.0f"|format(999 - subtotal) }} more for free shipping</p>
+    {% endif %}
+    <a href="{{ url_for('checkout.checkout') }}" class="btn-checkout">Proceed to Checkout</a>
+  </div>
+  {% else %}
+  <div class="empty-cart">
+    <h2>Your cart is empty</h2>
+    <p>Fill it with nourishing Talbeena products.</p>
+    <a href="{{ url_for('public.shop') }}">Continue Shopping →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

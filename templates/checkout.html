@@ -1,0 +1,252 @@
+{% extends 'user_base.html' %}
+{% block title %}Checkout – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .checkout-page { max-width: 1000px; margin: 0 auto; padding: 2rem 5% 3rem; }
+  .checkout-page h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
+
+  .section { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-mid); margin-bottom: 1rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-mid); margin-bottom: 0.3rem; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 0.9rem; background: #fff;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--teal); outline: none; }
+
+  .payment-option { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem; }
+  .payment-option.selected { border-color: var(--teal); background: var(--teal-light); }
+  .payment-option input { accent-color: var(--teal); }
+
+  .saved-address { padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem; }
+  .saved-address.selected { border-color: var(--teal); background: var(--teal-light); }
+  .saved-address .addr-name { font-weight: 600; font-size: 0.85rem; }
+  .saved-address .addr-text { font-size: 0.8rem; color: var(--text-soft); }
+
+  .order-summary { position: sticky; top: 85px; }
+  .summary-item { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.85rem; }
+  .summary-item span:last-child { font-weight: 600; }
+  .summary-divider { border-top: 1px solid var(--border); margin: 0.5rem 0; }
+  .summary-total { font-size: 1.2rem; font-weight: 700; color: var(--teal-dark); }
+
+  .coupon-row { display: flex; gap: 0.5rem; }
+  .coupon-row input { flex: 1; }
+  .btn-coupon { padding: 0.6rem 1rem; background: var(--teal); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+
+  .btn-place-order { display: block; width: 100%; padding: 0.85rem; background: var(--teal); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+  .btn-place-order:hover { background: var(--teal-dark); }
+  .btn-place-order:disabled { background: #ccc; cursor: not-allowed; }
+
+  .flash-msg { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 600; font-size: 0.85rem; }
+  .flash-msg.success { background: #d1fae5; color: #065f46; }
+  .flash-msg.error { background: #fee2e2; color: #991b1b; }
+
+  @media (max-width: 768px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+    .order-summary { position: static; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+  <h1>Checkout</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-msg {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" id="checkoutForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="razorpay_payment_id" id="rzpPaymentId" />
+    <input type="hidden" name="razorpay_order_id" id="rzpOrderId" />
+    <input type="hidden" name="razorpay_signature" id="rzpSignature" />
+
+    <div class="checkout-grid">
+      <div>
+        <!-- Saved Addresses -->
+        {% if addresses %}
+        <div class="section">
+          <h3>Saved Addresses</h3>
+          {% for addr in addresses %}
+          <div class="saved-address {% if addr.is_default %}selected{% endif %}" onclick="selectSavedAddress(this, '{{ addr.id }}')">
+            <div class="addr-name">{{ addr.label }} — {{ addr.first_name }} {{ addr.last_name }}</div>
+            <div class="addr-text">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} {{ addr.pincode }} • {{ addr.phone }}</div>
+          </div>
+          {% endfor %}
+          <input type="hidden" name="saved_address_id" id="savedAddressId" value="{% if addresses %}{{ addresses[0].id }}{% endif %}" />
+        </div>
+        {% endif %}
+
+        <!-- Shipping Address -->
+        <div class="section">
+          <h3>Shipping Address</h3>
+          <div class="form-row">
+            <div class="form-group"><label>First Name *</label><input type="text" name="addr_first_name" required /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" name="addr_last_name" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Phone *</label><input type="tel" name="addr_phone" required /></div>
+            <div class="form-group"><label>Email</label><input type="email" name="addr_email" value="{{ current_user.email }}" readonly style="background:#f5f5f5;" /></div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group"><label>Address Line 1 *</label><input type="text" name="addr_line1" required /></div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group"><label>Address Line 2</label><input type="text" name="addr_line2" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>City *</label><input type="text" name="addr_city" required /></div>
+            <div class="form-group"><label>State *</label><input type="text" name="addr_state" required /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Pincode *</label><input type="text" name="addr_pincode" required /></div>
+            <div class="form-group"><label>Country</label><input type="text" name="addr_country" value="India" /></div>
+          </div>
+          <label style="font-size:0.8rem;"><input type="checkbox" name="save_address" checked /> Save this address for next time</label>
+        </div>
+
+        <!-- Payment -->
+        <div class="section">
+          <h3>Payment Method</h3>
+          {% if cod_enabled %}
+          <label class="payment-option selected" id="payCod">
+            <input type="radio" name="payment_method" value="cod" checked /> Cash on Delivery
+          </label>
+          {% endif %}
+          {% if online_enabled %}
+          <label class="payment-option" id="payOnline">
+            <input type="radio" name="payment_method" value="razorpay" /> Pay Online (Razorpay)
+          </label>
+          {% endif %}
+        </div>
+
+        <!-- Notes -->
+        <div class="section">
+          <h3>Order Notes (Optional)</h3>
+          <div class="form-group"><textarea name="notes" rows="2" placeholder="Any special instructions..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <div class="section">
+          <h3>Order Summary</h3>
+          {% for key, item in cart.items() %}
+          <div class="summary-item"><span>{{ item.name }} × {{ item.qty }}</span><span>₹{{ "%.0f"|format(item.price * item.qty) }}</span></div>
+          {% endfor %}
+          <div class="summary-divider"></div>
+          <div class="summary-item"><span>Subtotal</span><span>₹{{ "%.0f"|format(subtotal) }}</span></div>
+          <div class="summary-item"><span>Shipping</span><span id="shippingDisplay">₹{{ "%.0f"|format(shipping) }}</span></div>
+          <div class="summary-item" id="couponRow" style="display:none;"><span>Coupon</span><span style="color:#065f46;">-₹<span id="discountDisplay">0</span></span></div>
+          <div class="summary-divider"></div>
+          <div class="summary-item summary-total"><span>Total</span><span>₹<span id="totalDisplay">{{ "%.0f"|format(subtotal + shipping) }}</span></span></div>
+
+          <!-- Coupon -->
+          <div style="margin-top:1rem;">
+            <div class="coupon-row">
+              <input type="text" name="coupon_code" id="couponCode" placeholder="Coupon code" class="form-group" style="margin:0;" />
+              <button type="button" class="btn-coupon" onclick="applyCoupon()">Apply</button>
+            </div>
+            <span id="couponMsg" style="font-size:0.75rem;"></span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-place-order" id="placeOrderBtn" onclick="handlePlaceOrder()">Place Order</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let currentSubtotal = {{ subtotal }};
+  let currentShipping = {{ shipping }};
+  let discountAmount = 0;
+
+  function selectSavedAddress(el, addrId) {
+    document.querySelectorAll('.saved-address').forEach(a => a.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('savedAddressId').value = addrId;
+  }
+
+  async function applyCoupon() {
+    const code = document.getElementById('couponCode').value.trim();
+    if (!code) return;
+    const resp = await fetch('/apply_coupon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coupon_code: code, subtotal: currentSubtotal })
+    });
+    const data = await resp.json();
+    const msg = document.getElementById('couponMsg');
+    if (data.valid) {
+      discountAmount = data.discount_amount;
+      document.getElementById('couponRow').style.display = 'flex';
+      document.getElementById('discountDisplay').textContent = Math.round(discountAmount);
+      document.getElementById('totalDisplay').textContent = Math.round(data.new_total);
+      msg.textContent = data.message;
+      msg.style.color = '#065f46';
+    } else {
+      discountAmount = 0;
+      document.getElementById('couponRow').style.display = 'none';
+      document.getElementById('totalDisplay').textContent = Math.round(currentSubtotal + currentShipping);
+      msg.textContent = data.error;
+      msg.style.color = '#ef4444';
+    }
+  }
+
+  async function handlePlaceOrder() {
+    const payMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    if (payMethod === 'razorpay') {
+      try {
+        const resp = await fetch('/razorpay/create_order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ coupon_code: document.getElementById('couponCode').value })
+        });
+        const data = await resp.json();
+        if (!data.success) { alert(data.message); return; }
+
+        const options = {
+          key: "{{ settings.razorpay_key_id }}",
+          amount: data.order.amount,
+          currency: "INR",
+          name: "Talbeena",
+          order_id: data.order.id,
+          handler: function(response) {
+            document.getElementById('rzpPaymentId').value = response.razorpay_payment_id;
+            document.getElementById('rzpOrderId').value = response.razorpay_order_id;
+            document.getElementById('rzpSignature').value = response.razorpay_signature;
+            document.getElementById('checkoutForm').submit();
+          },
+          prefill: { name: "{{ current_user.name }}", email: "{{ current_user.email }}" },
+          theme: { color: "#1A6B72" }
+        };
+        new Razorpay(options).open();
+      } catch (e) { alert('Payment failed: ' + e); }
+    } else {
+      document.getElementById('checkoutForm').submit();
+    }
+  }
+
+  // Payment option highlight
+  document.querySelectorAll('.payment-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'user_base.html' %}
+{% block title %}My Account – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .account-page { max-width: 900px; margin: 0 auto; padding: 2rem 5% 3rem; }
+  .account-page h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .section { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-mid); margin-bottom: 1rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
+  .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-mid); margin-bottom: 0.3rem; }
+  .form-group input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.9rem; }
+
+  .btn-save { padding: 0.65rem 1.5rem; background: var(--teal); color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+  .btn-save:hover { background: var(--teal-dark); }
+  .btn-sm { padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn-sm.primary { background: var(--teal); color: #fff; border: none; }
+  .btn-sm.danger { background: #fee2e2; color: #dc2626; border: none; }
+
+  .address-card { border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+  .address-card.default { border-color: var(--teal); background: var(--teal-light); }
+  .address-card .addr-info { flex: 1; }
+  .address-card .addr-name { font-weight: 600; font-size: 0.9rem; }
+  .address-card .addr-text { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.2rem; }
+  .address-card .addr-actions { display: flex; gap: 0.5rem; }
+
+  .add-address-form { display: none; margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px; }
+  .add-address-form.open { display: block; }
+
+  .order-table { width: 100%; border-collapse: collapse; }
+  .order-table th { text-align: left; padding: 0.6rem 0.8rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-soft); border-bottom: 2px solid var(--border); }
+  .order-table td { padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .order-link { color: var(--teal); font-weight: 600; text-decoration: none; }
+  .order-link:hover { text-decoration: underline; }
+
+  .status-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+  .status-badge.pending { background: #fef3c7; color: #92400e; }
+  .status-badge.processing { background: #dbeafe; color: #1e40af; }
+  .status-badge.shipped { background: #e0e7ff; color: #3730a3; }
+  .status-badge.delivered { background: #d1fae5; color: #065f46; }
+  .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+  .flash-msg { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 600; font-size: 0.85rem; }
+  .flash-msg.success { background: #d1fae5; color: #065f46; }
+
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+    .address-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="account-page">
+  <h1>My Account</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-msg {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- Profile -->
+  <div class="section">
+    <h3>Profile</h3>
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input type="hidden" name="action" value="update_profile" />
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="{{ user.first_name }}" required /></div>
+        <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="{{ user.last_name or '' }}" /></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.8rem;"><label>Email</label><input type="email" value="{{ user.email }}" readonly style="background:#f5f5f5;" /></div>
+      <button type="submit" class="btn-save">Update Profile</button>
+    </form>
+  </div>
+
+  <!-- Addresses -->
+  <div class="section">
+    <h3>Addresses ({{ addresses|length }})</h3>
+    {% for addr in addresses %}
+    <div class="address-card {% if addr.is_default %}default{% endif %}">
+      <div class="addr-info">
+        <div class="addr-name">{{ addr.label }} — {{ addr.first_name }} {{ addr.last_name }} {% if addr.is_default %}<span style="font-size:0.7rem; color:var(--teal);">(Default)</span>{% endif %}</div>
+        <div class="addr-text">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} {{ addr.pincode }} • {{ addr.phone }}</div>
+      </div>
+      <div class="addr-actions">
+        {% if not addr.is_default %}
+        <form method="POST" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <input type="hidden" name="action" value="set_default" />
+          <button formaction="{{ url_for('auth.account_address_default', addr_id=addr.id) }}" class="btn-sm primary">Set Default</button>
+        </form>
+        {% endif %}
+        <form method="POST" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button formaction="{{ url_for('auth.account_address_delete', addr_id=addr.id) }}" class="btn-sm danger" onclick="return confirm('Remove this address?')">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <p style="color:var(--text-soft); font-size:0.85rem;">No saved addresses.</p>
+    {% endfor %}
+
+    <button class="btn-save" onclick="document.getElementById('addAddrForm').classList.toggle('open'); this.style.display='none';" style="margin-top:0.5rem;">+ Add Address</button>
+
+    <div class="add-address-form" id="addAddrForm">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="action" value="add_address" />
+        <div class="form-row">
+          <div class="form-group"><label>Label</label><input type="text" name="label" value="Home" /></div>
+          <div class="form-group"><label>Phone</label><input type="tel" name="phone" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" name="first_name" required /></div>
+          <div class="form-group"><label>Last Name</label><input type="text" name="last_name" /></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0.8rem;"><label>Address Line 1</label><input type="text" name="address_line1" required /></div>
+        <div class="form-group" style="margin-bottom:0.8rem;"><label>Address Line 2</label><input type="text" name="address_line2" /></div>
+        <div class="form-row">
+          <div class="form-group"><label>City</label><input type="text" name="city" required /></div>
+          <div class="form-group"><label>State</label><input type="text" name="state" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Pincode</label><input type="text" name="pincode" required /></div>
+          <div class="form-group"><label>Country</label><input type="text" name="country" value="India" /></div>
+        </div>
+        <label style="font-size:0.8rem;"><input type="checkbox" name="is_default" /> Set as default</label>
+        <button type="submit" class="btn-save" style="display:block; margin-top:0.8rem;">Save Address</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div class="section">
+    <h3>Orders ({{ orders|length }})</h3>
+    {% if orders %}
+    <table class="order-table">
+      <thead><tr><th>Order</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><a href="{{ url_for('checkout.order_success', order_id=o.id) }}" class="order-link">{{ o.id[:12] }}...</a></td>
+          <td>{{ o.created_at.strftime('%d %b %Y') if o.created_at else '-' }}</td>
+          <td>₹{{ "%.0f"|format(o.total_amount or 0) }}</td>
+          <td><span class="status-badge {{ o.status }}">{{ o.status }}</span></td>
+          <td><a href="{{ url_for('checkout.order_success', order_id=o.id) }}" class="order-link">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-soft); font-size:0.85rem;">No orders yet. <a href="{{ url_for('public.shop') }}" style="color:var(--teal);">Start shopping →</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
