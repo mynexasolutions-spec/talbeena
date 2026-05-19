@@ -119,7 +119,7 @@ def _get_variation_cards():
             "description":    r.get("var_desc") or "",
             "short_description": r.get("var_short_desc") or "",
             "label":          label,
-            "_preselect_label": ev.get("label", "")
+            "_preselect_label": r.get("label", "")
         })
 
     return result
@@ -132,19 +132,19 @@ def _expand_product_list(products):
     for p in (products or []):
         pid = str(p["id"])
         if pid in var_map:
-            for ev in var_map[pid]:
+            for r in var_map[pid]:
                 row = dict(p)
                 row["id"]             = pid
-                row["name"]           = ev["name_override"]
-                row["price"]          = ev["price"]
+                row["name"]           = r["name_override"]
+                row["price"]          = r["price"]
                 row["sale_price"]     = None
-                row["stock_quantity"] = ev["stock_quantity"]
-                row["stock_status"]   = ev["stock_status"]
-                row["sku"]            = ev["sku"]
-                row["image_url"]      = ev["image_url"] or p.get("image_url") or ""
-                row["description"]    = ev.get("description") or row.get("description") or ""
-                row["short_description"] = ev.get("short_description") or row.get("short_description") or ""
-                row["_preselect_label"] = ev.get("label", "")
+                row["stock_quantity"] = r["stock_quantity"]
+                row["stock_status"]   = r["stock_status"]
+                row["sku"]            = r["sku"]
+                row["image_url"]      = r["image_url"] or p.get("image_url") or ""
+                row["description"]    = r.get("description") or row.get("description") or ""
+                row["short_description"] = r.get("short_description") or row.get("short_description") or ""
+                row["_preselect_label"] = r.get("label", "")
                 expanded.append(row)
         else:
             expanded.append(p)
