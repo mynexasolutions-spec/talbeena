@@ -413,6 +413,31 @@
     } catch (e) {
       console.error("Failed to load variations:", e);
     }
+    // ── Auto-select initial values (runs after DOM is built) ──
+    const _sel = document.getElementById("variationSelectors");
+    if (_sel && variationData) {
+      const _attrs = variationData.attributes || [];
+      const _up = new URLSearchParams(window.location.search);
+      const _preselect = _up.get('preselect');
+      const _parts = _preselect ? _preselect.split(',').map(p => p.trim()) : [];
+      _attrs.forEach(attr => {
+        if (attr.variation_type === 'optional') return;
+        const vals = attr.values || [];
+        if (!vals.length) return;
+        let targetVal = null;
+        if (_parts.length) targetVal = vals.find(v => _parts.includes(v.value));
+        const val = targetVal || vals[0];
+        const list = _sel.querySelector(`.swatch-list[data-attr-id="${attr.id}"]`);
+        if (list) {
+          const btn = list.querySelector(`[data-val-id="${val.id}"]`);
+          if (btn) btn.classList.add('selected');
+        }
+        currentSelections[attr.id] = val.id;
+        const lbl = document.getElementById(`selLabel_${attr.id}`);
+        if (lbl) lbl.textContent = `: ${val.value}`;
+      });
+      updateVariation();
+    }
   }
 
   // ── Build the selector UI from attribute groups ──
@@ -479,50 +504,6 @@
       container.appendChild(section);
     });
   }
-
-  // ── Auto-select initial values ──
-  // Wait for DOM to settle, then click buttons
-  setTimeout(() => {
-    const sel = document.getElementById("variationSelectors");
-    if (!sel || !variationData) return;
-    const attrs = variationData.attributes || [];
-
-    // Check for preselect from URL
-    const up = new URLSearchParams(window.location.search);
-    const preselect = up.get('preselect');
-    let preselectParts = preselect ? preselect.split(',').map(p => p.trim()) : [];
-
-    // Select first available value for each attribute group
-    attrs.forEach(attr => {
-      if (attr.variation_type === 'optional') return;
-      const vals = attr.values || [];
-      if (!vals.length) return;
-
-      let targetValue = null;
-      if (preselectParts.length) {
-        targetValue = vals.find(v => preselectParts.includes(v.value));
-      }
-      const val = targetValue || vals[0];
-
-      // Mark button as selected
-      const list = sel.querySelector(`.swatch-list[data-attr-id="${attr.id}"]`);
-      if (list) {
-        const btn = list.querySelector(`[data-val-id="${val.id}"]`);
-        if (btn) {
-          list.querySelectorAll('.swatch').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-        }
-      }
-
-      // Set selection
-      currentSelections[attr.id] = val.id;
-      const lbl = document.getElementById(`selLabel_${attr.id}`);
-      if (lbl) lbl.textContent = `: ${val.value}`;
-    });
-
-    // Single API call
-    updateVariation();
-  }, 300);
 
   // ── Selection handlers ──
   function onPrimarySelect(attr, val, btn, swatchList) {
