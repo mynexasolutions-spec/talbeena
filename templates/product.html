@@ -480,36 +480,36 @@
     });
   }
 
-  // ── Auto-select first weight ──
-  const vc = document.getElementById("variationSelectors");
-  if (vc && variationData) {
-    const attrs = variationData.attributes || [];
-    vc.querySelectorAll('.swatch-list').forEach(list => {
-      const aid = list.getAttribute('data-attr-id');
-      if (!aid) return;
-      const info = attrs.find(a => String(a.id) === aid);
-      if (info && info.variation_type === 'secondary') {
-        const btn = list.querySelector('.swatch');
-        if (btn) btn.click();
-      }
-    });
+  // ── Auto-select initial values ──
+  // Wait for DOM to settle, then click buttons
+  setTimeout(() => {
+    const sel = document.getElementById("variationSelectors");
+    if (!sel) return;
 
-    // ── Preselect from URL ──
+    // Check if URL has a preselect from shop card
     const up = new URLSearchParams(window.location.search);
-    const ps = up.get('preselect');
-    if (ps) {
-      setTimeout(() => {
-        const parts = ps.split(',').map(p => p.trim());
-        parts.forEach(part => {
-          vc.querySelectorAll('.swatch').forEach(sw => {
-            if (sw.dataset.valName === part && !sw.classList.contains('selected')) {
-              sw.click();
-            }
-          });
+    const preselect = up.get('preselect');
+
+    if (preselect) {
+      // Parse preselect like "Chocolate, 500g" → click matching buttons
+      const parts = preselect.split(',').map(p => p.trim());
+      const allBtns = sel.querySelectorAll('.swatch');
+      parts.forEach(part => {
+        allBtns.forEach(b => {
+          if (b.dataset.valName === part && !b.classList.contains('selected')) {
+            b.click();
+          }
         });
-      }, 300);
+      });
+    } else {
+      // No preselect — auto-select first flavor + first weight
+      const groups = sel.querySelectorAll('.swatch-list');
+      groups.forEach(g => {
+        const first = g.querySelector('.swatch');
+        if (first) first.click();
+      });
     }
-  }
+  }, 300);
 
   // ── Selection handlers ──
   function onPrimarySelect(attr, val, btn, swatchList) {
