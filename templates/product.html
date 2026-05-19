@@ -329,7 +329,7 @@
       <h1>{{ product.name }}</h1>
       <div class="product-meta">
         {% if product.brand_name %}<span>Brand: <strong>{{ product.brand_name }}</strong></span>{% endif %}
-        <span>SKU: <strong id="productSku">{{ product.sku or 'N/A' }}</strong></span>
+        <span>SKU: <strong id="productSku">—</strong></span>
       </div>
 
       <div class="price-block">
@@ -337,7 +337,7 @@
         {% if product.sale_price and product.price and product.sale_price < product.price %}
         <span class="original-price" id="originalPrice">₹{{ "%.0f"|format(product.price) }}</span>
         {% endif %}
-        <span class="stock-badge {{ product.stock_status }}" id="stockBadge">{{ product.stock_status|replace('_', ' ')|title }}</span>
+        <span class="stock-badge {{ product.stock_status }}" id="stockBadge" style="display:none;">{{ product.stock_status|replace('_', ' ')|title }}</span>
       </div>
 
       <!-- ── Dynamic Variation Selectors (populated by JS) ── -->
@@ -352,7 +352,7 @@
 
         <div class="qty-row">
           <input type="number" name="qty" value="1" min="1" max="99" class="qty-input" id="qtyInput" />
-          <button type="submit" class="btn-add-cart" id="addToCartBtn">Add to Cart</button>
+          <button type="submit" class="btn-add-cart" id="addToCartBtn" disabled>Select Options</button>
         </div>
       </form>
 
@@ -568,16 +568,23 @@
 
   function updateDisplay(price, stock, status, sku, varId, varImages, varDesc, varShortDesc) {
     document.getElementById("currentPrice").textContent = "₹" + Math.round(price);
-    document.getElementById("productSku").textContent = sku || "N/A";
+    document.getElementById("productSku").textContent = (varId && sku) ? sku : "—";
     document.getElementById("varIdInput").value = varId || "";
 
+    // Hide badge and disable button when no variation is selected
     const badge = document.getElementById("stockBadge");
-    badge.textContent = (status || "in_stock").replace(/_/g, " ");
-    badge.className = "stock-badge " + (status === "out_of_stock" ? "out-of-stock" : "in-stock");
-
     const btn = document.getElementById("addToCartBtn");
-    btn.disabled = (stock <= 0);
-    btn.textContent = stock <= 0 ? "Out of Stock" : "Add to Cart";
+    if (!varId) {
+      badge.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Select Options";
+    } else {
+      badge.style.display = "inline-block";
+      badge.textContent = (status || "in_stock").replace(/_/g, " ");
+      badge.className = "stock-badge " + (status === "out_of_stock" ? "out-of-stock" : "in-stock");
+      btn.disabled = (stock <= 0);
+      btn.textContent = stock <= 0 ? "Out of Stock" : "Add to Cart";
+    }
 
     // Hide original price if no sale
     const origEl = document.getElementById("originalPrice");
