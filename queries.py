@@ -119,6 +119,7 @@ def _get_variation_cards():
             "description":    r.get("var_desc") or "",
             "short_description": r.get("var_short_desc") or "",
             "label":          label,
+            "_preselect_label": ev.get("label", "")
         })
 
     return result
@@ -143,6 +144,7 @@ def _expand_product_list(products):
                 row["image_url"]      = ev["image_url"] or p.get("image_url") or ""
                 row["description"]    = ev.get("description") or row.get("description") or ""
                 row["short_description"] = ev.get("short_description") or row.get("short_description") or ""
+                row["_preselect_label"] = ev.get("label", "")
                 expanded.append(row)
         else:
             expanded.append(p)

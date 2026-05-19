@@ -537,7 +537,7 @@
       {% if products %}
       <div class="product-grid">
         {% for product in products %}
-        <a href="{{ url_for('public.product_detail', product_id=product.id) }}" class="product-card">
+        <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="product-card">
           <div style="position:relative;">
             <img src="{{ resolve_image(product.image_url) }}"
                  alt="{{ product.name }}" class="card-img"

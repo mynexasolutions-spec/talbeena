@@ -214,7 +214,7 @@
 
   <div class="shop-grid">
     {% for product in featured %}
-      <a href="{{ url_for('public.product_detail', product_id=product.id) }}" class="product-card">
+      <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="product-card">
         <div class="product-img-wrap">
           <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" onerror="this.src='https://images.unsplash.com/photo-1517093728432-a0440f8d45af?w=400&q=80'">
         </div>
