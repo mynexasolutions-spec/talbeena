@@ -69,65 +69,83 @@
   <!-- Main Content: Existing Variations -->
   <div class="variation-main">
     <div class="admin-card" style="padding:0; overflow:hidden;">
-      <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--admin-border); background:#fafafa; display:flex; justify-content:space-between; align-items:center;">
+      <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--admin-border); background:#fafafa; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
           <h3 style="font-size:1rem; font-weight:700;">Existing Variations ({{ variations|length }})</h3>
-          <span style="font-size:0.75rem; color:var(--admin-text-muted);">Scroll right to see all columns on small screens →</span>
+          <span style="font-size:0.75rem; color:var(--admin-text-muted);">Click "Edit" to expand details →</span>
       </div>
 
-      <div style="overflow-x:auto;">
-        <form id="bulkUpdateForm" method="post" enctype="multipart/form-data" action="{{ url_for('admin_variations_bulk_update', product_id=product.id) }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <table class="admin-table" style="width:100%; min-width:1000px;">
-            <thead>
-              <tr>
-                <th style="padding-left:1rem;">Combo</th>
-                <th style="width:110px;">SKU</th>
-                <th style="width:110px;">Name</th>
-                <th style="width:90px;">Price</th>
-                <th style="width:70px;">Stock</th>
-                <th style="width:100px;">Image</th>
-                <th style="text-align:right; padding-right:1rem; width:80px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for v in variations %}
-              <tr>
-                <td style="padding-left:1rem; font-weight:700; color:var(--admin-primary); font-size:0.85rem;">{{ v.option_names or v.sku }}</td>
-                <td>
-                  <input type="text" name="sku_{{ v.id }}" value="{{ v.sku or '' }}" class="admin-input" style="height:32px; font-family:monospace; font-size:0.7rem; width:100px;" />
-                </td>
-                <td>
-                  <input type="text" name="name_{{ v.id }}" value="{{ v.name or '' }}" placeholder="Override name" class="admin-input" style="height:32px; font-size:0.75rem; width:100px;" />
-                </td>
-                <td>
-                  <input type="number" step="0.01" name="price_{{ v.id }}" value="{{ '%.2f'|format(v.price or 0) }}" class="admin-input" style="height:32px; width:80px; font-size:0.8rem;" />
-                </td>
-                <td>
-                  <input type="number" name="stock_{{ v.id }}" value="{{ v.stock_quantity or 0 }}" class="admin-input" style="height:32px; width:60px; font-size:0.8rem; {% if (v.stock_quantity or 0) <= 5 %}border-color:#ef4444;{% endif %}" />
-                </td>
-                <td>
-                  <input type="file" name="image_{{ v.id }}" accept="image/*" style="font-size:0.7rem; width:90px;" />
-                </td>
-                <td style="text-align:right; padding-right:1rem;">
-                  <button type="button" onclick="if(confirm('Delete?')){document.getElementById('df_{{ v.id }}').submit()}" class="admin-btn" style="padding:0.3rem 0.5rem; color:#ef4444; font-size:0.75rem;">Del</button>
-                </td>
-              </tr>
-              <tr style="background:#fafafa;">
-                <td colspan="7" style="padding:0.3rem 1rem;">
-                  <input type="text" name="short_desc_{{ v.id }}" value="{{ v.short_description or '' }}" placeholder="Short description (optional)" class="admin-input" style="height:28px; font-size:0.7rem; width:100%; border:none; background:transparent;" />
-                  <textarea name="description_{{ v.id }}" placeholder="Full description / details (optional)" class="admin-input" style="height:40px; font-size:0.7rem; width:100%; border:none; background:transparent; resize:vertical; margin-top:2px;">{{ v.description or '' }}</textarea>
-                </td>
-              </tr>
-              {% else %}
-              <tr><td colspan="7" style="text-align:center; padding:4rem; color:var(--admin-text-muted);">
-                <div style="font-size:2rem; margin-bottom:1rem;">📦</div>
-                No variations yet. Use the form on the left to add one.
-              </td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </form>
-      </div>
+      <form id="bulkUpdateForm" method="post" enctype="multipart/form-data" action="{{ url_for('admin_variations_bulk_update', product_id=product.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        
+        {% if variations %}
+        <div class="variation-cards">
+          {% for v in variations %}
+          <div class="var-card">
+            <div class="var-card-header" onclick="this.closest('.var-card').classList.toggle('var-expanded')">
+              <div class="var-combo-badge">{{ v.option_names or v.sku }}</div>
+              <div class="var-card-summary">
+                <span class="var-price-badge">₹{{ '%.0f'|format(v.price or 0) }}</span>
+                <span class="var-stock-badge {% if (v.stock_quantity or 0) <= 5 %}var-stock-low{% endif %}">
+                  {{ v.stock_quantity or 0 }} in stock
+                </span>
+              </div>
+              <button type="button" class="var-expand-btn">✏️ Edit</button>
+            </div>
+
+            <div class="var-card-body">
+              <div class="var-fields-row">
+                <div class="var-field">
+                  <label>SKU</label>
+                  <input type="text" name="sku_{{ v.id }}" value="{{ v.sku or '' }}" class="admin-input" />
+                </div>
+                <div class="var-field">
+                  <label>Name Override</label>
+                  <input type="text" name="name_{{ v.id }}" value="{{ v.name or '' }}" placeholder="Leave blank to auto-generate" class="admin-input" />
+                </div>
+                <div class="var-field">
+                  <label>Price (₹)</label>
+                  <input type="number" step="0.01" name="price_{{ v.id }}" value="{{ '%.2f'|format(v.price or 0) }}" class="admin-input" />
+                </div>
+                <div class="var-field">
+                  <label>Stock</label>
+                  <input type="number" name="stock_{{ v.id }}" value="{{ v.stock_quantity or 0 }}" class="admin-input" />
+                </div>
+                <div class="var-field var-field-image">
+                  <label>Image</label>
+                  <input type="file" name="image_{{ v.id }}" accept="image/*" />
+                </div>
+              </div>
+
+              <div class="var-desc-section">
+                <div class="var-desc-tabs">
+                  <button type="button" class="var-tab active" onclick="switchVarTab(this, 'preview')">Preview</button>
+                  <button type="button" class="var-tab" onclick="switchVarTab(this, 'edit')">Edit HTML</button>
+                </div>
+                <div class="var-preview-box">
+                  {{ v.description or '' | safe }}
+                </div>
+                <textarea name="description_{{ v.id }}" class="var-edit-box" style="display:none;" placeholder="Paste or edit HTML description here…">{{ v.description or '' }}</textarea>
+                <input type="text" name="short_desc_{{ v.id }}" value="{{ v.short_description or '' }}" placeholder="Short description (shown in listing cards)" class="admin-input" style="margin-top:0.5rem; font-size:0.8rem;" />
+              </div>
+
+              <div class="var-card-actions">
+                <button type="button" onclick="if(confirm('Delete this variation?')){document.getElementById('df_{{ v.id }}').submit()}" class="admin-btn" style="color:#ef4444; font-size:0.8rem;">🗑 Delete</button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="padding:1.25rem 1.5rem; border-top:1px solid var(--admin-border); text-align:right;">
+          <button type="submit" class="admin-btn btn-primary" style="padding:0.7rem 2rem; font-weight:700;">💾 Save All Changes</button>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:4rem; color:var(--admin-text-muted);">
+          <div style="font-size:2rem; margin-bottom:1rem;">📦</div>
+          No variations yet. Use the form on the left to add one.
+        </div>
+        {% endif %}
+      </form>
     </div>
   </div>
 </div>
@@ -140,6 +158,16 @@
 </form>
 {% endfor %}
 
+<script>
+function switchVarTab(btn, tab) {
+  var card = btn.closest('.var-card');
+  card.querySelectorAll('.var-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  card.querySelector('.var-preview-box').style.display = tab === 'preview' ? '' : 'none';
+  card.querySelector('.var-edit-box').style.display = tab === 'edit' ? '' : 'none';
+}
+</script>
+
 <style>
 .variation-manager-layout {
     display: flex;
@@ -151,16 +179,230 @@
 }
 .variation-main {
     flex: 1;
-    min-width: 0; /* Important for horizontal scroll */
+    min-width: 0;
 }
 
-@media (max-width: 1100px) {
-    .variation-manager-layout {
-        flex-direction: column;
+/* ── Card-based variation list ── */
+.variation-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+}
+
+.var-card {
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+.var-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.var-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    background: #fafafa;
+    border-bottom: 1px solid transparent;
+    transition: background 0.15s;
+}
+.var-card-header:hover {
+    background: #f0f0f0;
+}
+.var-expanded .var-card-header {
+    border-bottom-color: var(--admin-border);
+}
+
+.var-combo-badge {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--admin-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.var-card-summary {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+.var-price-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #059669;
+    background: #ecfdf5;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+}
+.var-stock-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    background: #f3f4f6;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+}
+.var-stock-low {
+    color: #991b1b;
+    background: #fef2f2;
+}
+.var-expand-btn {
+    background: none;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--admin-text-muted);
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+.var-expand-btn:hover {
+    background: var(--admin-primary);
+    color: #fff;
+    border-color: var(--admin-primary);
+}
+
+/* Collapsed body */
+.var-card-body {
+    display: none;
+    padding: 1rem;
+    animation: slideDown 0.2s ease;
+}
+.var-expanded .var-card-body {
+    display: block;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to   { opacity: 1; max-height: 2000px; }
+}
+
+/* Field grid */
+.var-fields-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.var-field label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--admin-text-muted);
+    margin-bottom: 0.3rem;
+}
+.var-field input {
+    width: 100%;
+    box-sizing: border-box;
+}
+.var-field-image input {
+    font-size: 0.75rem;
+    padding-top: 0.4rem;
+}
+
+/* Description tabs */
+.var-desc-section {
+    margin-bottom: 0.5rem;
+}
+.var-desc-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+.var-tab {
+    background: #f3f4f6;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    padding: 0.35rem 1rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--admin-text-muted);
+    font-weight: 600;
+}
+.var-tab.active {
+    background: #fff;
+    border-color: var(--admin-border);
+    border-bottom-color: #fff;
+    color: var(--admin-primary);
+}
+.var-preview-box {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    min-height: 60px;
+}
+.var-preview-box h1, .var-preview-box h2, .var-preview-box h3, .var-preview-box h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-family: inherit;
+}
+.var-preview-box p {
+    margin: 0 0 0.5rem 0;
+}
+.var-preview-box table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+.var-preview-box td {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #e5e7eb;
+}
+.var-preview-box .desc-key {
+    font-weight: 700;
+    color: var(--admin-text-muted);
+    width: 40%;
+}
+.var-edit-box {
+    width: 100%;
+    min-height: 80px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.var-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+@media (max-width: 768px) {
+    .var-fields-row {
+        grid-template-columns: 1fr 1fr;
     }
     .variation-sidebar {
         flex: none;
         width: 100%;
+    }
+    .var-card-summary {
+        display: none;
+    }
+}
+@media (max-width: 480px) {
+    .var-fields-row {
+        grid-template-columns: 1fr;
     }
 }
 </style>

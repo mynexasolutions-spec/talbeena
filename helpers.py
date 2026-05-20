@@ -108,9 +108,10 @@ cloudinary.config(from_url=os.getenv("CLOUDINARY_URL"))
 
 
 def handle_upload(file, folder="talbeena-gallery"):
-    """Upload a file to Cloudinary and return its secure URL, or None on failure."""
+    """Upload a file — tries Cloudinary, falls back to local storage."""
     if not file or not file.filename:
         return None
+    # Try Cloudinary first
     try:
         result = cloudinary.uploader.upload(
             file,
@@ -119,8 +120,17 @@ def handle_upload(file, folder="talbeena-gallery"):
             overwrite=False,
         )
         return result["secure_url"]
-    except Exception as e:
-        raise RuntimeError(f"Image upload failed: {e}") from e
+    except Exception:
+        pass  # fall through to local storage
+
+    # Local fallback — save to static/uploads/
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "jpg"
+    safe_name = f"{uuid.uuid4().hex[:12]}.{ext}"
+    upload_dir = os.path.join(os.path.dirname(__file__), "static", "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+    file.seek(0)
+    file.save(os.path.join(upload_dir, safe_name))
+    return f"/uploads/{safe_name}"
 
 
 CLOUDINARY_MAPPING = {

@@ -50,16 +50,13 @@ def execute(sql, params=None):
         conn.close()
 
 def execute_returning(sql, params=None):
-    # SQLite doesn't have a direct RETURNING for all cases like Postgres,
-    # but for INSERT it has lastrowid. For complex ones, we'll need to query.
-    # However, since some queries might use RETURNING, we'll try to emulate or adjust.
     conn = get_conn()
     try:
         cur = conn.cursor()
         cur.execute(sql, params or ())
+        rows = cur.fetchall()
         conn.commit()
-        row = cur.fetchone()
-        return dict(row) if row else None
+        return dict(rows[0]) if rows else None
     except Exception:
         conn.rollback()
         raise

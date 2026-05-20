@@ -257,14 +257,14 @@ def register(app):
                 product_id = db.execute_returning(
                     """INSERT INTO products
                        (id, name, slug, sku, type, description, short_description,
-                        price, sale_price, stock_quantity, stock_status, manage_stock,
+                        price, sale_price, stock_quantity, stock_status,
                         category_id, brand_id, is_featured, is_active)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id""",
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id""",
                     [
                         str(uuid.uuid4()), name, slug, sku,
                         f.get("type", "simple"), f.get("description"), f.get("short_description"),
                         float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
-                        stock_qty, stock_status, True,
+                        stock_qty, stock_status,
                         f.get("category_id") or None, f.get("brand_id") or None,
                         f.get("is_featured") == "on", f.get("is_active", "on") == "on",
                     ]
@@ -904,7 +904,11 @@ def register(app):
     def admin_variation_delete(var_id):
         product_id = request.form.get("product_id")
         try:
+            db.execute("DELETE FROM variation_images WHERE variation_id = ?", [var_id])
+            db.execute("DELETE FROM variation_attribute_values WHERE variation_id = ?", [var_id])
+            db.execute("DELETE FROM order_items WHERE variation_id = ?", [var_id])
             db.execute("DELETE FROM product_variations WHERE id = ?", [var_id])
+            get_products.cache_clear()
             flash("Variation deleted", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")

@@ -643,6 +643,16 @@
         });
       });
     }
+
+    // ── Swap description per variation ──
+    const descEl = document.getElementById("productDescription");
+    if (descEl) {
+      if (varId && varDesc) {
+        descEl.innerHTML = varDesc;
+      } else {
+        descEl.innerHTML = originalDescriptionHTML;
+      }
+    }
   }
 
   function getSelectionLabel() {
