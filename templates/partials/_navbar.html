@@ -9,7 +9,13 @@
   <!-- Cart / Auth area -->
   <div style="display: flex; gap: 1rem; align-items: center;">
     <a href="/cart" class="nav-links" style="color:var(--teal-dark); text-decoration:none; font-weight:700;">🛒 Cart</a>
-    <a href="/account" class="nav-cta" style="text-decoration:none;">Account</a>
+    {% if current_user %}
+      <a href="/account" class="nav-cta" style="text-decoration:none;">Account</a>
+      <a href="/logout" style="color:var(--text-soft); text-decoration:none; font-size:0.9rem;">Logout</a>
+    {% else %}
+      <a href="/login" class="nav-cta" style="text-decoration:none;">Login</a>
+      <a href="/register" style="color:var(--teal-dark); text-decoration:none; font-weight:600; font-size:0.9rem;">Sign Up</a>
+    {% endif %}
   </div>
   <button class="hamburger" id="hamburger">
     <span></span>
@@ -23,5 +29,11 @@
   <a href="/shop">Shop</a>
   <a href="/about">About</a>
   <a href="/contact">Contact</a>
-  <a href="/account" class="mob-cta">My Account</a>
+  {% if current_user %}
+    <a href="/account" class="mob-cta">My Account</a>
+    <a href="/logout">Logout</a>
+  {% else %}
+    <a href="/login" class="mob-cta">Login</a>
+    <a href="/register">Sign Up</a>
+  {% endif %}
 </div>

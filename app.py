@@ -79,13 +79,24 @@ def create_app():
 app = create_app()
 
 import os as _os
-# Only run migrations in the main process (not the watchdog reloader child).
-# This prevents the timeout warning you see on every hot-reload.
+# Only run setup in the main process (not the watchdog reloader child).
 if _os.environ.get("WERKZEUG_RUN_MAIN") != "true":
     try:
         db.migrate()
     except Exception as _e:
         print(f"[db.migrate] {_e}")
+
+    # ── Auto-create default admin if none exists ──
+    try:
+        if not db.query_one("SELECT id FROM users WHERE role='admin'"):
+            import uuid, bcrypt
+            pw = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode()
+            db.execute(
+                "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?)",
+                [str(uuid.uuid4()), "Admin", "User", "admin@talbeena.com", pw, "admin"]
+            )
+    except Exception:
+        pass  # table may not exist yet
 
 if __name__ == "__main__":
     port  = int(os.getenv("PORT", 5001))

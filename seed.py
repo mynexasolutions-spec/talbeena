@@ -20,18 +20,22 @@ for table in ["variation_images", "variation_attribute_values", "product_variati
               "product_attribute_values", "product_attributes", "product_images",
               "order_items", "coupon_usages", "coupons", "orders",
               "user_addresses", "attribute_values", "attributes",
-              "products", "categories", "brands", "media", "users"]:
+              "products", "categories", "brands", "media"]:
     try: db.execute(f"DELETE FROM {table}", [])
     except: pass
-print("✓ Old data cleared")
+print("✓ Content data cleared (users preserved)")
 
-# ── 1. Admin user ─────────────────────────────────────────────────────────────
-hashed = bcrypt.hashpw("admin123"[:72].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-db.execute(
-    "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?)",
-    [str(uuid.uuid4()), "Admin", "User", "admin@talbeena.com", hashed, "admin"],
-)
-print("✓ Admin user created (admin@talbeena.com / admin123)")
+# ── 1. Admin user (skip if exists) ────────────────────────────────────────────
+admin = db.query_one("SELECT id FROM users WHERE email='admin@talbeena.com'")
+if not admin:
+    hashed = bcrypt.hashpw("admin123"[:72].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    db.execute(
+        "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?)",
+        [str(uuid.uuid4()), "Admin", "User", "admin@talbeena.com", hashed, "admin"],
+    )
+    print("✓ Admin user created (admin@talbeena.com / admin123)")
+else:
+    print("ℹ️  Admin user already exists")
 
 # ── 2. Media entries for sample images ────────────────────────────────────────
 image_files = [
