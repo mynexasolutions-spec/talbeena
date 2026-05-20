@@ -1125,19 +1125,18 @@ def register(app):
                     try:
                         name  = (row.get("post_title") or row.get("name") or "").strip()
                         sku   = (row.get("sku") or "").strip() or generate_unique_product_sku(name)
-                        price = float(row.get("regular_price") or row.get("price") or 0)
-                        sale  = float(row.get("sale_price") or 0) or None
-                        stock = int(row.get("stock") or row.get("stock_quantity") or 0)
                         desc  = (row.get("description") or row.get("post_content") or "").strip()
                         short = (row.get("short_description") or row.get("post_excerpt") or "").strip()
                         img   = (row.get("images") or row.get("image") or "").strip().split("|")[0].strip()
                         slug  = (row.get("post_name") or row.get("slug") or name.lower().replace(" ", "-")).strip()
+
                         if not name:
                             skipped += 1
                             continue
                         if db.query_one("SELECT id FROM products WHERE sku=? OR slug=?", [sku, slug]):
                             skipped += 1
                             continue
+
                         # Safely parse numeric fields
                         try:
                             price = float(row.get("regular_price") or row.get("price") or 0)

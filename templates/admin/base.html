@@ -94,12 +94,12 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div style="font-size:0.875rem; color:var(--admin-text-muted); font-weight:500;">
-          Welcome back, <span class="text-indigo">{{ current_user.name if current_user else 'Admin' }}</span>
+          Welcome back, <span class="text-indigo">{{ current_user.first_name if current_user else 'Admin' }}</span>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:1.25rem;">
         <div style="width:36px; height:36px; border-radius:99px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--admin-text-muted);">
-          {{ (current_user.name[0] if current_user else 'A') | upper }}
+          {{ ((current_user.first_name or 'A')[0]) | upper if current_user else 'A' }}
         </div>
       </div>
     </header>

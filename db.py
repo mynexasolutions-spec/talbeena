@@ -317,7 +317,11 @@ _MIGRATIONS = [
          ('free_shipping_enabled','true'),
          ('free_shipping_all','false')""",
 
-    # 8. Coupons
+    # 8. Coupons — add columns the admin route expects
+    "ALTER TABLE coupons ADD COLUMN min_order_amount DECIMAL(10,2) DEFAULT 0",
+    "ALTER TABLE coupons ADD COLUMN usage_limit INTEGER",
+    "ALTER TABLE coupons ADD COLUMN usage_limit_per_user INTEGER DEFAULT 1",
+    "ALTER TABLE coupons ADD COLUMN max_discount DECIMAL(10,2)",
     "ALTER TABLE orders ADD COLUMN coupon_code TEXT DEFAULT ''",
     "ALTER TABLE orders ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0",
     """CREATE TABLE IF NOT EXISTS coupon_usages (
