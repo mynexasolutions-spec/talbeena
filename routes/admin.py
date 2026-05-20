@@ -212,7 +212,7 @@ def register(app):
         page     = max(1, int(request.args.get("page", 1)))
         try:
             products, total, total_pages = get_products(
-                search=search, category=category, brand=brand, page=page, per_page=20
+                search=search, category=category, brand=brand, page=page, per_page=20, skip_expand=True
             )
             if products:
                 print(f"DEBUG: First product '{products[0]['name']}' price: {products[0]['price']}")
@@ -395,6 +395,16 @@ def register(app):
                 for vid in request.form.getlist("attribute_value_ids"):
                     db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), product_id, vid])
 
+                # Clean up variations if type changed
+                old_type = product.get("type")
+                new_type = f.get("type")
+                if old_type == "variable" and new_type != "variable":
+                    db.execute("DELETE FROM variation_images WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
+                    db.execute("DELETE FROM variation_attribute_values WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
+                    db.execute("DELETE FROM product_variations WHERE product_id = ?", [product_id])
+                elif new_type == "variable" and old_type != "variable":
+                    generate_variations(product_id)
+
                 get_products.cache_clear()
                 flash("Product updated successfully.", "success")
                 return redirect(url_for("admin_products"))
@@ -476,7 +486,7 @@ def register(app):
             abort(404)
         if request.method == "POST":
             # Handle Upload
-            image_url = handle_upload(request.files.get("image_file")) or request.form.get("image_url") or category["image_url"]
+            image_url = handle_upload(request.files.get("image_file")) or handle_upload(request.files.get("image_file")) or category["image_url"]
             
             try:
                 db.execute(
@@ -541,6 +551,7 @@ def register(app):
                     "INSERT INTO brands (id, name, slug, image_url) VALUES (?,?,?,?)",
                     [str(uuid.uuid4()), name, slug, image_url]
                 )
+                get_brands.cache_clear()
                 flash("Brand created.", "success")
                 return redirect(url_for("admin_brands"))
             except Exception as e:
@@ -561,6 +572,7 @@ def register(app):
                     "UPDATE brands SET name=?, slug=?, image_url=? WHERE id=?",
                     [name, slug, image_url, brand_id]
                 )
+                get_brands.cache_clear()
                 flash("Brand updated.", "success")
                 return redirect(url_for("admin_brands"))
             except Exception as e:
@@ -575,6 +587,7 @@ def register(app):
             db.execute("UPDATE products SET brand_id = NULL WHERE brand_id = ?", [brand_id])
             
             db.execute("DELETE FROM brands WHERE id=?", [brand_id])
+            get_brands.cache_clear()
             flash("Brand deleted.", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -791,6 +804,7 @@ def register(app):
             db.execute("DELETE FROM variation_attribute_values WHERE attribute_value_id = ?", [val_id])
             db.execute("DELETE FROM attribute_values WHERE id = ?", [val_id])
             
+            get_products.cache_clear()
             flash("Value deleted", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -1045,6 +1059,20 @@ def register(app):
     def admin_coupon_new():
         if request.method == "POST":
             f = request.form
+            code = (f.get("code") or "").strip().upper()
+            ctype = (f.get("type") or "").strip()
+
+            # Validation
+            if not code:
+                flash("Coupon code is required.", "error")
+                return render_template("admin/coupon_form.html", coupon=None)
+            if ctype not in ("percentage", "fixed"):
+                flash("Coupon type must be 'percentage' or 'fixed'.", "error")
+                return render_template("admin/coupon_form.html", coupon=None)
+            if db.query_one("SELECT id FROM coupons WHERE code = ?", [code]):
+                flash(f"Coupon code '{code}' already exists.", "error")
+                return render_template("admin/coupon_form.html", coupon=None)
+
             try:
                 db.execute(
                     """INSERT INTO coupons 
@@ -1052,7 +1080,7 @@ def register(app):
                         usage_limit_per_user, max_discount, expires_at, is_active)
                        VALUES (?,?,?,?,?,?,?,?,?,?)""",
                     [
-                        str(uuid.uuid4()), f.get("code").upper(), f.get("type"),
+                        str(uuid.uuid4()), code, ctype,
                         float(f.get("value") or 0), float(f.get("min_order_amount") or 0),
                         int(f.get("usage_limit")) if f.get("usage_limit") else None,
                         int(f.get("usage_limit_per_user") or 1),
@@ -1110,21 +1138,37 @@ def register(app):
                         if db.query_one("SELECT id FROM products WHERE sku=? OR slug=?", [sku, slug]):
                             skipped += 1
                             continue
+                        # Safely parse numeric fields
+                        try:
+                            price = float(row.get("regular_price") or row.get("price") or 0)
+                        except (ValueError, TypeError):
+                            price = 0
+                        try:
+                            sale = float(row.get("sale_price") or 0) or None
+                        except (ValueError, TypeError):
+                            sale = None
+                        try:
+                            stock = int(row.get("stock") or row.get("stock_quantity") or 0)
+                        except (ValueError, TypeError):
+                            stock = 0
                         result = db.execute_returning(
-                            """INSERT INTO products (name, slug, sku, price, sale_price,
+                            """INSERT INTO products (id, name, slug, sku, price, sale_price,
                                stock_quantity, stock_status, description, short_description, is_active)
-                               VALUES (?,?,?,?,?,?,?,?,?,TRUE) RETURNING id""",
-                            [name, slug, sku, price, sale, stock,
+                               VALUES (?,?,?,?,?,?,?,?,?,?,TRUE) RETURNING id""",
+                            [str(uuid.uuid4()), name, slug, sku, price, sale, stock,
                              "in_stock" if stock > 0 else "out_of_stock", desc, short]
                         )
                         if result and img:
+                            mid = str(uuid.uuid4())
+                            db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, img])
                             db.execute(
-                                "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?,?,TRUE)",
-                                [result["id"], img]
+                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,TRUE)",
+                                [str(uuid.uuid4()), result["id"], mid]
                             )
                         imported += 1
                     except Exception as row_err:
                         errors.append(f"Row {i}: {row_err}")
+                get_products.cache_clear()
                 results = {"imported": imported, "skipped": skipped, "errors": errors}
                 flash(f"Import complete: {imported} imported, {skipped} skipped.", "success")
             except Exception as e:

@@ -5,6 +5,7 @@ import markupsafe
 import cloudinary
 import cloudinary.uploader
 import db
+import uuid
 
 
 def slugify(text):
@@ -36,7 +37,7 @@ def ttl_cache(ttl_seconds=60):
 def get_unique_slug(table, base_slug, exclude_id=None):
     slug = base_slug or "item"
     counter = 1
-    while True:
+    for _ in range(50):
         query = f"SELECT id FROM {table} WHERE slug = ?"
         params = [slug]
         if exclude_id:
@@ -46,6 +47,7 @@ def get_unique_slug(table, base_slug, exclude_id=None):
             return slug
         slug = f"{base_slug}-{counter}"
         counter += 1
+    return f"{base_slug}-{uuid.uuid4().hex[:8]}"
 
 
 def get_store_settings():

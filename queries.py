@@ -157,7 +157,7 @@ def get_products(search=None, categories=(), brands=(),
                  featured=False, limit=None, on_sale=False,
                  min_price=None, max_price=None,
                  # legacy single-value aliases kept for admin callers
-                 category=None, brand=None):
+                 category=None, brand=None, skip_expand=False):
     # Normalise: merge legacy single values into the multi-select tuples
     cats_list = list(c for c in (list(categories or []) + ([category] if category else [])) if c)
     if len(cats_list) > 1:
@@ -235,6 +235,8 @@ def get_products(search=None, categories=(), brands=(),
     )
 
     # ── Expand all variations into separate listing cards ──
+    if skip_expand:
+        return products, total, total_pages
     expanded = _expand_product_list(products)
     return expanded, len(expanded), total_pages
 

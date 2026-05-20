@@ -41,6 +41,28 @@
     object-fit: cover;
     transition: opacity 0.3s;
   }
+  .gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .gallery-arrow:hover { background: #fff; }
+  .gallery-arrow.prev { left: 0.8rem; }
+  .gallery-arrow.next { right: 0.8rem; }
+
   .gallery-thumbs {
     display: flex;
     gap: 0.6rem;
@@ -314,6 +336,8 @@
     <div class="gallery" id="productGallery">
       <div class="gallery-main" id="galleryMain">
         <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" id="mainImage" />
+        <button class="gallery-arrow prev" id="galleryPrev" type="button">&#10094;</button>
+        <button class="gallery-arrow next" id="galleryNext" type="button">&#10095;</button>
       </div>
       <div class="gallery-thumbs" id="galleryThumbs">
         {% for img in images %}
@@ -588,7 +612,10 @@
     const gallery = document.getElementById("productGallery");
     if (!gallery) return;
     if (varImages && varImages.length > 0) {
-      let html = '<div class="gallery-main"><img src="' + varImages[0] + '" alt="" id="mainImage" /></div>';
+      let html = '<div class="gallery-main"><img src="' + varImages[0] + '" alt="" id="mainImage" />';
+      html += '<button class="gallery-arrow prev" type="button">&#10094;</button>';
+      html += '<button class="gallery-arrow next" type="button">&#10095;</button>';
+      html += '</div>';
       html += '<div class="gallery-thumbs" id="galleryThumbs">';
       varImages.forEach((url, i) => {
         html += '<div class="gallery-thumb' + (i === 0 ? ' active' : '') + '" data-url="' + url + '">';
@@ -625,13 +652,36 @@
     return parts.join(", ");
   }
 
+  // ── Gallery arrow navigation ──
+  function navigateGallery(dir) {
+    const thumbs = document.querySelectorAll("#galleryThumbs .gallery-thumb");
+    const main = document.getElementById("mainImage");
+    if (!thumbs.length || !main) return;
+    let activeIdx = -1;
+    thumbs.forEach((t, i) => { if (t.classList.contains("active")) activeIdx = i; });
+    if (activeIdx < 0) activeIdx = 0;
+    const nextIdx = (activeIdx + dir + thumbs.length) % thumbs.length;
+    thumbs.forEach(t => t.classList.remove("active"));
+    thumbs[nextIdx].classList.add("active");
+    main.src = thumbs[nextIdx].dataset.url;
+  }
+
   // ── Gallery thumb clicks ──
-  document.querySelectorAll(".gallery-thumb").forEach(thumb => {
-    thumb.addEventListener("click", function() {
-      document.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
-      this.classList.add("active");
-      document.getElementById("mainImage").src = this.dataset.url;
-    });
+  // ── Delegated gallery thumb clicks (works for static and dynamic thumbs) ──
+  document.addEventListener("click", function(e) {
+    const thumb = e.target.closest(".gallery-thumb");
+    if (!thumb) return;
+    const container = document.getElementById("galleryThumbs") || thumb.closest("#galleryThumbs");
+    if (container) container.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+    thumb.classList.add("active");
+    const main = document.getElementById("mainImage");
+    if (main) main.src = thumb.dataset.url;
+  });
+
+  // ── Gallery arrow clicks ──
+  document.addEventListener("click", function(e) {
+    if (e.target.closest("#galleryPrev")) navigateGallery(-1);
+    if (e.target.closest("#galleryNext")) navigateGallery(1);
   });
 
   // ── Init ──
