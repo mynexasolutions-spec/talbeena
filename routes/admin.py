@@ -1038,14 +1038,14 @@ def register(app):
                     value = "true" if request.form.get(key) == "on" else "false"
                     db.execute(
                         "INSERT INTO store_settings (key, value) VALUES (?,?) "
-                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=CURRENT_TIMESTAMP",
                         [key, value, value]
                     )
                 for key in text_keys:
                     value = request.form.get(key, "").strip()
                     db.execute(
                         "INSERT INTO store_settings (key, value) VALUES (?,?) "
-                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=CURRENT_TIMESTAMP",
                         [key, value, value]
                     )
                 for key in numeric_keys:
@@ -1056,7 +1056,7 @@ def register(app):
                         value = "99" if key == "shipping_fee" else "999"
                     db.execute(
                         "INSERT INTO store_settings (key, value) VALUES (?,?) "
-                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=CURRENT_TIMESTAMP",
                         [key, value, value]
                     )
                 get_cached_store_settings.cache_clear()

@@ -321,6 +321,8 @@ _MIGRATIONS = [
     "ALTER TABLE coupons ADD COLUMN max_discount DECIMAL(10,2)",
     "ALTER TABLE orders ADD COLUMN coupon_code TEXT DEFAULT ''",
     "ALTER TABLE orders ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0",
+    "ALTER TABLE orders ADD COLUMN subtotal DECIMAL(10,2) DEFAULT 0",
+    "ALTER TABLE orders ADD COLUMN shipping_amount DECIMAL(10,2) DEFAULT 0",
     """CREATE TABLE IF NOT EXISTS coupon_usages (
         id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
         coupon_id  TEXT NOT NULL,

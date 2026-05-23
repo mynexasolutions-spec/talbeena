@@ -455,7 +455,7 @@ def order_cancel(order_id):
                 [qty, pid],
             )
         db.execute(
-            "UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=NOW(), cancel_reason=? WHERE id=? AND user_id=?",
+            "UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=CURRENT_TIMESTAMP, cancel_reason=? WHERE id=? AND user_id=?",
             [cancel_reason, order_id, uid],
         )
         flash("Order cancelled successfully.", "success")
