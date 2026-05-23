@@ -242,6 +242,11 @@ def register(app):
         
         if request.method == "POST":
             f = request.form
+            name = (f.get("name") or "").strip()
+            if not name:
+                flash("Product name is required.", "error")
+                return render_template("admin/product_form.html", product=None, categories=categories,
+                                       brands=brands, all_attributes=all_attributes, action="new")
             try:
                 import time as _t
                 t0 = _t.time()
@@ -457,7 +462,10 @@ def register(app):
     @require_admin
     def admin_category_new():
         if request.method == "POST":
-            name       = request.form.get("name")
+            name = (request.form.get("name") or "").strip()
+            if not name:
+                flash("Category name is required.", "error")
+                return render_template("admin/category_form.html", category=None, categories=get_categories())
             slug       = request.form.get("slug") or slugify(name)
             parent_id  = request.form.get("parent_id") or None
             is_featured = request.form.get("is_featured") == "on"
@@ -543,7 +551,10 @@ def register(app):
     @require_admin
     def admin_brand_new():
         if request.method == "POST":
-            name = request.form.get("name")
+            name = (request.form.get("name") or "").strip()
+            if not name:
+                flash("Brand name is required.", "error")
+                return render_template("admin/brand_form.html", brand=None)
             slug = request.form.get("slug") or slugify(name)
             image_url = handle_upload(request.files.get("image_file")) or None
             try:
@@ -929,6 +940,15 @@ def register(app):
                 short_desc = (request.form.get(f"short_desc_{vid}") or "").strip()
                 desc    = (request.form.get(f"description_{vid}") or "").strip()
 
+                try:
+                    p = float(price) if price else 0
+                except (ValueError, TypeError):
+                    p = 0
+                try:
+                    s = int(stock) if stock else 0
+                except (ValueError, TypeError):
+                    s = 0
+
                 db.execute(
                     """UPDATE product_variations
                        SET sku=?, price=?, stock_quantity=?, stock_status=?,
@@ -936,9 +956,8 @@ def register(app):
                        WHERE id=?""",
                     [
                         sku or f"VAR-{vid[:8].upper()}",
-                        float(price) if price else 0,
-                        int(stock) if stock else 0,
-                        "out_of_stock" if (int(stock or 0) <= 0) else "in_stock",
+                        p, s,
+                        "out_of_stock" if (s <= 0) else "in_stock",
                         var_name, short_desc, desc, vid,
                     ],
                 )

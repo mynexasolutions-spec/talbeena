@@ -277,8 +277,31 @@ ok("T24: Create valid coupon") if db_module.query_one("SELECT * FROM coupons WHE
 r = post("/admin/coupons/new", {"code": "SAVE20", "type": "percentage", "value": "15"})
 ok("T25: Reject duplicate coupon") if b"already exists" in r.data else fail("T25")
 
-# ── 11. Phase 10: Cache ───────────────────────────────────────────────────────
-print("\n── Phase 10: Cache Invalidation ──")
+# ── 11. Phase 10: Validation Tests ────────────────────────────────────────────
+print("\n── Phase 10: Validation Tests ──")
+
+r = post("/admin/categories/new", {"name": "", "slug": "empty"})
+ok("T27: Reject empty category name") if b"required" in r.data else fail("T27")
+
+r = post("/admin/brands/new", {"name": "", "slug": "empty"})
+ok("T28: Reject empty brand name") if b"required" in r.data else fail("T28")
+
+r = post("/admin/products/new", {"name": "", "type": "simple", "price": "100"})
+ok("T29: Reject empty product name") if b"required" in r.data else fail("T29")
+
+# Bulk update with bad numeric values — should not crash
+variations = db_module.query("SELECT id FROM product_variations WHERE product_id=?", [var_id])
+if variations:
+    v = variations[0]
+    r = post(f"/admin/products/{var_id}/variations/bulk_update", {
+        f"price_{v['id']}": "abc",
+        f"stock_{v['id']}": "xyz",
+    })
+    # Route redirects, so status should be 302
+    ok("T30: Bulk update bad numerics don't crash") if r.status_code in (302, 200) else fail("T30")
+
+# ── 12. Phase 11: Cache ───────────────────────────────────────────────────────
+print("\n── Phase 11: Cache Invalidation ──")
 
 from queries import get_products
 
@@ -290,11 +313,11 @@ db_module.execute("INSERT INTO products (id, name, slug, sku, type, price, stock
 get_products.cache_clear()
 after = db_module.query_one("SELECT COUNT(*) as cnt FROM products WHERE is_active=1")["cnt"]
 if after == before + 1:
-    ok("T26: Cache clears on new product")
+    ok("T31: Cache clears on new product")
 else:
-    fail("T26", f"{before}→{after}")
+    fail("T31", f"{before}→{after}")
 
-# ── 12. Summary ───────────────────────────────────────────────────────────────
+# ── 13. Summary ───────────────────────────────────────────────────────────────
 print("\n" + "=" * 60)
 total = passed + failed
 if failed == 0:
