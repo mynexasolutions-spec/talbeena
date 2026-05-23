@@ -35,21 +35,17 @@
   .shop-section { padding:90px 5%; background:var(--cream); }
   .shop-header { text-align:center; max-width:620px; margin:0 auto 3.5rem; }
   .shop-header p { font-size:1.05rem; color:var(--text-mid); line-height:1.7; }
-  .shop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
-  .product-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.07); transition:transform 0.3s,box-shadow 0.3s; display:flex; flex-direction:column; text-decoration:none; color:inherit; }
-  .product-card:hover { transform:translateY(-7px); box-shadow:0 20px 50px rgba(0,0,0,0.13); }
-  .product-img-wrap { position:relative; overflow:hidden; }
-  .product-img-wrap img { width:100%; aspect-ratio:1; object-fit:cover; display:block; transition:transform 0.5s; }
-  .product-card:hover .product-img-wrap img { transform:scale(1.05); }
-  .product-badge { position:absolute; top:1rem; left:1rem; background:var(--teal-dark); color:#fff; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; padding:0.3rem 0.8rem; border-radius:100px; }
-  .product-body { padding:1.5rem 1.5rem 1rem; flex:1; display:flex; flex-direction:column; }
-  .product-name { font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--teal-dark); margin-bottom:0.3rem; font-weight:700; }
-  .product-tagline { font-size:0.88rem; color:var(--text-soft); margin-bottom:1.2rem; line-height:1.5; flex:1; }
-  .product-footer { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem 1.4rem; border-top:1px solid var(--border); }
-  .product-price { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--teal-dark); }
-  .product-price span { font-size:0.85rem; color:var(--text-soft); font-weight:400; }
-  .btn-add { background:var(--gold); color:#fff; border:none; padding:0.65rem 1.2rem; border-radius:6px; font-size:0.85rem; font-weight:700; cursor:pointer; transition:filter 0.25s,transform 0.2s; white-space:nowrap; text-decoration:none; display:inline-block; }
-  .btn-add:hover { filter:brightness(0.9); transform:translateY(-1px); }
+  .fp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1000px; margin:0 auto; }
+  .fp-card { background:#fff; border-radius:10px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .fp-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+  .fp-img { width:100%; height:270px; object-fit:cover; display:block; }
+  .fp-body { padding:12px 14px 8px; }
+  .fp-name { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--teal-dark); }
+  .fp-sub { font-size:0.8rem; color:var(--text-soft); margin-top:3px; }
+  .fp-foot { display:flex; align-items:center; justify-content:space-between; padding:8px 14px 12px; border-top:1px solid var(--border); }
+  .fp-price { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--teal-dark); }
+  .fp-btn { background:var(--gold); color:#fff; border:none; padding:5px 12px; border-radius:4px; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:none; }
+  @media (max-width:768px) { .fp-grid { grid-template-columns:repeat(2,1fr); gap:12px; } }
 
   /* ── WHAT IS TALBEENA ── */
   .what-section { padding:90px 5%; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
@@ -103,17 +99,17 @@
   .newsletter-form button:hover { background:var(--teal-dark); }
 
   @media (max-width: 768px) {
-    .shop-grid { grid-template-columns:1fr 1fr; gap:1rem; }
     .what-section { grid-template-columns:1fr; gap:2rem; }
+    .what-images { order:2; }
+    .what-section > div:last-child { order:1; }
     .what-images img:first-child { margin-top:0; }
     .benefits-grid { grid-template-columns:1fr 1fr; gap:1rem; }
     .testimonials-grid { grid-template-columns:1fr; gap:1rem; }
     .what-images { grid-template-columns:1fr; }
-    .what-images img { aspect-ratio:16/9 !important; }
+    .what-images img { aspect-ratio:4/3 !important; }
     .newsletter-form { flex-direction:column; }
   }
   @media (max-width: 480px) {
-    .shop-grid { grid-template-columns:1fr; }
     .benefits-grid { grid-template-columns:1fr; }
   }
 </style>
@@ -147,20 +143,17 @@
     <h2 class="section-title">Featured Blends</h2>
     <p>Handcrafted from the finest barley, each blend is curated to bring warmth, health, and the blessing of Sunnah to your table.</p>
   </div>
-  <div class="shop-grid">
+  <div class="fp-grid">
     {% for product in featured[:6] %}
-    <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="product-card">
-      <div class="product-img-wrap">
-        <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1517093728432-a0440f8d45af?w=400&q=80'" />
-        {% if product.is_featured %}<span class="product-badge">New</span>{% endif %}
+    <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="fp-card">
+      <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" class="fp-img" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'" />
+      <div class="fp-body">
+        <div class="fp-name">{{ product.name }}</div>
+        <div class="fp-sub">{{ product.short_description or product.category_name or '' }}</div>
       </div>
-      <div class="product-body">
-        <div class="product-name">{{ product.name }}</div>
-        <div class="product-tagline">{{ product.short_description or product.category_name or '' }}</div>
-      </div>
-      <div class="product-footer">
-        <div class="product-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }} <span>/ pack</span></div>
-        <span class="btn-add">Add to Cart</span>
+      <div class="fp-foot">
+        <span class="fp-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+        <span class="fp-btn">Add</span>
       </div>
     </a>
     {% endfor %}

@@ -11,7 +11,7 @@
   <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem;">
     <div>
       <h1 style="font-size:1.5rem; font-weight:700; color:var(--admin-text-main);">Order #{{ order.id[:13] }}</h1>
-      <p style="color:var(--admin-text-muted); font-size:0.875rem;">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') if order.created_at else 'N/A' }}</p>
+      <p style="color:var(--admin-text-muted); font-size:0.875rem;">Placed on {{ order.created_at[:10] if order.created_at else 'N/A' }}</p>
     </div>
     <span class="badge badge-{{ order.status }}" style="font-size:0.875rem; padding:0.5rem 1rem;">{{ order.status }}</span>
   </div>
@@ -87,7 +87,7 @@
       <div style="margin-top:1rem; padding:1rem; border-radius:0.75rem; background:#fff7ed; border:1px solid #fdba74; color:#9a3412; font-size:0.875rem;">
         <div style="font-weight:700; margin-bottom:0.35rem;">Cancelled order</div>
         {% if order.cancel_reason %}<div>Reason: {{ order.cancel_reason }}</div>{% endif %}
-        {% if order.cancelled_at %}<div>Cancelled at: {{ order.cancelled_at.strftime('%d %b %Y, %I:%M %p') }}</div>{% endif %}
+        {% if order.cancelled_at %}<div>Cancelled at: {{ order.cancelled_at[:10] }}</div>{% endif %}
       </div>
       {% endif %}
     </div>

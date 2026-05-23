@@ -26,7 +26,7 @@
       {% for o in orders %}
       <tr>
         <td style="font-weight:600;"><a href="{{ url_for('admin_order_detail', order_id=o.id) }}" class="text-indigo">#{{ o.id[:8] }}</a></td>
-        <td style="color:var(--admin-text-muted);">{{ o.created_at.strftime('%b %d, %Y') if o.created_at else 'N/A' }}</td>
+        <td style="color:var(--admin-text-muted);">{{ o.created_at[:10] if o.created_at else 'N/A' }}</td>
         <td>
           <div style="font-weight:500;">{{ o.customer_name or 'Guest' }}</div>
           <div style="font-size:0.75rem; color:var(--admin-text-muted);">{{ o.customer_email }}</div>
