@@ -267,7 +267,41 @@ for name, slug, sku, desc, price, cat_id, primary_img, gallery_imgs in simple_pr
                    [str(uuid.uuid4()), pid, media_ids[gimg]])
 print("✓ Simple products created (with images)")
 
-# ── 7. Store Settings ─────────────────────────────────────────────────────────
+# ── 8. Blog Posts ─────────────────────────────────────────────────────────────
+blog_posts = [
+    {
+        "title": "The Blessed Grain: Barley in the Quran and Sunnah",
+        "slug": "barley-in-quran-sunnah",
+        "excerpt": "Discover the profound significance of barley (sha'ir) in Islamic tradition and its mention in the teachings of Prophet Muhammad ﷺ.",
+        "content": "<h2>Barley: A Prophet's Choice</h2><p>Throughout the Seerah, barley appears as a recurring theme — from the simple meals of the Prophet's household to his specific recommendations for healing. The Prophet ﷺ said: <em>'Talbeena gives rest to the heart of the patient and relieves him from some of his grief.'</em> (Sahih Al-Bukhari)</p><p>Barley was a staple food in Madinah, forming the basis of many meals in the Prophet's ﷺ home. Its affordability and nutritional density made it accessible to all, embodying the Islamic principle of moderation and gratitude for simple blessings.</p><h2>Nutritional Wisdom</h2><p>Modern science has confirmed what our predecessors knew instinctively. Barley is rich in beta-glucan, a soluble fiber that supports heart health, stabilizes blood sugar, and promotes digestive wellness. It's a complete package of nourishment — body and soul.</p><p>By choosing talbeena, you're not just choosing a healthy breakfast; you're reviving a Sunnah that has blessed millions over fourteen centuries.</p>",
+        "author": "Admin"
+    },
+    {
+        "title": "5 Ways to Enjoy Talbeena Beyond Breakfast",
+        "slug": "talbeena-beyond-breakfast",
+        "excerpt": "Think talbeena is just for mornings? Think again! Here are five creative ways to enjoy barley goodness throughout the day.",
+        "content": "<h2>1. Talbeena Smoothie Bowl</h2><p>Blend prepared talbeena with frozen banana, a handful of spinach, and a splash of almond milk. Top with granola, sliced almonds, and a drizzle of honey for a refreshing twist.</p><h2>2. Savoury Talbeena Porridge</h2><p>Skip the sweetener and add a pinch of salt, cumin, and turmeric. Top with a poached egg and fresh herbs for a warming savoury breakfast that keeps you full until lunch.</p><h2>3. Talbeena Energy Balls</h2><p>Mix cooled talbeena with dates, cocoa powder, and desiccated coconut. Roll into bite-sized balls and refrigerate for a wholesome on-the-go snack.</p><h2>4. Bedtime Talbeena Latte</h2><p>Whisk a spoonful of talbeena mix into warm milk with a pinch of cinnamon and cardamom. A comforting drink that soothes the mind and body before sleep.</p><h2>5. Talbeena Pancakes</h2><p>Add prepared talbeena to your favourite pancake batter for extra fluffiness and a nutritional boost. Serve with fresh fruit and yoghurt.</p><p>Which one will you try first?</p>",
+        "author": "Admin"
+    },
+    {
+        "title": "Understanding Beta-Glucan: The Heart-Friendly Fiber in Barley",
+        "slug": "beta-glucan-barley-heart-health",
+        "excerpt": "Learn about the powerful soluble fiber that makes barley a heart-health superfood, backed by modern nutritional science.",
+        "content": "<h2>What is Beta-Glucan?</h2><p>Beta-glucan is a type of soluble fiber found abundantly in barley, oats, and certain mushrooms. But barley contains the highest concentration — making it one of the most potent sources available in nature.</p><h2>How It Works</h2><p>When consumed, beta-glucan forms a gel-like substance in your digestive tract. This gel: <ul><li>Binds to cholesterol-rich bile acids and helps excrete them</li><li>Slows down glucose absorption, preventing blood sugar spikes</li><li>Feeds beneficial gut bacteria, supporting digestive health</li><li>Promotes a feeling of fullness, aiding weight management</li></ul></p><h2>The Research</h2><p>The US Food and Drug Administration (FDA) has approved the claim that barley beta-glucan may reduce the risk of coronary heart disease. Studies show that consuming 3g of barley beta-glucan daily can lower LDL cholesterol by 5-10%.</p><p>One serving of Talbeena provides approximately 2g of beta-glucan — a significant step toward your daily heart-health goals.</p>",
+        "author": "Admin"
+    },
+]
+
+for bp in blog_posts:
+    existing = db.query_one("SELECT id FROM blog_posts WHERE slug=?", [bp["slug"]])
+    if not existing:
+        db.execute(
+            "INSERT INTO blog_posts (id, title, slug, excerpt, content, author, published) VALUES (?,?,?,?,?,?,1)",
+            [str(uuid.uuid4()), bp["title"], bp["slug"], bp["excerpt"], bp["content"], bp["author"]]
+        )
+print("✓ Blog posts seeded")
+
+# ── 9. Store Settings ─────────────────────────────────────────────────────────
 db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_name', 'Talbeena')")
 db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_email', 'hello@talbeena.com')")
 print("✓ Store settings configured")

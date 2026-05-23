@@ -377,6 +377,22 @@ _MIGRATIONS = [
     "ALTER TABLE product_variations ADD COLUMN name TEXT DEFAULT ''",
     "ALTER TABLE product_variations ADD COLUMN short_description TEXT DEFAULT ''",
     "ALTER TABLE product_variations ADD COLUMN description TEXT DEFAULT ''",
+
+    # 15. Blog
+    """CREATE TABLE IF NOT EXISTS blog_posts (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        title TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        excerpt TEXT DEFAULT '',
+        content TEXT DEFAULT '',
+        image_url TEXT DEFAULT '',
+        author TEXT DEFAULT 'Admin',
+        published INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON blog_posts(published)",
 ]
 
 def migrate():

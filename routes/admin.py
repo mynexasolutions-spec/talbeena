@@ -1196,3 +1196,73 @@ def register(app):
             except Exception as e:
                 flash(f"CSV parse error: {e}", "error")
         return render_template("admin/import.html", results=results)
+
+    # ── Blog ───────────────────────────────────────────────────────────────────
+
+    @app.route("/admin/blog")
+    @require_admin
+    def admin_blog():
+        posts = db.query("SELECT * FROM blog_posts ORDER BY created_at DESC")
+        return render_template("admin/blog_list.html", posts=posts)
+
+    @app.route("/admin/blog/new", methods=["GET", "POST"])
+    @require_admin
+    def admin_blog_new():
+        if request.method == "POST":
+            f = request.form
+            title = (f.get("title") or "").strip()
+            if not title:
+                flash("Title is required.", "error")
+                return render_template("admin/blog_form.html", post=None)
+            slug = get_unique_slug("blog_posts", f.get("slug") or slugify(title))
+            image_url = handle_upload(request.files.get("image_file")) or f.get("image_url") or ""
+            try:
+                db.execute(
+                    "INSERT INTO blog_posts (id, title, slug, excerpt, content, image_url, author, published) "
+                    "VALUES (?,?,?,?,?,?,?,?)",
+                    [str(uuid.uuid4()), title, slug, f.get("excerpt", ""), f.get("content", ""),
+                     image_url, f.get("author", "Admin") or "Admin",
+                     1 if f.get("published") == "on" else 0]
+                )
+                flash("Blog post created.", "success")
+                return redirect(url_for("admin_blog"))
+            except Exception as e:
+                flash(f"Error creating post: {e}", "error")
+        return render_template("admin/blog_form.html", post=None)
+
+    @app.route("/admin/blog/<post_id>/edit", methods=["GET", "POST"])
+    @require_admin
+    def admin_blog_edit(post_id):
+        post = db.query_one("SELECT * FROM blog_posts WHERE id=?", [post_id])
+        if not post:
+            abort(404)
+        if request.method == "POST":
+            f = request.form
+            title = (f.get("title") or "").strip()
+            if not title:
+                flash("Title is required.", "error")
+                return render_template("admin/blog_form.html", post=post)
+            slug = get_unique_slug("blog_posts", f.get("slug") or slugify(title), exclude_id=post_id)
+            image_url = handle_upload(request.files.get("image_file")) or f.get("image_url") or post.get("image_url", "")
+            try:
+                db.execute(
+                    "UPDATE blog_posts SET title=?, slug=?, excerpt=?, content=?, image_url=?, author=?, published=? WHERE id=?",
+                    [title, slug, f.get("excerpt", ""), f.get("content", ""),
+                     image_url, f.get("author", "Admin") or "Admin",
+                     1 if f.get("published") == "on" else 0, post_id]
+                )
+                flash("Blog post updated.", "success")
+                return redirect(url_for("admin_blog"))
+            except Exception as e:
+                flash(f"Error updating post: {e}", "error")
+        return render_template("admin/blog_form.html", post=post)
+
+    @app.route("/admin/blog/<post_id>/delete", methods=["POST"])
+    @require_admin
+    def admin_blog_delete(post_id):
+        try:
+            db.execute("DELETE FROM blog_posts WHERE id=?", [post_id])
+            flash("Blog post deleted.", "success")
+        except Exception as e:
+            flash(f"Error: {e}", "error")
+        return redirect(url_for("admin_blog"))
