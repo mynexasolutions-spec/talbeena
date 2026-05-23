@@ -1,0 +1,90 @@
+{% extends 'user_base.html' %}
+{% block title %}Order #{{ order.order_number[:12] }} – Talbeena{% endblock %}
+
+{% block content %}
+<div style="max-width:800px; margin:2rem auto; padding:0 5%;">
+  <a href="{{ url_for('auth.account') }}" style="color:var(--teal); text-decoration:none; font-size:0.9rem;">&larr; Back to Account</a>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin:1.5rem 0;">
+    <h1 style="font-family:'Cormorant Garamond',serif; margin:0;">Order {{ order.order_number[:16] }}</h1>
+    <span class="stock-badge {% if order.status in ('cancelled','refunded') %}out-of-stock{% else %}in-stock{% endif %}" style="font-size:0.85rem;">
+      {{ order.status|replace('_', ' ')|title }}
+    </span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; background:#fff; border:1px solid var(--border); border-radius:10px; padding:1.5rem; margin-bottom:1.5rem;">
+    <div>
+      <h4 style="font-size:0.75rem; text-transform:uppercase; color:var(--text-soft); margin:0 0 0.5rem;">Order Info</h4>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">Placed: {{ order.created_at[:10] if order.created_at else '' }}</p>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">Payment: {{ order.payment_method|upper }}</p>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">Status: {{ order.payment_status|title }}</p>
+    </div>
+    <div>
+      <h4 style="font-size:0.75rem; text-transform:uppercase; color:var(--text-soft); margin:0 0 0.5rem;">Shipping To</h4>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">{{ order.customer_name }}</p>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">{{ order.customer_email }}</p>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">{{ order.customer_phone }}</p>
+    </div>
+  </div>
+
+  <div style="background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:1.5rem;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="background:#fafafa; font-size:0.75rem; text-transform:uppercase; color:var(--text-soft);">
+          <th style="padding:0.8rem 1rem; text-align:left;">Item</th>
+          <th style="padding:0.8rem 1rem; text-align:center;">Qty</th>
+          <th style="padding:0.8rem 1rem; text-align:right;">Price</th>
+          <th style="padding:0.8rem 1rem; text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr style="border-top:1px solid var(--border);">
+          <td style="padding:1rem; font-weight:600;">{{ item.product_name_snapshot or item.product_name or 'Item' }}</td>
+          <td style="padding:1rem; text-align:center;">{{ item.quantity }}</td>
+          <td style="padding:1rem; text-align:right;">₹{{ "%.0f"|format(item.unit_price) }}</td>
+          <td style="padding:1rem; text-align:right; font-weight:700;">₹{{ "%.0f"|format(item.total_price) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:1.5rem; max-width:350px; margin-left:auto;">
+    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; font-size:0.9rem;">
+      <span>Subtotal</span><span>₹{{ "%.0f"|format(order.subtotal or 0) }}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; font-size:0.9rem;">
+      <span>Shipping</span><span>{% if order.shipping_amount and order.shipping_amount > 0 %}₹{{ "%.0f"|format(order.shipping_amount) }}{% else %}<span style="color:#065f46;font-weight:600;">FREE</span>{% endif %}</span>
+    </div>
+    {% if order.discount_amount and order.discount_amount > 0 %}
+    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; font-size:0.9rem; color:#065f46;">
+      <span>Discount</span><span>-₹{{ "%.0f"|format(order.discount_amount) }}</span>
+    </div>
+    {% endif %}
+    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-top:1px solid var(--border); margin-top:0.3rem; font-weight:700; font-size:1.1rem; color:var(--teal-dark);">
+      <span>Total</span><span>₹{{ "%.0f"|format(order.total_amount) }}</span>
+    </div>
+  </div>
+
+  {% if order.status not in ('cancelled', 'refunded', 'shipped', 'delivered') %}
+  <div style="text-align:right; margin-top:1.5rem;">
+    <button onclick="document.getElementById('cancelForm').style.display='block'" style="background:none; border:1px solid #ef4444; color:#ef4444; padding:0.5rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel Order</button>
+  </div>
+  <form id="cancelForm" method="POST" action="{{ url_for('checkout.order_cancel', order_id=order.id) }}" style="display:none; margin-top:1rem; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:1.5rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <h4 style="margin:0 0 1rem; color:#991b1b;">Why are you cancelling?</h4>
+    <select name="cancel_reason" required style="width:100%; padding:0.7rem; border:1px solid var(--border); border-radius:6px; margin-bottom:0.8rem;">
+      <option value="">— Select —</option>
+      <option value="Changed mind">Changed my mind</option>
+      <option value="Found cheaper">Found a better price</option>
+      <option value="Delivery time">Delivery takes too long</option>
+      <option value="Ordered by mistake">Ordered by mistake</option>
+      <option value="Other">Other</option>
+    </select>
+    <input type="text" name="cancel_reason_other" placeholder="Please specify if Other" style="width:100%; padding:0.7rem; border:1px solid var(--border); border-radius:6px; margin-bottom:0.8rem; display:none;" onfocus="this.style.display='block'" />
+    <button type="submit" style="background:#ef4444; color:#fff; border:none; padding:0.7rem 1.5rem; border-radius:8px; font-weight:700; cursor:pointer;">Confirm Cancellation</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

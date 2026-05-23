@@ -44,7 +44,7 @@
     <h2>Order Confirmed!</h2>
     <p>Thank you for your purchase.</p>
     <p>Order #<strong>{{ order.order_number or order.id[:12] }}</strong></p>
-    <p style="font-size:0.8rem; color:var(--text-soft);">{{ order.created_at.strftime('%d %B %Y at %I:%M %p') if order.created_at else '' }}</p>
+    <p style="font-size:0.8rem; color:var(--text-soft);">{{ order.created_at[:10] if order.created_at else '' }}</p>
   </div>
 
   <!-- Order Items -->
