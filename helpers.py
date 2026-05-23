@@ -82,12 +82,29 @@ def refresh_cart_prices(cart):
     )
     product_map = {str(r["id"]): r for r in rows}
 
+    # Load all variation IDs from cart items
+    var_ids = [str(item["variation_id"]) for item in cart.values()
+               if item.get("variation_id")]
+    var_price_map = {}
+    if var_ids:
+        ph2 = ",".join(["?"] * len(var_ids))
+        var_rows = db.query(
+            f"SELECT id, price, sale_price FROM product_variations WHERE id IN ({ph2})",
+            var_ids,
+        )
+        for r in var_rows:
+            var_price_map[str(r["id"])] = float(r.get("sale_price") or r.get("price") or 0)
+
     for key, item in cart.items():
         product_id = str(item.get("product_id", "")).strip()
         product    = product_map.get(product_id)
         if not product:
             continue
-        price    = float(product.get("sale_price") or product.get("price") or 0)
+        price = float(product.get("sale_price") or product.get("price") or 0)
+        # Use variation price if available
+        var_id = str(item.get("variation_id") or "")
+        if var_id and var_id in var_price_map:
+            price = var_price_map[var_id]
         new_item = dict(item)
         new_item["price"] = price
         if not new_item.get("sku"):

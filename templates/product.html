@@ -434,6 +434,14 @@
       if (!resp.ok) return;
       variationData = await resp.json();
       buildSelectors(variationData.attributes);
+
+      // ── Simple product: no selectors → show badge + enable button ──
+      if (!variationData.attributes || variationData.attributes.length === 0) {
+        document.getElementById("stockBadge").style.display = "inline-block";
+        document.getElementById("stockBadge").textContent = "{{ product.stock_status|replace('_', ' ')|title }}";
+        document.getElementById("addToCartBtn").disabled = ({{ product.stock_quantity or 0 }} <= 0);
+        document.getElementById("addToCartBtn").textContent = ({{ product.stock_quantity or 0 }} <= 0) ? "Out of Stock" : "Add to Cart";
+      }
     } catch (e) {
       console.error("Failed to load variations:", e);
     }

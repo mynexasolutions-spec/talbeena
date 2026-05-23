@@ -44,11 +44,12 @@ def cart_add():
         img          = product.get("image_url", "")
 
         if variation_id:
-            # Traditional variation — look up the combo label from the DB
+            # Variable product — look up the specific variation
             var = db.query_one("SELECT * FROM product_variations WHERE id = ?", [variation_id])
             if var:
-                sku  = var.get("sku", sku)
-                opts = db.query("""
+                price = float(var.get("sale_price") or var.get("price") or price)
+                sku   = var.get("sku", sku) or sku
+                opts  = db.query("""
                     SELECT av.value FROM attribute_values av
                     JOIN variation_attribute_values vav ON vav.attribute_value_id = av.id
                     WHERE vav.variation_id = ?
@@ -56,39 +57,26 @@ def cart_add():
                 if opts:
                     display_name += f" ({' / '.join(o['value'] for o in opts)})"
             item_key = variation_id
-
-        cart = session.get("cart", {})
-
-        if selected_options:
-            # Custom attribute selections (e.g. flavor, quantity, size)
-            display_name += f" ({selected_options})"
-            item_key = f"{product_id}|{selected_options}"
-            if item_key in cart:
-                cart[item_key]["qty"] += qty
-            else:
-                cart[item_key] = {
-                    "product_id": product_id,
-                    "variation_id": variation_id or None,
-                    "name": display_name,
-                    "price": price,
-                    "qty": qty,
-                    "image": img,
-                    "sku": sku,
-                }
         else:
             item_key = product_id
-            if item_key in cart:
-                cart[item_key]["qty"] += qty
-            else:
-                cart[item_key] = {
-                    "product_id": product_id,
-                    "variation_id": variation_id or None,
-                    "name": display_name,
-                    "price": price,
-                    "qty": qty,
-                    "image": img,
-                    "sku": sku,
-                }
+
+        if selected_options:
+            display_name += f" ({selected_options})"
+            item_key = f"{product_id}|{selected_options}"
+
+        cart = session.get("cart", {})
+        if item_key in cart:
+            cart[item_key]["qty"] += qty
+        else:
+            cart[item_key] = {
+                "product_id": product_id,
+                "variation_id": variation_id or None,
+                "name": display_name,
+                "price": price,
+                "qty": qty,
+                "image": img,
+                "sku": sku,
+            }
         session["cart"] = cart
         flash(f"'{display_name}' added to cart!", "success")
     except Exception as e:
@@ -108,19 +96,16 @@ def cart_remove():
         cart.pop(item_key)
         session["cart"] = cart
         flash("Item removed from cart.", "info")
-    else:
-        # Fallback for complex keys if they were somehow mutated
-        removed = False
-        for key in list(cart.keys()):
-            if str(key).strip() == item_key:
-                cart.pop(key)
-                removed = True
-                break
-        if removed:
+    elif item_key:
+        fallback = [k for k in cart if k.strip() == item_key]
+        if fallback:
+            cart.pop(fallback[0])
             session["cart"] = cart
             flash("Item removed from cart.", "info")
         else:
             flash("Item not found in cart.", "error")
+    else:
+        flash("Item not found in cart.", "error")
     return redirect(url_for("cart.view_cart"))
 
 
