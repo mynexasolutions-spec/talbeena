@@ -136,12 +136,6 @@
   }
   .cat-children {
     margin-left: 1rem;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.35s ease;
-  }
-  .cat-children.open {
-    max-height: 500px;
   }
 
   /* Brand checkboxes */
@@ -489,8 +483,7 @@
             {% set has_children = children_map.get(cat_id, [])|length > 0 %}
             {% set is_active = cat.slug in current_categories %}
             <div class="cat-item">
-              <label class="cat-link parent {% if is_active %}active{% endif %}"
-                     onclick="this.classList.toggle('open');var n=this.nextElementSibling;if(n&&n.classList.contains('cat-children'))n.classList.toggle('open');">
+              <label class="cat-link parent {% if is_active %}active{% endif %}">
                 <input type="checkbox" name="category" value="{{ cat.slug }}"
                        {% if is_active %}checked{% endif %}
                        onchange="document.getElementById('filterForm').submit()"
@@ -499,7 +492,7 @@
                 {% if has_children %}<span class="arrow">▾</span>{% endif %}
               </label>
               {% if has_children %}
-              <div class="cat-children {% if is_active %}open{% endif %}">
+              <div class="cat-children open">
                 {% for child in children_map[cat_id] %}
                 <label class="cat-link" style="display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.5rem;">
                   <input type="checkbox" name="category" value="{{ child.slug }}"
@@ -537,16 +530,16 @@
           <h4>Price Range (₹)</h4>
           <div class="range-slider">
             <input type="range" id="minPriceRange" min="0" max="5000" step="50"
-                   value="{{ min_price or 0 }}"
+                   value="{{ min_price|default('0') }}"
                    oninput="updatePriceLabels()" />
             <input type="range" id="maxPriceRange" min="0" max="5000" step="50"
-                   value="{{ max_price or 5000 }}"
+                   value="{{ max_price|default('5000') }}"
                    oninput="updatePriceLabels()" />
           </div>
           <div class="price-labels">
-            <span>₹<span id="minPriceLabel">{{ min_price or 0 }}</span></span>
+            <span>₹<span id="minPriceLabel">{{ min_price|default('0') }}</span></span>
             <span>–</span>
-            <span>₹<span id="maxPriceLabel">{{ max_price or 5000 }}</span></span>
+            <span>₹<span id="maxPriceLabel">{{ max_price|default('5000') }}</span></span>
           </div>
           <input type="hidden" name="min_price" id="minPriceInput" value="{{ min_price }}" />
           <input type="hidden" name="max_price" id="maxPriceInput" value="{{ max_price }}" />
@@ -696,30 +689,28 @@
   }
 
   function updatePriceLabels() {
-    const min = parseInt(document.getElementById('minPriceRange').value);
-    const max = parseInt(document.getElementById('maxPriceRange').value);
+    var min = parseInt(document.getElementById('minPriceRange').value);
+    var max = parseInt(document.getElementById('maxPriceRange').value);
     if (min > max) {
+      var temp = min;
       document.getElementById('minPriceRange').value = max;
       document.getElementById('maxPriceRange').value = min;
+      min = max;
+      max = temp;
     }
     document.getElementById('minPriceLabel').textContent = document.getElementById('minPriceRange').value;
     document.getElementById('maxPriceLabel').textContent = document.getElementById('maxPriceRange').value;
     document.getElementById('minPriceInput').value = document.getElementById('minPriceRange').value;
     document.getElementById('maxPriceInput').value = document.getElementById('maxPriceRange').value;
   }
+
+  // Init: ensure slider values match URL params on page load
+  setTimeout(updatePriceLabels, 100);
     const url = new URL(window.location);
     url.searchParams.set(key, value);
     url.searchParams.delete('page');
     window.location = url;
   }
 
-  // Open accordion for active categories on load
-  document.querySelectorAll('.cat-link.parent.active').forEach(el => {
-    el.classList.add('open');
-    const children = el.nextElementSibling;
-    if (children && children.classList.contains('cat-children')) {
-      children.classList.add('open');
-    }
-  });
 </script>
 {% endblock %}
