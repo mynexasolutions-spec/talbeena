@@ -157,7 +157,8 @@ def get_products(search=None, categories=(), brands=(),
                  featured=False, limit=None, on_sale=False,
                  min_price=None, max_price=None,
                  # legacy single-value aliases kept for admin callers
-                 category=None, brand=None, skip_expand=False):
+                 category=None, brand=None, skip_expand=False,
+                 attribute_values=()):
     # Normalise: merge legacy single values into the multi-select tuples
     cats_list = list(c for c in (list(categories or []) + ([category] if category else [])) if c)
     if len(cats_list) > 1:
@@ -193,6 +194,14 @@ def get_products(search=None, categories=(), brands=(),
         conditions.append("p.is_featured = 1")
     if on_sale:
         conditions.append("p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price")
+    if attribute_values:
+        ph = ",".join(["?"] * len(attribute_values))
+        conditions.append(f"""p.id IN (
+            SELECT pv.product_id FROM product_variations pv
+            JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+            WHERE vav.attribute_value_id IN ({ph})
+        )""")
+        params += list(attribute_values)
     if min_price is not None:
         conditions.append("COALESCE(p.sale_price, p.price) >= ?")
         params.append(min_price)

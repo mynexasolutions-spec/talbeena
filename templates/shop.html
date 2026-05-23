@@ -164,6 +164,51 @@
   }
 
   /* Price range */
+  .range-slider {
+    position: relative;
+    height: 36px;
+  }
+  .range-slider input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    top: 16px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .range-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--teal);
+    cursor: pointer;
+    pointer-events: auto;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .range-slider input[type="range"]::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--teal);
+    cursor: pointer;
+    pointer-events: auto;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .price-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-top: 0.3rem;
+  }
+
   .price-inputs {
     display: flex;
     gap: 0.5rem;
@@ -444,18 +489,25 @@
             {% set has_children = children_map.get(cat_id, [])|length > 0 %}
             {% set is_active = cat.slug in current_categories %}
             <div class="cat-item">
-              <div class="cat-link parent {% if is_active %}active open{% endif %}"
-                   onclick="toggleCategory(this, event)" data-slug="{{ cat.slug }}">
+              <label class="cat-link parent {% if is_active %}active{% endif %}"
+                     onclick="this.classList.toggle('open');var n=this.nextElementSibling;if(n&&n.classList.contains('cat-children'))n.classList.toggle('open');">
+                <input type="checkbox" name="category" value="{{ cat.slug }}"
+                       {% if is_active %}checked{% endif %}
+                       onchange="document.getElementById('filterForm').submit()"
+                       style="accent-color:var(--teal);width:14px;height:14px;margin-right:6px;" />
                 {{ cat.name }}
                 {% if has_children %}<span class="arrow">▾</span>{% endif %}
-              </div>
+              </label>
               {% if has_children %}
               <div class="cat-children {% if is_active %}open{% endif %}">
                 {% for child in children_map[cat_id] %}
-                  <a href="?{% if search %}search={{ search }}&{% endif %}category={{ child.slug }}"
-                     class="cat-link {% if child.slug in current_categories %}active{% endif %}">
-                    {{ child.name }}
-                  </a>
+                <label class="cat-link" style="display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.5rem;">
+                  <input type="checkbox" name="category" value="{{ child.slug }}"
+                         {% if child.slug in current_categories %}checked{% endif %}
+                         onchange="document.getElementById('filterForm').submit()"
+                         style="accent-color:var(--teal);width:14px;height:14px;" />
+                  {{ child.name }}
+                </label>
                 {% endfor %}
               </div>
               {% endif %}
@@ -482,20 +534,44 @@
 
         <!-- Price Range -->
         <div class="sidebar-block">
-          <h4>Price Range</h4>
-          <div class="price-inputs">
-            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" min="0" />
-            <span>–</span>
-            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" min="0" />
+          <h4>Price Range (₹)</h4>
+          <div class="range-slider">
+            <input type="range" id="minPriceRange" min="0" max="5000" step="50"
+                   value="{{ min_price or 0 }}"
+                   oninput="updatePriceLabels()" />
+            <input type="range" id="maxPriceRange" min="0" max="5000" step="50"
+                   value="{{ max_price or 5000 }}"
+                   oninput="updatePriceLabels()" />
           </div>
+          <div class="price-labels">
+            <span>₹<span id="minPriceLabel">{{ min_price or 0 }}</span></span>
+            <span>–</span>
+            <span>₹<span id="maxPriceLabel">{{ max_price or 5000 }}</span></span>
+          </div>
+          <input type="hidden" name="min_price" id="minPriceInput" value="{{ min_price }}" />
+          <input type="hidden" name="max_price" id="maxPriceInput" value="{{ max_price }}" />
         </div>
+
+        <!-- Flavor / Attribute filter -->
+        {% if flavor_vals %}
+        <div class="sidebar-block">
+          <h4>Flavor</h4>
+          {% for v in flavor_vals %}
+          <label class="brand-item">
+            <input type="checkbox" name="attr_value" value="{{ v.id }}"
+                   {% if v.id in current_attrs %}checked{% endif %}
+                   onchange="document.getElementById('filterForm').submit()" />
+            {{ v.value }}
+          </label>
+          {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Sale toggle -->
         <div class="sidebar-block">
           <label class="brand-item">
             <input type="checkbox" name="on_sale" value="1"
-                   {% if on_sale %}checked{% endif %}
-                   onchange="this.form.submit()" />
+                   {% if on_sale %}checked{% endif %} />
             On Sale Only
           </label>
         </div>
@@ -612,23 +688,25 @@
     document.getElementById('sidebarOverlay').classList.remove('active');
   }
 
-  function toggleCategory(el, event) {
-    event.preventDefault();
-    // Toggle accordion
-    el.classList.toggle('open');
-    const children = el.nextElementSibling;
-    if (children && children.classList.contains('cat-children')) {
-      children.classList.toggle('open');
-    }
-    // Navigate if it's a parent category
-    if (el.dataset.slug) {
-      const url = new URL(window.location);
-      url.searchParams.set('category', el.dataset.slug);
-      window.location = url;
-    }
+  function updateParam(key, value) {
+    const url = new URL(window.location);
+    url.searchParams.set(key, value);
+    url.searchParams.delete('page');
+    window.location = url;
   }
 
-  function updateParam(key, value) {
+  function updatePriceLabels() {
+    const min = parseInt(document.getElementById('minPriceRange').value);
+    const max = parseInt(document.getElementById('maxPriceRange').value);
+    if (min > max) {
+      document.getElementById('minPriceRange').value = max;
+      document.getElementById('maxPriceRange').value = min;
+    }
+    document.getElementById('minPriceLabel').textContent = document.getElementById('minPriceRange').value;
+    document.getElementById('maxPriceLabel').textContent = document.getElementById('maxPriceRange').value;
+    document.getElementById('minPriceInput').value = document.getElementById('minPriceRange').value;
+    document.getElementById('maxPriceInput').value = document.getElementById('maxPriceRange').value;
+  }
     const url = new URL(window.location);
     url.searchParams.set(key, value);
     url.searchParams.delete('page');

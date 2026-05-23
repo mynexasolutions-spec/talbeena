@@ -38,6 +38,7 @@ def shop():
     search          = request.args.get("search", "").strip()
     selected_cats   = tuple(s for s in request.args.getlist("category") if s)
     selected_brands = tuple(s for s in request.args.getlist("brand")    if s)
+    selected_attrs  = tuple(s for s in request.args.getlist("attr_value") if s)
     sort            = request.args.get("sort", "created_at_desc")
     page            = max(1, int(request.args.get("page", 1)))
     on_sale         = bool(request.args.get("on_sale", ""))
@@ -54,12 +55,20 @@ def shop():
             search=search, categories=selected_cats, brands=selected_brands,
             sort=sort, page=page, per_page=18, on_sale=on_sale,
             featured=featured, min_price=min_price_val, max_price=max_price_val,
+            attribute_values=selected_attrs,
         )
         all_categories = get_categories()
         all_brands     = get_brands()
+        # Fetch primary attribute values (e.g. Flavors) for sidebar filter
+        flavor_vals = db.query(
+            "SELECT av.id, av.value, av.image_url FROM attribute_values av "
+            "JOIN attributes a ON a.id = av.attribute_id "
+            "WHERE a.variation_type = 'primary' ORDER BY av.value"
+        )
     except Exception as e:
         products, total, total_pages = [], 0, 1
         all_categories = all_brands = []
+        flavor_vals = []
         flash(f"Database error: {e}", "error")
 
     # Build parent → children tree for the sidebar accordion
@@ -79,6 +88,8 @@ def shop():
         search=search,
         current_categories=selected_cats,
         current_brands=selected_brands,
+        current_attrs=selected_attrs,
+        flavor_vals=flavor_vals,
         current_sort=sort,
         on_sale=on_sale,
         min_price=min_price, max_price=max_price,
