@@ -351,9 +351,12 @@
     <!-- ── Info ── -->
     <div class="product-info">
       <h1>{{ product.name }}</h1>
+      {% if product.short_description %}
+      <p style="font-size:0.95rem; color:var(--text-mid); margin-bottom:1rem; line-height:1.6;">{{ product.short_description }}</p>
+      {% endif %}
       <div class="product-meta">
         {% if product.brand_name %}<span>Brand: <strong>{{ product.brand_name }}</strong></span>{% endif %}
-        <span>SKU: <strong id="productSku">—</strong></span>
+        <span>SKU: <strong id="productSku">{{ product.sku or '—' }}</strong></span>
       </div>
 
       <div class="price-block">
