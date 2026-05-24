@@ -78,7 +78,7 @@ def _get_variation_cards():
             pv.stock_quantity, pv.stock_status,
             pv.name AS var_name, pv.description AS var_desc,
             pv.short_description AS var_short_desc,
-            GROUP_CONCAT(av.value, ', ') AS label,
+            STRING_AGG(av.value, ', ' ORDER BY av.value) AS label,
             (SELECT m.file_url
              FROM variation_images vi
              JOIN media m ON m.id = vi.media_id

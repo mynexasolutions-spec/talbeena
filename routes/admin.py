@@ -78,9 +78,13 @@ def generate_variations(product_id):
     conn = db.get_conn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT price, sale_price, stock_quantity, sku, name FROM products WHERE id = ?", [product_id])
-        product = cur.fetchone()
-        product = dict(product) if product else None
+        cur.execute("SELECT price, sale_price, stock_quantity, sku, name FROM products WHERE id = %s", [product_id])
+        row = cur.fetchone()
+        if row:
+            cols = [desc[0] for desc in cur.description]
+            product = dict(zip(cols, row))
+        else:
+            product = None
     finally:
         conn.close()
 
@@ -95,9 +99,9 @@ def generate_variations(product_id):
     conn = db.get_conn()
     try:
         cur = conn.cursor()
-        cur.execute("DELETE FROM variation_images WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
-        cur.execute("DELETE FROM variation_attribute_values WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = ?)", [product_id])
-        cur.execute("DELETE FROM product_variations WHERE product_id = ?", [product_id])
+        cur.execute("DELETE FROM variation_images WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = %s)", [product_id])
+        cur.execute("DELETE FROM variation_attribute_values WHERE variation_id IN (SELECT id FROM product_variations WHERE product_id = %s)", [product_id])
+        cur.execute("DELETE FROM product_variations WHERE product_id = %s", [product_id])
 
         # 5. Batch-insert all variations + attribute-value links
         created = 0
@@ -107,14 +111,14 @@ def generate_variations(product_id):
 
             cur.execute(
                 "INSERT INTO product_variations (id, product_id, sku, price, sale_price, stock_quantity) "
-                "VALUES (?,?,?,?,?,?)",
+                "VALUES (%s,%s,%s,%s,%s,%s)",
                 [var_id, product_id, var_sku, base_price, product.get("sale_price"), base_stock],
             )
 
             for attr_id, val_id, _ in combo:
                 cur.execute(
                     "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) "
-                    "VALUES (?,?,?)",
+                    "VALUES (%s,%s,%s)",
                     [str(uuid.uuid4()), var_id, val_id],
                 )
             created += 1

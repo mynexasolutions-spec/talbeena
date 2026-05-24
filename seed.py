@@ -375,8 +375,8 @@ for bp in blog_posts:
 print("✓ Blog posts seeded")
 
 # ── 9. Store Settings ─────────────────────────────────────────────────────────
-db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_name', 'Talbeena')")
-db.execute("INSERT OR IGNORE INTO store_settings (key, value) VALUES ('store_email', 'hello@talbeena.com')")
+db.execute("INSERT INTO store_settings (key, value) VALUES ('store_name', 'Talbeena') ON CONFLICT (key) DO NOTHING")
+db.execute("INSERT INTO store_settings (key, value) VALUES ('store_email', 'hello@talbeena.com') ON CONFLICT (key) DO NOTHING")
 print("✓ Store settings configured")
 
 print("\n🎉 Seed complete! Start the app with:  python app.py")
