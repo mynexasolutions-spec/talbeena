@@ -65,7 +65,7 @@
     {% endfor %}
   {% endwith %}
 
-  <form method="POST" id="checkoutForm">
+  <form method="POST" id="checkoutForm" data-turbo="false">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="razorpay_payment_id" id="rzpPaymentId" />
     <input type="hidden" name="razorpay_order_id" id="rzpOrderId" />

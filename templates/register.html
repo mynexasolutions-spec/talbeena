@@ -117,7 +117,7 @@
     <p>Join Talbeena to track orders and save your details</p>
   </div>
 
-  <form method="post" action="{{ url_for('auth.register') }}">
+  <form method="post" action="{{ url_for('auth.register') }}" data-turbo="false">
     <!-- CSRF Protection Token -->
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 

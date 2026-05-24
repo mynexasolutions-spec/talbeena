@@ -171,7 +171,43 @@ for a in addons:
 # Generate variations
 from routes.admin import generate_variations
 generate_variations(prod_id)
-print("✓ Variable product created with images & variations")
+
+# Set realistic pricing per weight
+weight_prices = {
+    "250g": 149,
+    "500g": 249,
+    "1kg":  399,
+    "2kg":  699,
+}
+for wt, price in weight_prices.items():
+    db.execute(
+        """UPDATE product_variations SET price = ?, sale_price = NULL
+           WHERE id IN (
+               SELECT pv.id FROM product_variations pv
+               JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+               JOIN attribute_values av ON av.id = vav.attribute_value_id
+               WHERE pv.product_id = ? AND av.value = ?
+           )""",
+        [price, prod_id, wt],
+    )
+# Add sale prices on a few popular combos (Chocolate 1kg, Vanilla 1kg)
+for flavor in ("Chocolate", "Vanilla"):
+    db.execute(
+        """UPDATE product_variations SET sale_price = 299
+           WHERE id IN (
+               SELECT pv.id FROM product_variations pv
+               JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+               JOIN attribute_values av ON av.id = vav.attribute_value_id
+               WHERE pv.product_id = ? AND av.value = '1kg'
+               AND pv.id IN (
+                   SELECT vav2.variation_id FROM variation_attribute_values vav2
+                   JOIN attribute_values av2 ON av2.id = vav2.attribute_value_id
+                   WHERE av2.value = ?
+               )
+           )""",
+        [prod_id, flavor],
+    )
+print("✓ Variable product created with images & variations (weight-based pricing)")
 
 # ── Assign images to variations by flavor ──
 variations = db.query("SELECT pv.id, av.value as flavor FROM product_variations pv "

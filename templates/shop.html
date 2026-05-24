@@ -190,10 +190,11 @@
   .filter-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.7rem;
-    background: var(--teal-light);
+    gap: 0.35rem;
+    padding: 0.25rem 0.8rem;
+    background: #e8f4f5;
     color: var(--teal-dark);
+    border: 1px solid #c8e6e8;
     border-radius: 999px;
     font-size: 0.78rem;
     font-weight: 600;
@@ -202,13 +203,23 @@
     color: var(--teal-dark);
     text-decoration: none;
     font-weight: 700;
-    margin-left: 0.2rem;
+    margin-left: 0.15rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
   }
+  .filter-badge a:hover { opacity: 1; }
   .clear-all {
     font-size: 0.78rem;
-    color: #ef4444;
+    color: #dc2626;
     text-decoration: none;
     font-weight: 600;
+    padding: 0.25rem 0.8rem;
+    border: 1px solid #fca5a5;
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+  .clear-all:hover {
+    background: #fef2f2;
   }
 
   /* ── Product Grid ── */
@@ -391,7 +402,7 @@
   <div class="shop-header">
     <div>
       <h1>{{ 'Search Results' if search else 'Shop All' }}</h1>
-      <p class="result-count">{{ total_count }} product{{ 's' if total_count != 1 else '' }} found</p>
+      <p class="result-count">{{ total_count }} product{{ 's' if total_count != 1 else '' }} available</p>
     </div>
     <div class="shop-toolbar">
       <button class="filter-toggle" onclick="toggleSidebar()">☰ Filters</button>
@@ -479,13 +490,13 @@
           <div class="price-inputs">
             <div>
               <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Min</label>
-              <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" min="0" step="100"
+              <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" min="0" step="1"
                      style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
             </div>
             <span style="margin-top:18px;">–</span>
             <div>
               <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Max</label>
-              <input type="number" name="max_price" value="{{ max_price }}" placeholder="5000" min="0" step="100"
+              <input type="number" name="max_price" value="{{ max_price }}" placeholder="5000" min="0" step="1"
                      style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
             </div>
           </div>
@@ -541,8 +552,8 @@
         {% endif %}
         {% if min_price or max_price %}
           <span class="filter-badge">
-            ₹{{ min_price or '0' }} – ₹{{ max_price or '∞' }}
-            <a href="?{{ remove_param('min_price', min_price) }}{{ remove_param('max_price', max_price) }}">×</a>
+            ₹{{ min_price or '0' }} – ₹{{ max_price or (min_price and 'Any' or '∞') }}
+            <a href="?{{ remove_param('min_price', min_price) }}{% if remove_param('max_price', max_price) %}&{{ remove_param('max_price', max_price) }}{% endif %}">×</a>
           </span>
         {% endif %}
         <a href="{{ url_for('public.shop') }}" class="clear-all">Clear All</a>

@@ -380,7 +380,7 @@
       <div id="variationSelectors"></div>
 
       <!-- ── Add to Cart ── -->
-      <form method="POST" action="{{ url_for('cart.cart_add') }}" id="addToCartForm">
+      <form method="POST" action="{{ url_for('cart.cart_add') }}" id="addToCartForm" data-turbo="false">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="product_id" value="{{ product.id }}" />
         <input type="hidden" name="variation_id" id="varIdInput" value="" />
