@@ -442,7 +442,7 @@ nav.navbar {
 }
 
 .card-img-wrap {
-  width: 100%; aspect-ratio: 1 / 1;
+  width: 100%; aspect-ratio: 3 / 4;
   border-radius: 1.25rem;
   overflow: hidden; margin-bottom: 1.25rem;
   position: relative; background: white;

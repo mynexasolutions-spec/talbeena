@@ -12,7 +12,7 @@ print("Seeding database...")
 def create_media(filename):
     mid = str(uuid.uuid4())
     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)",
-               [mid, f"images/{filename}"])
+               [mid, f"products/{filename}"])
     return mid
 
 # ── 0. Clear existing data (for re-runs) ──────────────────────────────────────
@@ -37,26 +37,51 @@ if not admin:
 else:
     print("ℹ️  Admin user already exists")
 
-# ── 2. Media entries for sample images ────────────────────────────────────────
+# ── 2. Media entries for client's actual product images ───────────────────────
 image_files = [
-    "sample1.png", "sample2.jpg", "sample3.webp", "sample4.webp",
-    "sample5.webp", "sample6.webp", "sample7.webp", "sample8.jpg",
-    "sample9.webp", "sample10.jpg", "sample11.png",
+    "ajwain honey.webp",
+    "barley flour.webp",
+    "barley.webp",
+    "choco flakes.webp",
+    "choco flakes1.webp",
+    "corn flakes.webp",
+    "honey with dry fruits.webp",
+    "honey.webp",
+    "instant oats.webp",
+    "jamun honey.webp",
+    "kashimri honey.webp",
+    "kids hgrow.webp",
+    "litchi honey.webp",
+    "muesli.webp",
+    "multigrain atta.webp",
+    "nutro kids.webp",
+    "oats.webp",
+    "organic honey with nuts.webp",
+    "peanut butter.webp",
+    "small honey.webp",
+    "talbeenaa chocolate.webp",
+    "talbeenaa elaichi.webp",
+    "talbeenaa milk.webp",
+    "talbeenaa rose.webp",
+    "talbeenaa senior citizen.webp",
+    "talbeenaa vanilla.webp",
+    "talbeenaa women.webp",
+    "tulsi honey.webp",
 ]
 media_ids = {f: create_media(f) for f in image_files}
-print(f"✓ {len(media_ids)} media entries created")
+print(f"✓ {len(media_ids)} media entries created from client images")
 
 # ── 3. Categories ─────────────────────────────────────────────────────────────
 cat_barley = str(uuid.uuid4())
 cat_drinks = str(uuid.uuid4())
 cat_snacks = str(uuid.uuid4())
 db.execute("INSERT INTO categories (id, name, slug, image_url, is_active, is_featured, display_order) VALUES (?,?,?,?,1,1,1)",
-           [cat_barley, "Barley Products", "barley-products", "images/sample4.webp"])
+           [cat_barley, "Barley Products", "barley-products", "products/barley.webp"])
 db.execute("INSERT INTO categories (id, name, slug, parent_id, image_url, is_active, display_order) VALUES (?,?,?,?,?,1,2)",
-           [cat_drinks, "Talbeena Drinks", "talbeena-drinks", cat_barley, "images/sample5.webp"])
+           [cat_drinks, "Talbeena Drinks", "talbeena-drinks", cat_barley, "products/talbeenaa milk.webp"])
 db.execute("INSERT INTO categories (id, name, slug, parent_id, image_url, is_active, display_order) VALUES (?,?,?,?,?,1,3)",
-           [cat_snacks, "Talbeena Snacks", "talbeena-snacks", cat_barley, "images/sample6.webp"])
-print("✓ Categories created (with images)")
+           [cat_snacks, "Talbeena Snacks", "talbeena-snacks", cat_barley, "products/muesli.webp"])
+print("✓ Categories created (with product images)")
 
 # ── 4. Attributes ─────────────────────────────────────────────────────────────
 attr_flavor = str(uuid.uuid4())
@@ -69,14 +94,20 @@ db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_orde
 db.execute("INSERT INTO attributes (id, name, slug, variation_type, display_order) VALUES (?,?,?,'optional',3)",
            [attr_addon, "Add-ons", "addons"])
 
-# ── Attribute Values (with swatch images for flavors) ─────────────────────────
-flavor_swatches = ["sample2.jpg", "sample3.webp", "sample4.webp", "sample5.webp", "sample6.webp"]
-flavors = ["Chocolate", "Vanilla", "Strawberry", "Saffron", "Cardamom"]
+# ── Attribute Values (with swatch images for flavors from client images) ──────
+flavor_swatches = [
+    "talbeenaa chocolate.webp",
+    "talbeenaa vanilla.webp",
+    "talbeenaa elaichi.webp",
+    "talbeenaa rose.webp",
+    "talbeenaa milk.webp",
+]
+flavors = ["Chocolate", "Vanilla", "Elaichi", "Rose", "Kesar"]
 flavor_ids = {}
 for i, f_name in enumerate(flavors):
     fid = str(uuid.uuid4())
     db.execute("INSERT INTO attribute_values (id, attribute_id, value, image_url) VALUES (?,?,?,?)",
-               [fid, attr_flavor, f_name, f"images/{flavor_swatches[i]}"])
+               [fid, attr_flavor, f_name, f"products/{flavor_swatches[i]}"])
     flavor_ids[f_name] = fid
 
 weights = ["250g", "500g", "1kg", "2kg"]
@@ -94,7 +125,7 @@ for a in addons:
     db.execute("INSERT INTO attribute_values (id, attribute_id, value) VALUES (?,?,?)",
                [aid, attr_addon, a])
     addon_ids[a] = aid
-print("✓ Attributes and values created (flavors have swatch images)")
+print("✓ Attributes and values created (flavors use client product images)")
 
 # ── 5. Variable Product: Talbeena Drink Mix ───────────────────────────────────
 prod_id = str(uuid.uuid4())
@@ -114,10 +145,10 @@ db.execute(
 
 # Primary product image
 db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)",
-           [str(uuid.uuid4()), prod_id, media_ids["sample1.png"]])
+           [str(uuid.uuid4()), prod_id, media_ids["talbeenaa chocolate.webp"]])
 
-# Gallery images
-for fname in ["sample7.webp", "sample8.jpg", "sample9.webp"]:
+# Gallery images — use more client images
+for fname in ["talbeenaa vanilla.webp", "talbeenaa elaichi.webp", "talbeenaa rose.webp"]:
     db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,0,1)",
                [str(uuid.uuid4()), prod_id, media_ids[fname]])
 
@@ -150,19 +181,19 @@ variations = db.query("SELECT pv.id, av.value as flavor FROM product_variations 
                       "WHERE pv.product_id = ? AND a.variation_type = 'primary'",
                       [prod_id])
 
-# Map each flavor to a set of gallery images
+# Map each flavor to client product images
 flavor_gallery = {
-    "Chocolate":  ["sample7.webp", "sample8.jpg"],
-    "Vanilla":    ["sample9.webp", "sample1.png"],
-    "Strawberry": ["sample10.jpg", "sample11.png"],
-    "Saffron":    ["sample2.jpg", "sample3.webp"],
-    "Cardamom":   ["sample4.webp", "sample5.webp"],
+    "Chocolate":  ["talbeenaa chocolate.webp", "choco flakes.webp"],
+    "Vanilla":    ["talbeenaa vanilla.webp", "honey.webp"],
+    "Elaichi":    ["talbeenaa elaichi.webp", "small honey.webp"],
+    "Rose":       ["talbeenaa rose.webp", "jamun honey.webp"],
+    "Kesar":      ["talbeenaa milk.webp", "kashimri honey.webp"],
 }
 
 vi_count = 0
 for v in variations:
     flavor = v["flavor"]
-    imgs = flavor_gallery.get(flavor, ["sample6.webp"])
+    imgs = flavor_gallery.get(flavor, ["talbeenaa senior citizen.webp"])
     for idx, fname in enumerate(imgs):
         db.execute(
             "INSERT INTO variation_images (id, variation_id, media_id, is_primary, display_order) "
@@ -194,31 +225,31 @@ flavor_descriptions = {
         "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Cold with ice or warm with honey</td></tr>"
         "</tbody></table>"
     ),
-    "Strawberry": (
-        "<h3>Strawberry Talbeena</h3>"
-        "<p>Bright, fruity strawberry blended into nourishing barley — a refreshing "
-        "twist on traditional talbeena.</p>"
-        "<table class='desc-table'><tbody>"
-        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Sweet berry with a hint of tartness</td></tr>"
-        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Chilled, garnished with fresh mint</td></tr>"
-        "</tbody></table>"
-    ),
-    "Saffron": (
-        "<h3>Saffron Talbeena</h3>"
-        "<p>Luxurious Kashmiri saffron infused into pure barley — a golden, aromatic "
-        "experience fit for special occasions.</p>"
-        "<table class='desc-table'><tbody>"
-        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Earthy saffron with floral notes</td></tr>"
-        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Warm, with crushed almonds on top</td></tr>"
-        "</tbody></table>"
-    ),
-    "Cardamom": (
-        "<h3>Cardamom Talbeena</h3>"
+    "Elaichi": (
+        "<h3>Elaichi Talbeena</h3>"
         "<p>Fragrant green cardamom pods ground with stone-milled barley — a soul-warming "
         "blend rooted in tradition.</p>"
         "<table class='desc-table'><tbody>"
         "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Warm cardamom with a gentle spice kick</td></tr>"
         "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Hot, with a sprinkle of cinnamon</td></tr>"
+        "</tbody></table>"
+    ),
+    "Rose": (
+        "<h3>Rose Talbeena</h3>"
+        "<p>Delicate rose petals infused into nourishing barley — a fragrant, "
+        "elegant drink that captivates the senses.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Floral rose with subtle sweetness</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Chilled, garnished with dried rose petals</td></tr>"
+        "</tbody></table>"
+    ),
+    "Kesar": (
+        "<h3>Kesar Talbeena</h3>"
+        "<p>Luxurious saffron infused into pure barley — a golden, aromatic "
+        "experience fit for special occasions.</p>"
+        "<table class='desc-table'><tbody>"
+        "<tr><td class='desc-key'>Flavor Profile</td><td class='desc-val'>Earthy saffron with floral notes</td></tr>"
+        "<tr><td class='desc-key'>Best Served</td><td class='desc-val'>Warm, with crushed almonds on top</td></tr>"
         "</tbody></table>"
     ),
 }
@@ -239,17 +270,23 @@ for flavor_name, desc_html in flavor_descriptions.items():
 
 print(f"✓ Per-flavor descriptions set for {len(flavor_descriptions)} flavors")
 
-# ── 6. Simple Products (with images) ──────────────────────────────────────────
+# ── 6. Simple Products (with client images) ───────────────────────────────────
 simple_products = [
     ("Talbeena Barley Flour", "talbeena-barley-flour", "TLB-BF-001",
      "Pure stone-ground barley flour for baking. Perfect for breads, rotis, and traditional recipes.",
-     199, cat_snacks, "sample10.jpg", ["sample11.png"]),
-    ("Talbeena Energy Bites", "talbeena-energy-bites", "TLB-EB-001",
-     "On-the-go barley energy bites with dates and nuts. A healthy snack for the whole family.",
-     349, cat_snacks, "sample11.png", ["sample1.png"]),
-    ("Talbeena Roasted Barley Tea", "talbeena-roasted-barley-tea", "TLB-RT-001",
-     "Traditional roasted barley tea bags - 20 count. Caffeine-free, naturally nutty flavor.",
-     249, cat_drinks, "sample9.webp", ["sample8.jpg"]),
+     199, cat_snacks, "barley flour.webp", ["multigrain atta.webp"]),
+    ("Talbeena Honey", "talbeena-honey", "TLB-HN-001",
+     "Pure natural honey sourced from organic farms. Rich in antioxidants and naturally sweet.",
+     449, cat_snacks, "honey.webp", ["honey with dry fruits.webp", "organic honey with nuts.webp"]),
+    ("Talbeena Muesli", "talbeena-muesli", "TLB-MS-001",
+     "Crunchy muesli blend with oats, nuts, dried fruits, and barley flakes — a perfect start to your day.",
+     349, cat_snacks, "muesli.webp", ["oats.webp", "instant oats.webp"]),
+    ("Talbeena Peanut Butter", "talbeena-peanut-butter", "TLB-PB-001",
+     "Creamy, protein-rich peanut butter made from premium roasted peanuts. No added preservatives.",
+     299, cat_snacks, "peanut butter.webp", ["nutro kids.webp"]),
+    ("Talbeena Corn Flakes", "talbeena-corn-flakes", "TLB-CF-001",
+     "Light and crispy corn flakes fortified with vitamins. A classic breakfast favorite.",
+     249, cat_snacks, "corn flakes.webp", ["choco flakes.webp", "choco flakes1.webp"]),
 ]
 for name, slug, sku, desc, price, cat_id, primary_img, gallery_imgs in simple_products:
     pid = str(uuid.uuid4())

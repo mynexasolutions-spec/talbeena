@@ -25,11 +25,22 @@ def index():
         featured = latest = popular = promo1 = promo2 = []
         featured_categories = []
         flash(f"Data loading error: {e}", "error")
+
+    # Fetch latest blog posts for homepage
+    try:
+        blog_posts = db.query(
+            "SELECT title, slug, excerpt, image_url, author, created_at "
+            "FROM blog_posts WHERE published=1 ORDER BY created_at DESC LIMIT 3"
+        )
+    except Exception:
+        blog_posts = []
+
     return render_template(
         "index.html",
         featured=featured, latest=latest, popular=popular,
         promo1=promo1, promo2=promo2,
         featured_categories=featured_categories,
+        blog_posts=blog_posts,
     )
 
 

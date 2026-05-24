@@ -228,26 +228,26 @@ def get_products(search=None, categories=(), brands=(),
         # Expand primary variations even for limited queries
         return _expand_product_list(products)
 
-    count_sql = (
-        "SELECT COUNT(*) AS cnt FROM products p "
-        "LEFT JOIN categories c ON c.id = p.category_id "
-        "LEFT JOIN brands b ON b.id = p.brand_id "
-        f"{where}"
-    )
-    total_row   = db.query_one(count_sql, params)
-    total       = total_row["cnt"] if total_row else 0
-    total_pages = max(1, math.ceil(total / per_page))
-    offset      = (page - 1) * per_page
-    products    = db.query(
-        f"{PRODUCTS_SELECT} {where} ORDER BY {order} LIMIT ? OFFSET ?",
-        params + [per_page, offset],
+    # Fetch ALL matching products (no pagination) so we can expand variations first
+    all_products = db.query(
+        f"{PRODUCTS_SELECT} {where} ORDER BY {order}",
+        params,
     )
 
-    # ── Expand all variations into separate listing cards ──
     if skip_expand:
+        total       = len(all_products)
+        total_pages = max(1, math.ceil(total / per_page))
+        offset      = (page - 1) * per_page
+        products    = all_products[offset:offset + per_page]
         return products, total, total_pages
-    expanded = _expand_product_list(products)
-    return expanded, len(expanded), total_pages
+
+    # Expand all variations into separate listing cards
+    expanded = _expand_product_list(all_products)
+    total       = len(expanded)
+    total_pages = max(1, math.ceil(total / per_page))
+    offset      = (page - 1) * per_page
+    products    = expanded[offset:offset + per_page]
+    return products, total, total_pages
 
 
 @ttl_cache(ttl_seconds=120)
@@ -422,11 +422,23 @@ def get_product_detail(product_id):
 
 @ttl_cache(ttl_seconds=120)
 def get_related_products(category_slug, exclude_id, limit=4):
-    return db.query(
+    # First, try products from the same category
+    results = db.query(
         f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 AND c.slug = ? AND p.id != ? "
         f"ORDER BY p.created_at DESC LIMIT ?",
         [category_slug, exclude_id, limit],
     )
+    if len(results) >= limit:
+        return results
+    # Fall back to other active products (excluding the current one)
+    existing_ids = [r["id"] for r in results] + [exclude_id]
+    needed = limit - len(results)
+    fallback = db.query(
+        f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 AND p.id NOT IN ({','.join(['?']*len(existing_ids))}) "
+        f"ORDER BY p.created_at DESC LIMIT ?",
+        existing_ids + [needed],
+    )
+    return results + fallback
 
 
 @ttl_cache(ttl_seconds=120)

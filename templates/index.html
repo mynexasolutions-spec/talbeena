@@ -38,7 +38,7 @@
   .fp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1000px; margin:0 auto; }
   .fp-card { background:#fff; border-radius:10px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
   .fp-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.1); }
-  .fp-img { width:100%; height:270px; object-fit:cover; display:block; }
+  .fp-img { width:100%; height:300px; object-fit:contain; display:block; background:#fff; padding:1rem; }
   .fp-body { padding:12px 14px 8px; }
   .fp-name { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--teal-dark); }
   .fp-sub { font-size:0.8rem; color:var(--text-soft); margin-top:3px; }
@@ -88,15 +88,18 @@
   .testimonial-author strong { font-size:0.9rem; }
   .testimonial-author span { font-size:0.78rem; color:var(--text-soft); }
 
-  /* ── NEWSLETTER ── */
-  .newsletter-section { padding:80px 5%; background:var(--gold-pale); text-align:center; }
-  .newsletter-inner { max-width:540px; margin:0 auto; }
-  .newsletter-inner .section-title { margin-bottom:0.8rem; }
-  .newsletter-inner p { color:var(--text-mid); margin-bottom:1.5rem; }
-  .newsletter-form { display:flex; gap:0.5rem; }
-  .newsletter-form input { flex:1; padding:0.85rem 1.2rem; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; }
-  .newsletter-form button { background:var(--teal); color:#fff; border:none; padding:0.85rem 1.8rem; border-radius:6px; font-weight:700; font-size:0.9rem; cursor:pointer; transition:background 0.3s; }
-  .newsletter-form button:hover { background:var(--teal-dark); }
+  /* ── BLOG ── */
+  .blog-section { padding:80px 5%; background:var(--gold-pale); text-align:center; }
+  .blog-header { max-width:600px; margin:0 auto 3rem; }
+  .blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; text-align:left; }
+  .blog-card { background:#fff; border-radius:12px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 12px rgba(0,0,0,0.07); transition:transform 0.3s,box-shadow 0.3s; display:flex; flex-direction:column; }
+  .blog-card:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,0,0,0.12); }
+  .blog-card-img { width:100%; height:200px; object-fit:cover; background:#fff; }
+  .blog-card-body { padding:1.25rem; flex:1; display:flex; flex-direction:column; }
+  .blog-card-title { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:700; color:var(--teal-dark); margin-bottom:0.5rem; line-height:1.3; }
+  .blog-card-excerpt { font-size:0.88rem; line-height:1.6; color:var(--text-mid); flex:1; margin-bottom:0.8rem; }
+  .blog-card-meta { font-size:0.78rem; color:var(--text-soft); }
+  @media (max-width:768px) { .blog-grid { grid-template-columns:1fr; } }
 
   @media (max-width: 768px) {
     .what-section { grid-template-columns:1fr; gap:2rem; }
@@ -252,16 +255,27 @@
   </div>
 </section>
 
-<section class="newsletter-section">
-  <div class="newsletter-inner">
-    <div class="section-label">Stay Connected</div>
-    <h2 class="section-title">Join the Talbeena Family</h2>
-    <p>Get updates on new blends, special offers, and the beautiful legacy of Sunnah nourishment.</p>
-    <form method="POST" action="{{ url_for('public.subscribe') }}" class="newsletter-form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-      <input type="email" name="email" placeholder="Enter your email" required />
-      <button type="submit">Subscribe</button>
-    </form>
+<section class="blog-section">
+  <div class="blog-header">
+    <div class="section-label">From Our Blog</div>
+    <h2 class="section-title">Latest Articles</h2>
+    <p>Explore the heritage, benefits, and stories behind Talbeena — rooted in Sunnah, backed by science.</p>
+  </div>
+  <div class="blog-grid">
+    {% for post in blog_posts %}
+    <a href="{{ url_for('blog.blog_detail', slug=post.slug) }}" class="blog-card">
+      {% if post.image_url %}
+      <img src="{{ resolve_image(post.image_url) }}" alt="{{ post.title }}" class="blog-card-img" loading="lazy" />
+      {% else %}
+      <img src="{{ url_for('static', filename='images/sample3.webp') }}" alt="{{ post.title }}" class="blog-card-img" loading="lazy" />
+      {% endif %}
+      <div class="blog-card-body">
+        <div class="blog-card-title">{{ post.title }}</div>
+        <div class="blog-card-excerpt">{{ post.excerpt }}</div>
+        <div class="blog-card-meta">{{ post.author }} · {{ post.created_at[:10] }}</div>
+      </div>
+    </a>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}
