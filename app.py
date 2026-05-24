@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from extensions import csrf, limiter, handle_csrf_error
+from extensions import db_sql, migrate as db_migrate
 from helpers import register_jinja
 import db
 
@@ -21,6 +22,17 @@ def create_app():
     
     # Production flag
     app.config['PRODUCTION'] = os.getenv("PRODUCTION", "False").lower() == "true"
+    
+    # SQLAlchemy
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "connect_args": {"connect_timeout": 15},
+    }
+    db_sql.init_app(app)
+    db_migrate.init_app(app, db_sql)
     
     # Session configuration
     app.config["SESSION_COOKIE_HTTPONLY"] = True
