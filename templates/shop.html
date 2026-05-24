@@ -22,27 +22,38 @@
     font-size: 2rem;
     font-weight: 700;
     color: var(--text-dark);
+    margin: 0;
   }
   .shop-header .result-count {
     color: var(--text-soft);
     font-size: 0.9rem;
+    margin: 0;
+  }
+  .shop-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .shop-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   /* ── Top Search Bar ── */
-  .top-search {
-    margin-bottom: 1.5rem;
-  }
   .top-search form {
     display: flex;
-    max-width: 500px;
     position: relative;
+    min-width: 220px;
   }
   .top-search input {
     width: 100%;
-    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    padding: 0.5rem 0.8rem 0.5rem 2.2rem;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     background: #fff;
     transition: border-color 0.2s;
   }
@@ -52,21 +63,23 @@
   }
   .top-search .search-icon {
     position: absolute;
-    left: 0.8rem;
+    left: 0.7rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-soft);
-    font-size: 1rem;
     pointer-events: none;
+    display: flex;
+    align-items: center;
   }
   .top-search button {
-    margin-left: 0.5rem;
-    padding: 0.7rem 1.2rem;
+    margin-left: 0.4rem;
+    padding: 0.5rem 1rem;
     background: var(--teal);
     color: #fff;
     border: none;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.2s;
   }
@@ -411,6 +424,8 @@
 
     .filter-toggle { display: block; }
     .shop-header h1 { font-size: 1.5rem; }
+    .shop-header-left { flex-wrap: wrap; }
+    .top-search form { min-width: 100%; }
 
     .sidebar {
       position: fixed;
@@ -444,11 +459,26 @@
 {% block content %}
 <div class="shop-page">
   <div class="shop-header">
-    <div>
-      <h1>{{ 'Search Results' if search else 'Shop All' }}</h1>
-      <p class="result-count">{{ total_count }} product{{ 's' if total_count != 1 else '' }} available</p>
+    <div class="shop-header-left">
+      <div>
+        <h1>{{ 'Search Results' if search else 'Shop All' }}</h1>
+        <p class="result-count">{{ total_count }} product{{ 's' if total_count != 1 else '' }} available</p>
+      </div>
+      <!-- Top Search Bar (inline on desktop) -->
+      <div class="top-search">
+        <form method="get" action="{{ url_for('public.shop') }}">
+          <span class="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input type="text" name="search" value="{{ search }}" placeholder="Search products..." />
+          <button type="submit">Search</button>
+        </form>
+      </div>
     </div>
-    <div class="shop-toolbar">
+    <div class="shop-header-right">
       <button class="filter-toggle" onclick="toggleSidebar()">☰ Filters</button>
       <select onchange="updateParam('sort', this.value)">
         <option value="created_at_desc" {% if current_sort == 'created_at_desc' %}selected{% endif %}>Newest First</option>
@@ -458,15 +488,6 @@
         <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
       </select>
     </div>
-  </div>
-
-  <!-- Top Search Bar -->
-  <div class="top-search">
-    <form method="get" action="{{ url_for('public.shop') }}">
-      <span class="search-icon">&#128269;</span>
-      <input type="text" name="search" value="{{ search }}" placeholder="Search products..." />
-      <button type="submit">Search</button>
-    </form>
   </div>
 
   <!-- Sidebar overlay -->
