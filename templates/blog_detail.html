@@ -6,7 +6,7 @@
   <a href="{{ url_for('blog.blog_list') }}" style="color:var(--teal); text-decoration:none; font-size:0.9rem; font-weight:600;">&larr; Back to Blog</a>
 
   <div style="margin-top:1.5rem;">
-    <div style="font-size:0.8rem; color:var(--gold); text-transform:uppercase; letter-spacing:0.1em; font-weight:700; margin-bottom:0.5rem;">{{ post.created_at[:10] if post.created_at else '' }} · by {{ post.author }}</div>
+    <div style="font-size:0.8rem; color:var(--gold); text-transform:uppercase; letter-spacing:0.1em; font-weight:700; margin-bottom:0.5rem;">{{ post.created_at|date_short }} · by {{ post.author }}</div>
     <h1 style="font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,4vw,2.8rem); color:var(--teal-dark); margin:0 0 1.5rem; line-height:1.15;">{{ post.title }}</h1>
   </div>
 

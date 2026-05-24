@@ -255,3 +255,15 @@ def register_jinja(app):
 
     app.jinja_env.globals["remove_param"] = _remove_param
     app.jinja_env.globals["page_url"]     = _page_url
+
+    # ── Date formatting filter (handles both datetime objects and strings) ──
+    def _format_date(value):
+        """Format a date/datetime to YYYY-MM-DD string."""
+        if value is None:
+            return ""
+        if hasattr(value, "strftime"):
+            return value.strftime("%Y-%m-%d")
+        s = str(value)
+        return s[:10] if len(s) >= 10 else s
+
+    app.jinja_env.filters["date_short"] = _format_date

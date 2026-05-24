@@ -15,7 +15,7 @@
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; background:#fff; border:1px solid var(--border); border-radius:10px; padding:1.5rem; margin-bottom:1.5rem;">
     <div>
       <h4 style="font-size:0.75rem; text-transform:uppercase; color:var(--text-soft); margin:0 0 0.5rem;">Order Info</h4>
-      <p style="margin:0.2rem 0; font-size:0.9rem;">Placed: {{ order.created_at[:10] if order.created_at else '' }}</p>
+      <p style="margin:0.2rem 0; font-size:0.9rem;">Placed: {{ order.created_at|date_short }}</p>
       <p style="margin:0.2rem 0; font-size:0.9rem;">Payment: {{ order.payment_method|upper }}</p>
       <p style="margin:0.2rem 0; font-size:0.9rem;">Status: {{ order.payment_status|title }}</p>
     </div>

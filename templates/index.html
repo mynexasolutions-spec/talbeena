@@ -272,7 +272,7 @@
       <div class="blog-card-body">
         <div class="blog-card-title">{{ post.title }}</div>
         <div class="blog-card-excerpt">{{ post.excerpt }}</div>
-        <div class="blog-card-meta">{{ post.author }} · {{ post.created_at[:10] }}</div>
+        <div class="blog-card-meta">{{ post.author }} · {{ post.created_at|date_short }}</div>
       </div>
     </a>
     {% endfor %}

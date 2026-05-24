@@ -86,10 +86,21 @@ app = create_app()
 import os as _os
 # Only run setup in the main process (not the watchdog reloader child).
 if _os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+    # Quick check: only migrate if the users table doesn't exist yet
     try:
-        db.migrate()
-    except Exception as _e:
-        print(f"[db.migrate] {_e}")
+        conn = db.get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT to_regclass('public.users')")
+        exists = cur.fetchone()[0]
+        conn.close()
+        if not exists:
+            db.migrate()
+    except Exception:
+        # If connection fails, try migrate anyway (fresh database)
+        try:
+            db.migrate()
+        except Exception:
+            pass
 
     # ── Auto-create default admin if none exists ──
     try:
@@ -97,11 +108,11 @@ if _os.environ.get("WERKZEUG_RUN_MAIN") != "true":
             import uuid, bcrypt
             pw = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode()
             db.execute(
-                "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?)",
+                "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (%s,%s,%s,%s,%s,%s)",
                 [str(uuid.uuid4()), "Admin", "User", "admin@talbeena.com", pw, "admin"]
             )
     except Exception:
-        pass  # table may not exist yet
+        pass
 
 if __name__ == "__main__":
     port  = int(os.getenv("PORT", 5001))

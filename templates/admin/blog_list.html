@@ -30,7 +30,7 @@
           <span style="background:#fef3c7; color:#92400e; padding:0.2rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600;">Draft</span>
           {% endif %}
         </td>
-        <td style="color:var(--admin-text-muted);">{{ p.created_at[:10] if p.created_at else '' }}</td>
+        <td style="color:var(--admin-text-muted);">{{ p.created_at|date_short }}</td>
         <td style="text-align:right; padding-right:1rem;">
           <a href="{{ url_for('admin_blog_edit', post_id=p.id) }}" class="admin-btn" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Edit</a>
           <form method="POST" action="{{ url_for('admin_blog_delete', post_id=p.id) }}" style="display:inline;">
