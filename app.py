@@ -19,10 +19,13 @@ def create_app():
     # Payload limit: 16MB
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
     
+    # Production flag
+    app.config['PRODUCTION'] = os.getenv("PRODUCTION", "False").lower() == "true"
+    
     # Session configuration
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["SESSION_COOKIE_SECURE"] = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
     app.config["PERMANENT_SESSION_LIFETIME"] = 86400
     
     # CSRF configuration
