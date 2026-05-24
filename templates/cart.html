@@ -75,20 +75,17 @@
             </div>
           </div>
         </td>
-        <td class="cart-price">₹{{ "%.0f"|format(item.price) }}</td>
+        <td class="cart-price" id="cp_{{ key }}">₹{{ "%.0f"|format(item.price) }}</td>
         <td>
-          <form method="POST" action="{{ url_for('cart.cart_update') }}" style="display:inline;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <input type="number" name="qty_{{ key }}" value="{{ item.qty }}" min="1" max="99" class="cart-qty" onchange="this.form.submit()" />
-          </form>
+          <div style="display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+            <button type="button" style="width:30px;height:30px;border:none;background:#f9fafb;font-size:1rem;cursor:pointer;font-weight:700;color:var(--text-dark);" onclick="updateCartQty('{{ key }}', -1)">−</button>
+            <span style="width:36px;text-align:center;font-size:0.85rem;font-weight:600;" id="qty_{{ key }}">{{ item.qty }}</span>
+            <button type="button" style="width:30px;height:30px;border:none;background:#f9fafb;font-size:1rem;cursor:pointer;font-weight:700;color:var(--text-dark);" onclick="updateCartQty('{{ key }}', 1)">+</button>
+          </div>
         </td>
-        <td class="cart-price">₹{{ "%.0f"|format(item.price * item.qty) }}</td>
+        <td class="cart-price" id="tp_{{ key }}">₹{{ "%.0f"|format(item.price * item.qty) }}</td>
         <td>
-          <form method="POST" action="{{ url_for('cart.cart_remove') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <input type="hidden" name="product_id" value="{{ key }}" />
-            <button type="submit" class="cart-remove">Remove</button>
-          </form>
+          <button type="button" class="cart-remove" onclick="removeCartItem('{{ key }}')">Remove</button>
         </td>
       </tr>
       {% endfor %}
@@ -119,4 +116,63 @@
   </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCSRFToken() {
+  return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+function updateCartQty(key, delta) {
+  const formData = new FormData();
+  formData.append('key', key);
+  formData.append('delta', delta);
+  formData.append('csrf_token', getCSRFToken());
+
+  fetch('{{ url_for("cart.cart_ajax_update") }}', {
+    method: 'POST',
+    body: new URLSearchParams(formData),
+    headers: {'X-Requested-With': 'XMLHttpRequest'}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { showToast(data.error, 'error'); return; }
+    document.getElementById('qty_' + key).textContent = data.qty;
+    document.getElementById('tp_' + key).textContent = '₹' + data.item_total.toFixed(0);
+    document.querySelector('.summary-row:first-child span:last-child').textContent = '₹' + data.subtotal.toFixed(0);
+    document.querySelector('.summary-row.total span:last-child').textContent = '₹' + data.total.toFixed(0);
+    const shipRow = document.querySelector('.summary-row:nth-child(2) span:last-child');
+    if (data.shipping === 0) {
+      shipRow.innerHTML = '<span class="summary-row free">FREE</span>';
+    } else {
+      shipRow.textContent = '₹' + data.shipping.toFixed(0);
+    }
+  })
+  .catch(() => showToast('Failed to update quantity', 'error'));
+}
+
+function removeCartItem(key) {
+  const formData = new FormData();
+  formData.append('key', key);
+  formData.append('csrf_token', getCSRFToken());
+
+  fetch('{{ url_for("cart.cart_ajax_remove") }}', {
+    method: 'POST',
+    body: new URLSearchParams(formData),
+    headers: {'X-Requested-With': 'XMLHttpRequest'}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { showToast(data.error, 'error'); return; }
+    if (data.cart_empty) {
+      location.reload();
+      return;
+    }
+    document.querySelector('tr').remove(); // will refine
+    location.reload();
+  })
+  .catch(() => showToast('Failed to remove item', 'error'));
+}
+</script>
 {% endblock %}

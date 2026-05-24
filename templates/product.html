@@ -378,9 +378,21 @@
         <input type="hidden" name="selected_options" id="selectedOptionsInput" value="" />
 
         <div class="qty-row">
-          <input type="number" name="qty" value="1" min="1" max="99" class="qty-input" id="qtyInput" />
+          <div class="qty-controls">
+            <button type="button" class="qty-btn" onclick="var i=document.getElementById('qtyInput');var v=parseInt(i.value);if(v>1){i.value=v-1;i.onchange&&i.onchange()}">−</button>
+            <input type="number" name="qty" value="1" min="1" max="20" class="qty-input" id="qtyInput" />
+            <button type="button" class="qty-btn" onclick="var i=document.getElementById('qtyInput');var v=parseInt(i.value);if(v<20){i.value=v+1;i.onchange&&i.onchange()}">+</button>
+          </div>
           <button type="submit" class="btn-add-cart" id="addToCartBtn" disabled>Select Options</button>
         </div>
+        <style>
+        .qty-controls { display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:8px;overflow:hidden; }
+        .qty-btn { width:36px;height:36px;border:none;background:#f9fafb;font-size:1.2rem;cursor:pointer;font-weight:700;color:var(--text-dark);transition:background 0.15s; }
+        .qty-btn:hover { background:var(--teal-light); }
+        .qty-input { width:50px;height:36px;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);text-align:center;font-size:0.9rem;font-weight:600;padding:0; }
+        .qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+        .qty-input[type=number] { -moz-appearance:textfield; }
+        </style>
       </form>
 
       <!-- ── Description ── -->

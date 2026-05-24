@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>{% block title %}Talbeena – Pure Barley Wellness{% endblock %}</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -182,15 +183,40 @@
   {% include 'partials/_navbar.html' %}
 
   <!-- Flash Messages -->
-  <div class="flash-messages">
+  <!-- Toast container -->
+  <div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;"></div>
+
+  <div class="flash-messages" id="flashMessages" style="display:none;">
       {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
               {% for category, message in messages %}
-                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                  <div class="alert alert-{{ category }}" data-toast="{{ category }}">{{ message }}</div>
               {% endfor %}
           {% endif %}
       {% endwith %}
   </div>
+
+  <script>
+  function showToast(message, type) {
+    var toast = document.createElement('div');
+    var bg = type === 'error' ? '#ef4444' : type === 'success' ? '#059669' : type === 'info' ? '#2563eb' : '#374151';
+    toast.textContent = message;
+    toast.style.cssText = 'background:'+bg+';color:#fff;padding:12px 20px;border-radius:8px;font-size:0.9rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);pointer-events:auto;animation:slideIn 0.3s ease;max-width:360px;';
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(function() { toast.remove(); }, 300);
+    }, 3000);
+  }
+  // Convert server flash messages to toasts
+  document.querySelectorAll('[data-toast]').forEach(function(el) {
+    showToast(el.textContent.trim(), el.dataset.toast);
+  });
+  </script>
+  <style>
+  @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+  </style>
 
   <!-- Main Content Area -->
   <main>

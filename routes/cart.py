@@ -127,3 +127,55 @@ def cart_update():
         
     flash("Cart updated.", "success")
     return redirect(url_for("cart.view_cart"))
+
+
+@bp.route("/cart/ajax_update", methods=["POST"])
+def cart_ajax_update():
+    """AJAX: update single item qty, return new subtotal/total."""
+    cart = session.get("cart", {})
+    item_key = request.form.get("key", "").strip()
+    delta = request.form.get("delta", "0")
+    try:
+        delta = int(delta)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid delta"}), 400
+
+    if item_key in cart:
+        new_qty = int(cart[item_key].get("qty", 1)) + delta
+        new_qty = max(1, min(20, new_qty))
+        cart[item_key]["qty"] = new_qty
+        session["cart"] = cart
+
+        from helpers import refresh_cart_prices
+        _, subtotal = refresh_cart_prices(cart)
+        shipping = 0 if subtotal >= 999 else 99
+        return jsonify({
+            "success": True,
+            "qty": new_qty,
+            "item_total": cart[item_key]["price"] * new_qty,
+            "subtotal": subtotal,
+            "shipping": shipping,
+            "total": subtotal + shipping,
+        })
+    return jsonify({"error": "Item not found"}), 404
+
+
+@bp.route("/cart/ajax_remove", methods=["POST"])
+def cart_ajax_remove():
+    """AJAX: remove item, return new subtotal/total."""
+    cart = session.get("cart", {})
+    item_key = request.form.get("key", "").strip()
+    if item_key in cart:
+        cart.pop(item_key)
+        session["cart"] = cart
+        from helpers import refresh_cart_prices
+        _, subtotal = refresh_cart_prices(cart)
+        shipping = 0 if subtotal >= 999 else 99
+        return jsonify({
+            "success": True,
+            "subtotal": subtotal,
+            "shipping": shipping,
+            "total": subtotal + shipping,
+            "cart_empty": len(cart) == 0,
+        })
+    return jsonify({"error": "Item not found"}), 404
