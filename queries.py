@@ -175,8 +175,15 @@ def get_products(search=None, categories=(), brands=(),
     params     = []
 
     if search:
-        conditions.append("(p.name LIKE ? OR p.sku LIKE ? OR p.description LIKE ?)")
-        params += [f"%{search}%", f"%{search}%", f"%{search}%"]
+        conditions.append("""(p.name LIKE ? OR p.sku LIKE ? OR p.description LIKE ?
+            OR p.id IN (
+                SELECT pv.product_id FROM product_variations pv
+                JOIN variation_attribute_values vav ON vav.variation_id = pv.id
+                JOIN attribute_values av ON av.id = vav.attribute_value_id
+                WHERE av.value LIKE ?
+            )
+        )""")
+        params += [f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%"]
     if cats:
         ph = ",".join(["?"] * len(cats))
         # Include products from the selected category AND any of its child categories

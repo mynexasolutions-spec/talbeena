@@ -28,6 +28,50 @@
     font-size: 0.9rem;
   }
 
+  /* ── Top Search Bar ── */
+  .top-search {
+    margin-bottom: 1.5rem;
+  }
+  .top-search form {
+    display: flex;
+    max-width: 500px;
+    position: relative;
+  }
+  .top-search input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .top-search input:focus {
+    border-color: var(--teal);
+    outline: none;
+  }
+  .top-search .search-icon {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+  .top-search button {
+    margin-left: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .top-search button:hover { background: var(--teal-dark); }
+
   .shop-toolbar {
     display: flex;
     align-items: center;
@@ -388,7 +432,7 @@
   }
 
   @media (max-width: 480px) {
-    .product-grid { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
     .shop-header { flex-direction: column; align-items: flex-start; }
     .shop-toolbar { width: 100%; }
     .shop-toolbar select { flex: 1; }
@@ -416,6 +460,15 @@
     </div>
   </div>
 
+  <!-- Top Search Bar -->
+  <div class="top-search">
+    <form method="get" action="{{ url_for('public.shop') }}">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" name="search" value="{{ search }}" placeholder="Search products..." />
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
   <!-- Sidebar overlay -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
@@ -427,11 +480,24 @@
       <form id="filterForm" method="get" action="{{ url_for('public.shop') }}">
         {% if search %}<input type="hidden" name="search" value="{{ search }}" />{% endif %}
 
-        <!-- Search -->
-        <div class="sidebar-block">
-          <h4>Search</h4>
-          <input type="text" name="search" value="{{ search }}" placeholder="Search products..."
-                 style="width:100%; padding:0.55rem; border:1px solid var(--border); border-radius:6px; font-size:0.85rem;" />
+        <button type="submit" class="sidebar-btn">Apply Filters</button>
+
+        <!-- Price Range -->
+        <div class="sidebar-block" style="margin-top:1.25rem;">
+          <h4>Price Range (₹)</h4>
+          <div class="price-inputs">
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Min</label>
+              <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" min="0" step="1"
+                     style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
+            </div>
+            <span style="margin-top:18px;">–</span>
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Max</label>
+              <input type="number" name="max_price" value="{{ max_price }}" placeholder="5000" min="0" step="1"
+                     style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
+            </div>
+          </div>
         </div>
 
         <!-- Categories -->
@@ -467,6 +533,21 @@
           {% endfor %}
         </div>
 
+        <!-- Flavor / Attribute filter -->
+        {% if flavor_vals %}
+        <div class="sidebar-block">
+          <h4>Flavor</h4>
+          {% for v in flavor_vals %}
+          <label class="brand-item">
+            <input type="checkbox" name="attr_value" value="{{ v.id }}"
+                   {% if v.id in current_attrs %}checked{% endif %}
+                   onchange="document.getElementById('filterForm').submit()" />
+            {{ v.value }}
+          </label>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Brands -->
         {% if brands %}
         <div class="sidebar-block">
@@ -484,39 +565,6 @@
         </div>
         {% endif %}
 
-        <!-- Price Range -->
-        <div class="sidebar-block">
-          <h4>Price Range (₹)</h4>
-          <div class="price-inputs">
-            <div>
-              <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Min</label>
-              <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" min="0" step="1"
-                     style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
-            </div>
-            <span style="margin-top:18px;">–</span>
-            <div>
-              <label style="font-size:0.7rem;color:var(--text-soft);display:block;margin-bottom:3px;">Max</label>
-              <input type="number" name="max_price" value="{{ max_price }}" placeholder="5000" min="0" step="1"
-                     style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:center;" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Flavor / Attribute filter -->
-        {% if flavor_vals %}
-        <div class="sidebar-block">
-          <h4>Flavor</h4>
-          {% for v in flavor_vals %}
-          <label class="brand-item">
-            <input type="checkbox" name="attr_value" value="{{ v.id }}"
-                   {% if v.id in current_attrs %}checked{% endif %}
-                   onchange="document.getElementById('filterForm').submit()" />
-            {{ v.value }}
-          </label>
-          {% endfor %}
-        </div>
-        {% endif %}
-
         <!-- Sale toggle -->
         <div class="sidebar-block">
           <label class="brand-item">
@@ -525,8 +573,6 @@
             On Sale Only
           </label>
         </div>
-
-        <button type="submit" class="sidebar-btn">Apply Filters</button>
       </form>
     </aside>
 
