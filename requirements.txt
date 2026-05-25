@@ -9,3 +9,5 @@ gunicorn==22.0.0
 cloudinary==1.40.0
 markupsafe==2.1.5
 razorpay==1.4.2
+flask-sqlalchemy==3.1.1
+flask-migrate==4.0.5
