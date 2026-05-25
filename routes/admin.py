@@ -275,7 +275,7 @@ def register(app):
                         float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
                         stock_qty, stock_status,
                         f.get("category_id") or None, f.get("brand_id") or None,
-                        f.get("is_featured") == "on", f.get("is_active", "on") == "on",
+                        1 if f.get("is_featured") == "on" else 0, 1 if f.get("is_active", "on") == "on" else 0,
                     ]
                 )["id"]
                 print(f"DEBUG [{_t.time()-t0:.2f}s]: Product row inserted.")
@@ -368,7 +368,7 @@ def register(app):
                         f.get("short_description"), float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
                         int(f.get("stock_quantity") or 0), f.get("stock_status"),
                         f.get("category_id") or None, f.get("brand_id") or None,
-                        f.get("is_featured") == "on", f.get("is_active") == "on", product_id
+                        1 if f.get("is_featured") == "on" else 0, 1 if f.get("is_active") == "on" else 0, product_id
                     ]
                 )
 
@@ -443,7 +443,7 @@ def register(app):
     @require_admin
     def admin_product_delete(product_id):
         try:
-            db.execute("UPDATE products SET is_active=FALSE WHERE id=?", [product_id])
+            db.execute("UPDATE products SET is_active=0 WHERE id=?", [product_id])
             get_products.cache_clear()
             flash("Product deleted (deactivated).", "success")
         except Exception as e:
@@ -472,7 +472,7 @@ def register(app):
                 return render_template("admin/category_form.html", category=None, categories=get_categories())
             slug       = request.form.get("slug") or slugify(name)
             parent_id  = request.form.get("parent_id") or None
-            is_featured = request.form.get("is_featured") == "on"
+            is_featured = 1 if request.form.get("is_featured") == "on" else 0
             
             # Handle Upload
             image_url = handle_upload(request.files.get("image_file")) or request.form.get("image_url") or None
@@ -505,7 +505,7 @@ def register(app):
                     "UPDATE categories SET name=?, slug=?, parent_id=?, image_url=?, is_featured=? WHERE id=?",
                     [request.form.get("name"), request.form.get("slug"),
                      request.form.get("parent_id") or None, image_url,
-                     request.form.get("is_featured") == "on", cat_id]
+                     1 if request.form.get("is_featured") == "on" else 0, cat_id]
                 )
                 get_categories.cache_clear()
                 get_featured_categories.cache_clear()
@@ -718,7 +718,7 @@ def register(app):
             name       = request.form.get("name")
             slug       = request.form.get("slug") or slugify(name)
             var_type   = request.form.get("variation_type", "secondary")
-            is_featured = request.form.get("is_featured") == "on"
+            is_featured = 1 if request.form.get("is_featured") == "on" else 0
             image_url = handle_upload(request.files.get("image_file")) or None
             
             if not name:
@@ -749,7 +749,7 @@ def register(app):
                     "UPDATE attributes SET name=?, slug=?, variation_type=?, image_url=?, is_featured=? WHERE id=?",
                     [request.form.get("name"), request.form.get("slug"),
                      var_type, image_url,
-                     request.form.get("is_featured") == "on", attr_id]
+                     1 if request.form.get("is_featured") == "on" else 0, attr_id]
                 )
                 flash("Attribute updated", "success")
                 return redirect(url_for("admin_attributes"))
@@ -1074,11 +1074,14 @@ def register(app):
     @app.route("/admin/coupons")
     @require_admin
     def admin_coupons():
-        coupons = db.query("""
-            SELECT c.*, (SELECT COUNT(*) FROM coupon_usages WHERE coupon_id = c.id) as used_count
-            FROM coupons c 
-            ORDER BY c.created_at DESC
-        """)
+        try:
+            coupons = db.query("""
+                SELECT c.*, (SELECT COUNT(*) FROM coupon_usages WHERE coupon_id::text = c.id::text) as used_count
+                FROM coupons c 
+                ORDER BY c.created_at DESC
+            """)
+        except Exception:
+            coupons = []
         return render_template("admin/coupons.html", coupons=coupons)
 
     @app.route("/admin/coupons/new", methods=["GET", "POST"])
@@ -1113,7 +1116,7 @@ def register(app):
                         int(f.get("usage_limit_per_user") or 1),
                         float(f.get("max_discount")) if f.get("max_discount") else None,
                         f.get("expires_at") or None,
-                        f.get("is_active") == "on"
+                        1 if f.get("is_active") == "on" else 0
                     ]
                 )
                 flash("Coupon created successfully.", "success")
