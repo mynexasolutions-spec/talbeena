@@ -24,6 +24,10 @@ scp -i "$PEM" -o StrictHostKeyChecking=no -r \
   static/ \
   "$SERVER:$REMOTE_DIR/"
 
+echo "==> Fixing permissions..."
+ssh -i "$PEM" -o StrictHostKeyChecking=no "$SERVER" \
+  "sudo chmod -R 755 $REMOTE_DIR/static && sudo chown -R ec2-user:nginx $REMOTE_DIR/static"
+
 echo "==> Installing dependencies on server..."
 ssh -i "$PEM" -o StrictHostKeyChecking=no "$SERVER" \
   "cd $REMOTE_DIR && source venv/bin/activate && pip install -r requirements.txt -q"
