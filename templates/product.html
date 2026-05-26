@@ -436,27 +436,35 @@
 
 {% block extra_js %}
 <script>
+/*<![CDATA[*/
+window.__variationData = {{ variation_json|safe }};
+window.__variationsList = {{ vars_json|safe }};
+/*]]>*/
+</script>
+<script>
 (function() {
   const productId = "{{ product.id }}";
   const basePrice = {{ product.sale_price or product.price or 0 }};
   const baseStock = {{ product.stock_quantity or 0 }};
   let variationData = null;
   let currentSelections = {};  // { attribute_id: value_id }
+  let originalProductName = "";  // saved on load, restored on reset
   let originalGalleryHTML = "";  // saved on load, restored on reset
   let originalDescriptionHTML = "";  // saved on load, restored on reset
 
-  // ── Fetch variation data on page load ──
-  async function loadVariations() {
+  // ── Load variation data from embedded page data ──
+  function loadVariations() {
     try {
-      // Save original gallery state
+      // Save original state
       const gallery = document.getElementById("productGallery");
       if (gallery) originalGalleryHTML = gallery.innerHTML;
       const descEl = document.getElementById("productDescription");
       if (descEl) originalDescriptionHTML = descEl.innerHTML;
+      const titleEl = document.querySelector(".product-info h1");
+      if (titleEl) originalProductName = titleEl.textContent;
 
-      const resp = await fetch(`/api/product/${productId}/variation`);
-      if (!resp.ok) return;
-      variationData = await resp.json();
+      variationData = window.__variationData;
+      if (!variationData) return;
       buildSelectors(variationData.attributes);
 
     } catch (e) {
@@ -588,36 +596,37 @@
     document.getElementById("selectedOptionsInput").value = opts;
   }
 
-  // ── Match selection to a variation and update UI ──
-  async function updateVariation() {
+// ── Match selection to a variation and update UI (client-side) ──
+  function updateVariation() {
     const selectedIds = Object.values(currentSelections).join(",");
     if (!selectedIds) {
       // Reset to base product data and original gallery
-      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "");
+      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "", "");
       return;
     }
 
     // Update hidden form fields
     document.getElementById("selectedOptionsInput").value = getSelectionLabel();
 
-    try {
-      const resp = await fetch(`/api/product/${productId}/variation?selected=${selectedIds}`);
-      if (!resp.ok) {
-        updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "");
-        return;
+    // Client-side matching from embedded variations list
+    const selSet = new Set(selectedIds.split(",").map(s => s.trim()).filter(Boolean));
+    let match = null;
+    for (const vd of window.__variationsList || []) {
+      const valIds = new Set((vd.values || []).map(v => String(v.value_id)));
+      if (valIds.size === selSet.size && [...selSet].every(id => valIds.has(id))) {
+        match = vd;
+        break;
       }
-      const data = await resp.json();
-      if (data.found) {
-        updateDisplay(data.price, data.stock_quantity, data.stock_status, data.sku, data.variation_id, data.images || [], data.description || "", data.short_description || "");
-      } else {
-        updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "");
-      }
-    } catch (e) {
-      console.error("Variation lookup failed:", e);
+    }
+
+    if (match) {
+      updateDisplay(match.price, match.stock_quantity, match.stock_status, match.sku, match.id, match.images || [], match.description || "", match.short_description || "", match.name || "");
+    } else {
+      updateDisplay(basePrice, baseStock, "{{ product.stock_status }}", "{{ product.sku or '' }}", "", [], "", "", "");
     }
   }
 
-  function updateDisplay(price, stock, status, sku, varId, varImages, varDesc, varShortDesc) {
+  function updateDisplay(price, stock, status, sku, varId, varImages, varDesc, varShortDesc, varName) {
     document.getElementById("currentPrice").textContent = "₹" + Math.round(price);
     document.getElementById("productSku").textContent = (varId && sku) ? sku : "—";
     document.getElementById("varIdInput").value = varId || "";
@@ -635,6 +644,18 @@
       badge.className = "stock-badge " + (status === "out_of_stock" ? "out-of-stock" : "in-stock");
       btn.disabled = (stock <= 0);
       btn.textContent = stock <= 0 ? "Out of Stock" : "Add to Cart";
+    }
+
+    // ── Update product name and page title ──
+    const nameEl = document.querySelector(".product-info h1");
+    if (nameEl) {
+      if (varId && varName) {
+        nameEl.textContent = varName;
+        document.title = varName + " – Talbeena";
+      } else {
+        nameEl.textContent = originalProductName;
+        document.title = originalProductName + " – Talbeena";
+      }
     }
 
     // Hide original price if no sale

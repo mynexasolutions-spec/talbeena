@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, Response, jsonify
+import json
 import db
 from helpers import resolve_image
 from queries import (
@@ -109,8 +110,14 @@ def shop():
 
 @bp.route("/product/<product_id>")
 def product_detail(product_id):
+    preselect = request.args.get("preselect", "").strip() or None
     try:
-        product, images, variations, reviews, attributes = get_product_detail(product_id)
+        product, images, variations, reviews, attributes = get_product_detail(product_id, preselect=preselect)
+        # Embed variation attributes + variations in the page (avoids slow API calls)
+        var_data = _get_variation_data(product_id)
+        variation_json = json.dumps(var_data) if var_data else "null"
+        # Also embed variations array for client-side matching
+        vars_json = json.dumps(var_data["variations"]) if var_data and var_data.get("variations") else "[]"
     except Exception as e:
         flash(f"Error loading product: {e}", "error")
         return redirect(url_for("public.shop"))
@@ -124,6 +131,7 @@ def product_detail(product_id):
         "product.html",
         product=product, images=images, variations=variations,
         reviews=reviews, attributes=attributes, related=related,
+        variation_json=variation_json, vars_json=vars_json,
     )
 
 
@@ -266,15 +274,52 @@ def api_product_variation(product_id):
     2. ?selected=val1,val2  →  Returns the single matching variation's
                                 price, stock, SKU, and images.
     """
+    full = _get_variation_data(product_id)
+    if full is None:
+        return jsonify({"error": "Product not found"}), 404
+
+    product = full["product"]
+
+    # ── If ?selected= is provided, find the matching variation ──
+    selected_raw = request.args.get("selected", "")
+    if selected_raw:
+        selected_ids = set(s.strip() for s in selected_raw.split(",") if s.strip())
+        match = None
+        for vd in full["variations"]:
+            v_val_ids = set(str(r["value_id"]) for r in vd["values"])
+            if v_val_ids == selected_ids:
+                match = vd
+                break
+        if match:
+            return jsonify({
+                "found": True,
+                "price":          match["price"],
+                "stock_quantity": match["stock_quantity"],
+                "stock_status":   match["stock_status"],
+                "sku":            match["sku"],
+                "variation_id":   match["id"],
+                "images":         match["images"],
+                "name":           match.get("name", ""),
+                "short_description": match.get("short_description", ""),
+                "description":    match.get("description", ""),
+            })
+        else:
+            return jsonify({"found": False, "message": "No matching variation"}), 404
+
+    # Full data mode (no ?selected=)
+    return jsonify(full)
+
+
+def _get_variation_data(product_id):
+    """Return the full variation attributes + variations dict for embedding / API."""
     product = db.query_one(
         "SELECT id, name, price, sale_price, stock_quantity, stock_status, type, sku "
         "FROM products WHERE id = ? AND is_active = 1",
         [product_id],
     )
     if not product:
-        return jsonify({"error": "Product not found"}), 404
+        return None
 
-    # ── Load attributes grouped by variation_type ──
     attrs = db.query("""
         SELECT a.id, a.name, a.slug, a.variation_type
         FROM product_attributes pa
@@ -284,8 +329,7 @@ def api_product_variation(product_id):
     """, [product_id])
 
     if not attrs:
-        # No attributes — return base product data
-        return jsonify({
+        return {
             "product": {
                 "price":        float(product.get("sale_price") or product.get("price") or 0),
                 "stock":        int(product.get("stock_quantity") or 0),
@@ -294,9 +338,8 @@ def api_product_variation(product_id):
             },
             "attributes": [],
             "variations": [],
-        })
+        }
 
-    # Load values for each attribute (admin-checked values first, then all)
     attr_ids = [a["id"] for a in attrs]
     ph = ",".join(["?"] * len(attr_ids))
     pav_rows = db.query(
@@ -307,14 +350,12 @@ def api_product_variation(product_id):
             ORDER BY av.value""",
         [product_id] + attr_ids,
     )
-    # Fallback: all values for those attributes
     all_vals = db.query(
         f"SELECT attribute_id, id, value, image_url FROM attribute_values "
         f"WHERE attribute_id IN ({ph}) ORDER BY value",
         attr_ids,
     )
 
-    # Build value maps — prefer admin-checked, fall back to all
     val_map = {}
     for row in pav_rows:
         val_map.setdefault(str(row["attribute_id"]), []).append(row)
@@ -323,7 +364,6 @@ def api_product_variation(product_id):
         if aid not in val_map:
             val_map.setdefault(aid, []).append(row)
 
-    # Build the grouped attributes response
     attr_groups = []
     for a in attrs:
         vals = val_map.get(str(a["id"]), [])
@@ -339,12 +379,10 @@ def api_product_variation(product_id):
             } for v in vals],
         })
 
-    # ── Load variations ──
     variations = db.query(
         "SELECT * FROM product_variations WHERE product_id = ?",
         [product_id],
     )
-    # Batch-load variation→attribute_value mappings
     var_data = []
     if variations:
         var_ids = [v["id"] for v in variations]
@@ -360,7 +398,6 @@ def api_product_variation(product_id):
         for r in vav_rows:
             vav_map.setdefault(str(r["variation_id"]), []).append(r)
 
-        # Batch-load variation images
         vi_rows = db.query(
             f"SELECT vi.variation_id, m.file_url, vi.is_primary "
             f"FROM variation_images vi "
@@ -394,34 +431,7 @@ def api_product_variation(product_id):
                 "description":      v.get("description") or "",
             })
 
-    # ── If ?selected= is provided, find the matching variation ──
-    selected_raw = request.args.get("selected", "")
-    if selected_raw:
-        selected_ids = set(s.strip() for s in selected_raw.split(",") if s.strip())
-        match = None
-        for vd in var_data:
-            v_val_ids = set(str(r["value_id"]) for r in vd["values"])
-            if v_val_ids == selected_ids:
-                match = vd
-                break
-        if match:
-            return jsonify({
-                "found": True,
-                "price":          match["price"],
-                "stock_quantity": match["stock_quantity"],
-                "stock_status":   match["stock_status"],
-                "sku":            match["sku"],
-                "variation_id":   match["id"],
-                "images":         match["images"],
-                "name":           match.get("name", ""),
-                "short_description": match.get("short_description", ""),
-                "description":    match.get("description", ""),
-            })
-        else:
-            return jsonify({"found": False, "message": "No matching variation"}), 404
-
-    # Full data mode (no ?selected=)
-    return jsonify({
+    return {
         "product": {
             "price":        float(product.get("sale_price") or product.get("price") or 0),
             "stock":        int(product.get("stock_quantity") or 0),
@@ -430,4 +440,4 @@ def api_product_variation(product_id):
         },
         "attributes": attr_groups,
         "variations": var_data,
-    })
+    }

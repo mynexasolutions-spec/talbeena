@@ -882,8 +882,24 @@ def register(app):
                 attr["options"] = db.query(
                     "SELECT * FROM attribute_values WHERE attribute_id = ? ORDER BY value ASC", [attr["id"]]
                 )
+        # Fetch existing variation images
+        var_ids = [v["id"] for v in variations]
+        variation_images = {}
+        if var_ids:
+            ph = ",".join(["?"] * len(var_ids))
+            rows = db.query(f"""
+                SELECT vi.variation_id, vi.is_primary, m.file_url
+                FROM variation_images vi
+                JOIN media m ON m.id = vi.media_id
+                WHERE vi.variation_id IN ({ph})
+                ORDER BY vi.is_primary DESC, vi.display_order
+            """, var_ids)
+            for r in rows:
+                vid = str(r["variation_id"])
+                variation_images.setdefault(vid, []).append(r)
         return render_template(
-            "admin/variations.html", product=product, variations=variations, attributes=linked_attributes
+            "admin/variations.html", product=product, variations=variations,
+            attributes=linked_attributes, variation_images=variation_images,
         )
 
     @app.route("/admin/products/<product_id>/variations/new", methods=["POST"])
@@ -966,20 +982,22 @@ def register(app):
                     ],
                 )
 
-                # Handle variation image upload
-                img_file = request.files.get(f"image_{vid}")
-                if img_file and img_file.filename:
-                    url = handle_upload(img_file, folder="talbeena-variations")
-                    if url:
-                        mid = str(uuid.uuid4())
-                        db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                        # Mark existing images as non-primary
-                        db.execute("UPDATE variation_images SET is_primary=0 WHERE variation_id=?", [vid])
-                        db.execute(
-                            "INSERT INTO variation_images (id, variation_id, media_id, is_primary, display_order) "
-                            "VALUES (?,?,?,1,0)",
-                            [str(uuid.uuid4()), vid, mid],
-                        )
+                # Handle variation image uploads (multiple files)
+                img_files = request.files.getlist(f"image_{vid}")
+                img_files = [f for f in img_files if f and f.filename]
+                if img_files:
+                    # Mark existing images as non-primary
+                    db.execute("UPDATE variation_images SET is_primary=0 WHERE variation_id=?", [vid])
+                    for idx, img_file in enumerate(img_files):
+                        url = handle_upload(img_file, folder="talbeena-variations")
+                        if url:
+                            mid = str(uuid.uuid4())
+                            db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                            db.execute(
+                                "INSERT INTO variation_images (id, variation_id, media_id, is_primary, display_order) "
+                                "VALUES (?,?,?,?,?)",
+                                [str(uuid.uuid4()), vid, mid, 1 if idx == 0 else 0, idx],
+                            )
 
             get_products.cache_clear()
             flash("All variations updated successfully.", "success")

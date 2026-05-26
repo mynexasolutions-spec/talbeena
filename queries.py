@@ -298,7 +298,7 @@ def get_featured_categories():
 
 
 @ttl_cache(ttl_seconds=120)
-def get_product_detail(product_id):
+def get_product_detail(product_id, preselect=None):
     product = db.query_one(f"{PRODUCTS_SELECT} WHERE p.id = ?", [product_id])
     if not product:
         return None, [], [], [], []
@@ -320,6 +320,29 @@ def get_product_detail(product_id):
     base_price = float(product.get("sale_price") or product.get("price") or 0)
     base_stock = int(product.get("stock_quantity") or 0)
 
+    # ── Server-side pre-selection (before price overwriting) ──
+    preselect_match = None
+    if preselect and product.get("type") == "variable" and variations:
+        preselect_parts = [p.strip() for p in preselect.split(",") if p.strip()]
+        if preselect_parts:
+            var_ids_tmp = [v["id"] for v in variations]
+            ph_tmp = ",".join(["?"] * len(var_ids_tmp))
+            vav_rows = db.query(
+                f"SELECT vav.variation_id, av.value "
+                f"FROM variation_attribute_values vav "
+                f"JOIN attribute_values av ON av.id = vav.attribute_value_id "
+                f"WHERE vav.variation_id IN ({ph_tmp})",
+                var_ids_tmp,
+            )
+            var_val_map = {}
+            for r in vav_rows:
+                var_val_map.setdefault(str(r["variation_id"]), []).append(r["value"])
+            for v in variations:
+                vals = var_val_map.get(str(v["id"]), [])
+                if all(p in vals for p in preselect_parts):
+                    preselect_match = v
+                    break
+
     # Batch-load all variation→attribute_value mappings in ONE query
     if variations:
         var_ids      = [v["id"] for v in variations]
@@ -333,8 +356,12 @@ def get_product_detail(product_id):
         for row in all_vav:
             vav_map.setdefault(str(row["variation_id"]), []).append(row["attribute_value_id"])
         for v in variations:
-            v["price"]               = base_price
-            v["stock_quantity"]      = base_stock
+            # Only overwrite price/stock for non-matched variations
+            if preselect_match and str(v["id"]) == str(preselect_match["id"]):
+                pass  # keep the real DB values
+            else:
+                v["price"]          = base_price
+                v["stock_quantity"] = base_stock
             v["attribute_value_ids"] = vav_map.get(str(v["id"]), [])
     else:
         for v in variations:
@@ -344,6 +371,36 @@ def get_product_detail(product_id):
 
     if product.get("type") == "variable":
         product["price"] = base_price if base_price > 0 else float(product.get("price") or 0)
+
+    # ── Apply preselect overrides (after price loading) ────────────────────
+    if preselect_match:
+        # Compose display name: use variation name or "Base – Label"
+        var_label = ", ".join(preselect_parts)
+        var_display_name = (preselect_match.get("name") or
+                            f"{product['name']} – {var_label}") if var_label else product["name"]
+        product["name"]             = var_display_name
+        product["description"]      = preselect_match.get("description") or product.get("description", "")
+        product["short_description"] = preselect_match.get("short_description") or product.get("short_description", "")
+        product["price"]            = float(preselect_match.get("sale_price") or preselect_match.get("price") or product.get("price", 0))
+        product["sale_price"]       = float(preselect_match["sale_price"]) if preselect_match.get("sale_price") else product.get("sale_price")
+        product["sku"]              = preselect_match.get("sku") or product.get("sku", "")
+        product["stock_quantity"]   = int(preselect_match.get("stock_quantity") or product.get("stock_quantity", 0))
+        product["stock_status"]     = preselect_match.get("stock_status") or product.get("stock_status", "in_stock")
+
+        # Load variation images (fall back to base images if none)
+        var_images = db.query(
+            """SELECT m.file_url AS image_url, vi.is_primary,
+                      COALESCE(m.alt_text, '') AS alt_text
+               FROM variation_images vi
+               JOIN media m ON m.id = vi.media_id
+               WHERE vi.variation_id = ?
+               ORDER BY vi.is_primary DESC, vi.display_order""",
+            [preselect_match["id"]],
+        )
+        if var_images:
+            images = var_images
+            product["image_url"] = var_images[0]["image_url"]
+        # else: keep base images as fallback
 
     reviews = db.query(
         """SELECT r.*, (u.first_name || ' ' || u.last_name) AS reviewer_name
