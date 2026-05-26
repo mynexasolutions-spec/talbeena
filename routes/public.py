@@ -159,7 +159,15 @@ def contact():
         if not all([name, email, message]):
             flash("Please fill in all required fields.", "error")
         else:
-            flash("Thank you for your message! We'll get back to you soon.", "success")
+            try:
+                db.execute(
+                    "INSERT INTO contact_messages (id, name, email, message) "
+                    "VALUES (gen_random_uuid(), ?, ?, ?)",
+                    [name, email, message],
+                )
+                flash("Thank you for your message! We'll get back to you soon.", "success")
+            except Exception as e:
+                flash("Something went wrong. Please try again later.", "error")
             return redirect(url_for("public.contact"))
     return render_template("contact.html")
 

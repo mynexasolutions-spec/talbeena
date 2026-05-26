@@ -459,6 +459,16 @@ _MIGRATIONS = [
     )""",
     "CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug)",
     "CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON blog_posts(published)",
+
+    # 16. Contact messages
+    """CREATE TABLE IF NOT EXISTS contact_messages (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        message TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
 ]
 
 def migrate():
