@@ -6,7 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>{% block title %}Talbeena – Pure Barley Wellness{% endblock %}</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.min.js"></script>
+  <script src="{{ url_for('static', filename='js/turbo.min.js') }}"></script>
   <script>
     // Don't use Turbo for admin links (complex forms need full page loads)
     document.addEventListener("turbo:click", function(e) {
