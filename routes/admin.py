@@ -7,7 +7,7 @@ from functools import wraps
 from flask import render_template, request, redirect, url_for, flash, abort, session
 import db
 from helpers import slugify, get_cached_store_settings, get_unique_slug, handle_upload
-from queries import get_products, get_categories, get_brands, get_admin_stats, get_featured_categories, PRODUCTS_SELECT
+from queries import get_products, get_categories, get_brands, get_admin_stats, get_featured_categories, PRODUCTS_SELECT, get_product_detail
 
 
 def _sanitize_sku_prefix(prefix, fallback):
@@ -1031,6 +1031,7 @@ def register(app):
         try:
             approved = action == "approve"
             db.execute("UPDATE product_reviews SET is_approved=? WHERE id=?", [approved, review_id])
+            get_product_detail.cache_clear()
             flash("Review " + ("approved." if approved else "rejected."), "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -1041,6 +1042,7 @@ def register(app):
     def admin_review_delete(review_id):
         try:
             db.execute("DELETE FROM product_reviews WHERE id=?", [review_id])
+            get_product_detail.cache_clear()
             flash("Review deleted.", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")

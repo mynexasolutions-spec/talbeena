@@ -127,11 +127,27 @@ def product_detail(product_id):
         related = get_related_products(product.get("category_slug", ""), product_id)
     except Exception:
         related = []
+    # Calculate review stats
+    avg_rating = 0.0
+    stars_count = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    stars_pct = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    total_reviews = len(reviews) if reviews else 0
+    if total_reviews > 0:
+        total_stars = 0
+        for r in reviews:
+            rating = max(1, min(5, int(r.get("rating") or 5)))
+            stars_count[rating] += 1
+            total_stars += rating
+        avg_rating = round(total_stars / total_reviews, 1)
+        for rating in range(1, 6):
+            stars_pct[rating] = int(round((stars_count[rating] / total_reviews) * 100))
+
     return render_template(
         "product.html",
         product=product, images=images, variations=variations,
         reviews=reviews, attributes=attributes, related=related,
         variation_json=variation_json, vars_json=vars_json,
+        avg_rating=avg_rating, stars_pct=stars_pct, total_reviews=total_reviews, stars_count=stars_count
     )
 
 
@@ -469,3 +485,40 @@ def _get_variation_data(product_id):
         "attributes": attr_groups,
         "variations": var_data,
     }
+
+
+@bp.route("/product/<product_id>/review", methods=["POST"])
+def product_review_add(product_id):
+    from flask import session
+    user = session.get("user")
+    if not user:
+        flash("Please log in to write a review.", "error")
+        return redirect(url_for("auth.login", next=url_for("public.product_detail", product_id=product_id)))
+
+    rating_raw = request.form.get("rating")
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+
+    if not rating_raw or not body:
+        flash("Rating and review message are required.", "error")
+        return redirect(url_for("public.product_detail", product_id=product_id))
+
+    try:
+        rating = max(1, min(5, int(rating_raw)))
+    except ValueError:
+        flash("Invalid rating selected.", "error")
+        return redirect(url_for("public.product_detail", product_id=product_id))
+
+    try:
+        import uuid
+        db.execute(
+            "INSERT INTO product_reviews (id, product_id, user_id, rating, title, body, is_approved) "
+            "VALUES (?, ?, ?, ?, ?, ?, 0)",
+            [str(uuid.uuid4()), product_id, user["id"], rating, title, body]
+        )
+        get_product_detail.cache_clear()
+        flash("Thank you! Your review has been submitted for moderation and will appear once approved.", "success")
+    except Exception as e:
+        flash(f"Error submitting review: {e}", "error")
+
+    return redirect(url_for("public.product_detail", product_id=product_id))

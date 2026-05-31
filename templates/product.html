@@ -377,6 +377,373 @@
     .related-card .rc-name { font-size: 0.9rem; }
     .related-card .rc-price { font-size: 1.05rem; }
   }
+
+  /* ── Customer Reviews Section ── */
+  .reviews-section {
+    margin-top: 5rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+    max-width: 1400px;
+  }
+  .reviews-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .reviews-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 0.5rem;
+  }
+  .reviews-divider {
+    width: 44px; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    margin: 0.8rem auto 0;
+    border-radius: 2px;
+  }
+  
+  .reviews-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+  
+  /* Sidebar styles */
+  .reviews-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .reviews-summary-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  }
+  .rating-huge {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.8rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .rating-stars-huge {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+  .star-icon {
+    color: #e5e7eb; /* Default empty star color */
+  }
+  .star-icon.filled {
+    color: var(--gold);
+  }
+  .star-icon.half-filled {
+    background: linear-gradient(90deg, var(--gold) 50%, #e5e7eb 50%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+  .total-reviews-label {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Progress Bars Breakdown */
+  .stars-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+  }
+  .breakdown-label {
+    width: 50px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .progress-bar-container {
+    flex: 1;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 999px;
+  }
+  .breakdown-pct {
+    width: 35px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-dark);
+    flex-shrink: 0;
+  }
+  
+  /* Write Review Form Card */
+  .write-review-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  }
+  .write-review-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+  
+  /* Elegant Form control styling */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    color: var(--text-dark);
+    background-color: #fafafa;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  }
+  .form-control:focus {
+    border-color: var(--teal);
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--teal-light);
+  }
+  .form-control.text-area {
+    resize: vertical;
+  }
+  
+  /* Interactive Star Selector Styling */
+  .star-rating-select {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .star-rating-select input {
+    display: none;
+  }
+  .star-rating-select label {
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: color 0.15s ease-in-out;
+  }
+  .star-rating-select label:hover,
+  .star-rating-select label:hover ~ label,
+  .star-rating-select input:checked ~ label {
+    color: var(--gold);
+  }
+  
+  .btn-submit-review {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s;
+  }
+  .btn-submit-review:hover {
+    background: var(--teal-dark);
+  }
+  .btn-submit-review:active {
+    transform: scale(0.98);
+  }
+  
+  /* Auth Guard Shield */
+  .auth-shield {
+    text-align: center;
+    padding: 1rem 0.5rem;
+  }
+  .auth-shield p {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+  .btn-login-redirect {
+    display: inline-block;
+    padding: 0.7rem 1.4rem;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    border: 1.5px solid var(--teal);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-login-redirect:hover {
+    background: var(--teal);
+    color: #fff;
+  }
+  
+  /* Right column: Reviews List container */
+  .reviews-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .review-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+    transition: box-shadow 0.3s;
+  }
+  .review-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  }
+  .review-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .review-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .reviewer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: 1px solid var(--border);
+  }
+  .reviewer-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.25rem 0;
+  }
+  .review-rating-stars {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+  .review-date {
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    font-weight: 500;
+  }
+  
+  .review-card-body {
+    padding-left: 3.5rem; /* Indent body to align with name next to avatar */
+  }
+  .review-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin: 0 0 0.5rem 0;
+  }
+  .review-text {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-line;
+  }
+  
+  /* Empty state */
+  .reviews-empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    border: 2.5px dashed var(--border);
+    border-radius: 20px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--text-soft);
+  }
+  .reviews-empty-state p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 0.35rem 0;
+  }
+  .reviews-empty-state .empty-sub {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    font-weight: 400;
+    margin: 0;
+  }
+  
+  /* Mobile styling for reviews */
+  @media (max-width: 992px) {
+    .reviews-layout {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .reviews-sidebar {
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .review-card-body {
+      padding-left: 0;
+      margin-top: 1rem;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -463,6 +830,131 @@
         {% if product.description %}
         <h3>Description</h3>
         {{ product.description|format_description }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Customer Reviews Section ── -->
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h2>Customer Reviews</h2>
+      <div class="reviews-divider"></div>
+    </div>
+    
+    <div class="reviews-layout">
+      <!-- Left Column: Aggregate Rating & Form -->
+      <div class="reviews-sidebar">
+        <div class="reviews-summary-card">
+          <div class="rating-huge">{{ avg_rating }}</div>
+          <div class="rating-stars-huge">
+            {% for i in range(1, 6) %}
+              {% if avg_rating >= i %}
+                <span class="star-icon filled">&#9733;</span>
+              {% elif avg_rating > i - 1 %}
+                <span class="star-icon half-filled">&#9733;</span>
+              {% else %}
+                <span class="star-icon empty">&#9733;</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p class="total-reviews-label">Based on {{ total_reviews }} {% if total_reviews == 1 %}review{% else %}reviews{% endif %}</p>
+          
+          <!-- Rating Breakdown Progress Bars -->
+          <div class="stars-breakdown">
+            {% for star in range(5, 0, -1) %}
+            <div class="breakdown-row">
+              <span class="breakdown-label">{{ star }} Star</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: {{ stars_pct[star] }}%;"></div>
+              </div>
+              <span class="breakdown-pct">{{ stars_pct[star] }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <!-- Write a Review Form -->
+        <div class="write-review-card">
+          <h3>Write a Review</h3>
+          {% if session.get('user') %}
+            <form action="{{ url_for('public.product_review_add', product_id=product.id) }}" method="POST" class="review-form" data-turbo="false">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              
+              <div class="form-group">
+                <label class="form-label">Overall Rating</label>
+                <div class="star-rating-select">
+                  <input type="radio" id="star5" name="rating" value="5" required />
+                  <label for="star5" title="5 stars">&#9733;</label>
+                  <input type="radio" id="star4" name="rating" value="4" />
+                  <label for="star4" title="4 stars">&#9733;</label>
+                  <input type="radio" id="star3" name="rating" value="3" />
+                  <label for="star3" title="3 stars">&#9733;</label>
+                  <input type="radio" id="star2" name="rating" value="2" />
+                  <label for="star2" title="2 stars">&#9733;</label>
+                  <input type="radio" id="star1" name="rating" value="1" />
+                  <label for="star1" title="1 star">&#9733;</label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="reviewTitle" class="form-label">Review Title</label>
+                <input type="text" id="reviewTitle" name="title" class="form-control" placeholder="e.g. Delicious flavor & fast delivery!" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="reviewBody" class="form-label">Review Details</label>
+                <textarea id="reviewBody" name="body" class="form-control text-area" rows="4" placeholder="Share your experience with this product..." required></textarea>
+              </div>
+              
+              <button type="submit" class="btn-submit-review">Submit Review</button>
+            </form>
+          {% else %}
+            <div class="auth-shield">
+              <p>Only registered customers can write reviews.</p>
+              <a href="{{ url_for('auth.login', next=request.path) }}" class="btn-login-redirect">Login to Review</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Right Column: Reviews List -->
+      <div class="reviews-list-container">
+        {% if reviews %}
+          <div class="reviews-list">
+            {% for review in reviews %}
+              <div class="review-card">
+                <div class="review-card-header">
+                  <div class="review-meta-left">
+                    <span class="reviewer-avatar">{{ (review.reviewer_name or 'U')[0]|upper }}</span>
+                    <div>
+                      <h4 class="reviewer-name">{{ review.reviewer_name or 'Verified Buyer' }}</h4>
+                      <div class="review-rating-stars">
+                        {% for i in range(1, 6) %}
+                          {% if review.rating >= i %}
+                            <span class="star-icon filled">&#9733;</span>
+                          {% else %}
+                            <span class="star-icon empty">&#9733;</span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                  <span class="review-date">{{ review.created_at|date_short }}</span>
+                </div>
+                <div class="review-card-body">
+                  <h5 class="review-title">{{ review.title }}</h5>
+                  <p class="review-text">{{ review.body }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="reviews-empty-state">
+            <div class="empty-icon">&#128172;</div>
+            <p>No reviews yet for this product.</p>
+            <p class="empty-sub">Be the first to share your experience!</p>
+          </div>
         {% endif %}
       </div>
     </div>
@@ -850,6 +1342,18 @@ window.__variationsList = {{ vars_json|safe }};
       }
     }
   })();
+
+  // ── Handle Review Form Submissions ──
+  const reviewForm = document.querySelector(".review-form");
+  if (reviewForm) {
+    reviewForm.addEventListener("submit", function(e) {
+      const btn = reviewForm.querySelector(".btn-submit-review");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+      }
+    });
+  }
 
   // ── Init ──
   loadVariations();
