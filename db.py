@@ -1,20 +1,23 @@
 """
 db.py — PostgreSQL connection management and schema migrations.
-Uses psycopg2 with RealDictCursor for dict-like row access.
+Uses psycopg2 with a ThreadedConnectionPool for efficient connection reuse.
 """
 import os
-import re
+import threading
 from dotenv import load_dotenv
 import psycopg2
 import psycopg2.extras
+from psycopg2 import pool as pg_pool
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+_pool = None
+_pool_lock = threading.Lock()
+
 
 def _parse_url(url):
-    """Parse a PostgreSQL connection URL into keyword args (handles @ in password)."""
     from urllib.parse import urlparse, unquote
     parsed = urlparse(url)
     return {
@@ -23,29 +26,51 @@ def _parse_url(url):
         "dbname": parsed.path.lstrip("/"),
         "user": unquote(parsed.username),
         "password": unquote(parsed.password),
+        "connect_timeout": 15,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5,
     }
 
 
+def _get_pool():
+    global _pool
+    if _pool is None:
+        with _pool_lock:
+            if _pool is None:
+                if not DATABASE_URL:
+                    raise RuntimeError("DATABASE_URL is not set.")
+                params = _parse_url(DATABASE_URL)
+                _pool = pg_pool.ThreadedConnectionPool(
+                    minconn=2,
+                    maxconn=10,
+                    **params,
+                )
+    return _pool
+
+
 def get_conn():
-    if not DATABASE_URL:
-        raise RuntimeError(
-            "DATABASE_URL is not set. "
-            "Set it in your .env file, e.g.:\n"
-            "DATABASE_URL=postgresql://user:pass@host:5432/dbname"
-        )
-    params = _parse_url(DATABASE_URL)
-    conn = psycopg2.connect(**params)
+    conn = _get_pool().getconn()
     conn.autocommit = False
     return conn
 
 
+def _release(conn):
+    try:
+        _get_pool().putconn(conn)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
 def _pg(sql):
-    """Convert SQLite ? placeholders to PostgreSQL %s placeholders."""
     return sql.replace("?", "%s")
 
 
 def _as_dict(cursor):
-    """Convert fetched rows to list of dicts."""
     cols = [desc[0] for desc in cursor.description] if cursor.description else []
     return [dict(zip(cols, row)) for row in cursor.fetchall()]
 
@@ -57,7 +82,7 @@ def query(sql, params=None):
         cur.execute(_pg(sql), params or ())
         return _as_dict(cur)
     finally:
-        conn.close()
+        _release(conn)
 
 
 def query_one(sql, params=None):
@@ -68,7 +93,7 @@ def query_one(sql, params=None):
         rows = _as_dict(cur)
         return rows[0] if rows else None
     finally:
-        conn.close()
+        _release(conn)
 
 
 def execute(sql, params=None):
@@ -82,7 +107,7 @@ def execute(sql, params=None):
         conn.rollback()
         raise
     finally:
-        conn.close()
+        _release(conn)
 
 
 def execute_returning(sql, params=None):
@@ -97,7 +122,7 @@ def execute_returning(sql, params=None):
         conn.rollback()
         raise
     finally:
-        conn.close()
+        _release(conn)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

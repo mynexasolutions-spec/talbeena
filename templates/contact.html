@@ -3,56 +3,117 @@
 
 {% block extra_css %}
 <style>
-  .contact-page {
-    max-width: 800px;
+  /* ── Page Banner ── */
+  .page-banner {
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 55%, #1a6b72 100%);
+    padding: 56px 5%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 15% 60%, rgba(200,146,42,0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 40%, rgba(200,146,42,0.10) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .page-banner-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
     margin: 0 auto;
-    padding: 3rem 5% 4rem;
+  }
+  .page-banner-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+  }
+  .page-banner h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.7rem;
+  }
+  .page-banner-sub {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.6;
+  }
+  .page-banner-divider {
+    width: 44px;
+    height: 2px;
+    background: var(--gold);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+  }
+  
+  @media (max-width: 768px) {
+    .page-banner { padding: 48px 6%; }
+    .page-banner h1 { font-size: clamp(1.8rem, 7vw, 2.6rem); }
+    .page-banner-sub { font-size: 0.88rem; }
   }
 
-  .contact-page h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2rem, 5vw, 2.5rem);
-    font-weight: 700;
-    color: var(--text-dark);
-    text-align: center;
-    margin-bottom: 0.5rem;
+  .contact-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 90px 5%;
   }
-  .contact-page .subtitle {
+
+  .contact-header {
     text-align: center;
+    margin-bottom: 4rem;
+  }
+  .contact-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 1rem;
+  }
+  .contact-header p.subtitle {
+    font-size: 1.2rem;
     color: var(--text-mid);
-    margin-bottom: 2.5rem;
-    font-size: 0.95rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
   }
 
   .contact-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 3rem;
   }
 
   .contact-form {
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: 16px;
+    padding: 3rem;
   }
-  .form-group { margin-bottom: 1.2rem; }
+  .form-group { margin-bottom: 1.5rem; }
   .form-group label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-mid);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
   }
   .form-group input, .form-group textarea {
     width: 100%;
-    padding: 0.7rem 1rem;
+    padding: 1rem 1.2rem;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     transition: border-color 0.2s;
     background: #fff;
   }
@@ -60,16 +121,16 @@
     border-color: var(--teal);
     outline: none;
   }
-  .form-group textarea { resize: vertical; min-height: 120px; }
+  .form-group textarea { resize: vertical; min-height: 160px; }
 
   .btn-submit {
     width: 100%;
-    padding: 0.8rem;
+    padding: 1.1rem;
     background: var(--teal);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s;
@@ -79,50 +140,78 @@
   .contact-info {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 1.5rem;
   }
   .info-card {
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.5rem;
+    border-radius: 12px;
+    padding: 2rem;
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 1.2rem;
   }
-  .info-card .info-icon { font-size: 1.5rem; }
+  .info-card .info-icon { font-size: 2rem; }
   .info-card h4 {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-dark);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.4rem;
   }
   .info-card p {
-    font-size: 0.85rem;
+    font-size: 1.05rem;
     color: var(--text-mid);
-    line-height: 1.5;
+    line-height: 1.6;
+  }
+
+  .map-container {
+    width: 100%;
+    height: 350px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: 1rem;
+  }
+  .map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   .flash-msg {
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1.05rem;
+    text-align: center;
   }
   .flash-msg.success { background: #d1fae5; color: #065f46; }
   .flash-msg.error { background: #fee2e2; color: #991b1b; }
 
-  @media (max-width: 640px) {
-    .contact-grid { grid-template-columns: 1fr; }
+  @media (max-width: 960px) {
+    .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .contact-form { padding: 2rem; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- ── Contact Banner ── -->
+<div class="page-banner">
+  <div class="page-banner-inner">
+    <div class="page-banner-label">&#10022; Contact Us</div>
+    <h1>Get in Touch</h1>
+    <p class="page-banner-sub">Questions, feedback, or just a salaam — reach out anytime.</p>
+    <div class="page-banner-divider"></div>
+  </div>
+</div>
+
 <div class="contact-page">
-  <h1>Get in Touch</h1>
-  <p class="subtitle">We'd love to hear from you. Questions, feedback, or just a salaam — reach out anytime.</p>
+  <div class="contact-header">
+    <h2>We'd love to hear from you</h2>
+    <p class="subtitle">Please fill out the form below or reach us through our contact details.</p>
+  </div>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -171,6 +260,11 @@
           <h4>Hours</h4>
           <p>Monday – Saturday<br />10:00 AM – 6:00 PM IST</p>
         </div>
+      </div>
+      
+      <!-- Google Map Container -->
+      <div class="map-container">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15000000!2d70!3d22!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30635ff06b92b791%3A0xd78c4fa1854213a6!2sIndia!5e0!3m2!1sen!2sus!4v1716912345678!5m2!1sen!2sus" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
     </div>
   </div>

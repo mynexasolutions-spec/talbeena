@@ -5,6 +5,7 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 import db
 from helpers import handle_upload, get_unique_slug, slugify
+from queries import PRODUCTS_MINIMAL_SELECT
 
 bp = Blueprint("blog", __name__, url_prefix="/blog")
 
@@ -30,4 +31,8 @@ def blog_detail(slug):
     post = db.query_one("SELECT * FROM blog_posts WHERE slug=? AND published=1", [slug])
     if not post:
         abort(404)
-    return render_template("blog_detail.html", post=post)
+    try:
+        sidebar_products = db.query(f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active=1 ORDER BY p.created_at DESC LIMIT 3")
+    except Exception:
+        sidebar_products = []
+    return render_template("blog_detail.html", post=post, sidebar_products=sidebar_products)

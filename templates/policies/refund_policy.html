@@ -1,0 +1,107 @@
+{% extends 'user_base.html' %}
+{% block title %}Refund & Cancellation Policy – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-banner { background: linear-gradient(135deg, #082e32 0%, #0e4a4e 60%, #1a6b72 100%); padding: 52px 5%; text-align: center; position: relative; overflow: hidden; }
+  .policy-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 60%, rgba(200,146,42,0.09) 0%, transparent 55%), radial-gradient(ellipse at 80% 40%, rgba(200,146,42,0.09) 0%, transparent 55%); pointer-events: none; }
+  .policy-banner-inner { position: relative; z-index: 1; }
+  .policy-banner-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); font-weight: 700; margin-bottom: 0.8rem; }
+  .policy-banner h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-banner-sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+  .policy-banner-divider { width: 40px; height: 2px; background: var(--gold); margin: 1rem auto 0; border-radius: 2px; }
+  .policy-page { max-width: 860px; margin: 0 auto; padding: 3.5rem 5% 5rem; }
+  .policy-meta { font-size: 0.82rem; color: var(--text-soft); margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+  .policy-section { margin-bottom: 2.2rem; }
+  .policy-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.8rem; padding-top: 0.5rem; }
+  .policy-section p { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.8rem; }
+  .policy-section ul { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+  .policy-section ul li { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.3rem; }
+  .policy-highlight { background: #fffbf0; border-left: 3px solid var(--gold); padding: 1rem 1.4rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+  .policy-highlight p { margin: 0; font-size: 0.92rem; color: var(--text-mid); }
+  .policy-steps { counter-reset: step; list-style: none; padding: 0; }
+  .policy-steps li { counter-increment: step; display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-mid); line-height: 1.7; }
+  .policy-steps li::before { content: counter(step); background: var(--teal-dark); color: #fff; min-width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .policy-contact-box { background: #f0f9fa; border: 1px solid #c8e6e8; border-radius: 10px; padding: 1.4rem 1.8rem; margin-top: 2rem; }
+  .policy-contact-box h3 { font-size: 1rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-contact-box p { font-size: 0.9rem; color: var(--text-mid); margin: 0; line-height: 1.7; }
+  .policy-contact-box a { color: var(--teal); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-banner">
+  <div class="policy-banner-inner">
+    <div class="policy-banner-label">Legal</div>
+    <h1>Refund &amp; Cancellation Policy</h1>
+    <p class="policy-banner-sub">Your satisfaction is our priority</p>
+    <div class="policy-banner-divider"></div>
+  </div>
+</div>
+
+<div class="policy-page">
+  <p class="policy-meta">Last updated: June 1, 2026 &nbsp;|&nbsp; Effective: June 1, 2026</p>
+
+  <div class="policy-highlight">
+    <p>At Talbeena, we stand behind the quality of our products. If you are not completely satisfied with your purchase, we're here to help. Please read our policy below before raising a request.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>1. Cancellation Policy</h2>
+    <p><strong>Before Dispatch:</strong> You may cancel your order within <strong>12 hours</strong> of placing it, provided it has not been dispatched. To cancel, please contact us immediately via our <a href="/contact" style="color:var(--teal);">contact page</a> or WhatsApp with your order number.</p>
+    <p><strong>After Dispatch:</strong> Orders that have already been shipped cannot be cancelled. You may request a return after delivery as per the return policy below.</p>
+    <p><strong>COD Orders:</strong> For Cash on Delivery orders, refusal to accept delivery without a valid reason may result in restrictions on future COD orders.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>2. Return &amp; Refund Eligibility</h2>
+    <p>We accept return/refund requests in the following cases:</p>
+    <ul>
+      <li>You received a <strong>damaged or broken</strong> product.</li>
+      <li>You received a <strong>wrong product</strong> (different from what you ordered).</li>
+      <li>The product was <strong>expired</strong> at the time of delivery.</li>
+      <li>The product was <strong>missing</strong> from your order.</li>
+    </ul>
+    <p><strong>Non-eligible cases:</strong> We do not accept returns for change of mind, dislike of taste/flavour, or if the product seal has been broken (unless the product itself is defective).</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>3. How to Request a Refund</h2>
+    <p>Refund requests must be raised within <strong>48 hours</strong> of delivery. To request a refund:</p>
+    <ul class="policy-steps">
+      <li>Contact us via our <a href="/contact" style="color:var(--teal);">Contact Page</a> or email within 48 hours of delivery.</li>
+      <li>Share your Order ID, a brief description of the issue, and clear photographs of the damaged/wrong product.</li>
+      <li>Our team will review your request within 2 business days and confirm eligibility.</li>
+      <li>If approved, the refund will be processed to your original payment method within <strong>5–7 business days</strong>.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>4. Refund Timeline</h2>
+    <ul>
+      <li><strong>UPI / Net Banking:</strong> 3–5 business days after approval.</li>
+      <li><strong>Credit / Debit Card:</strong> 5–7 business days after approval (depending on your bank).</li>
+      <li><strong>COD Orders:</strong> Refunds for COD orders will be processed via bank transfer within 5–7 business days. Bank details must be provided by the customer.</li>
+    </ul>
+    <p>Shipping charges are non-refundable unless the return is due to our error.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>5. Exchange Policy</h2>
+    <p>We currently do not offer direct product exchanges. If you received a wrong or defective item, we will send a replacement after verifying your claim or process a full refund as per your preference.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>6. Contact for Refunds</h2>
+    <div class="policy-contact-box">
+      <h3>Raise a Refund Request</h3>
+      <p>
+        <strong>Talbeena Customer Support</strong><br>
+        Email: <a href="mailto:mynexasolutions@gmail.com">mynexasolutions@gmail.com</a><br>
+        Contact: <a href="/contact">Visit our Contact Page</a><br>
+        Response time: Within 2 business days
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@
 app.py — Application factory for Talbeena.
 """
 import os
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, request
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,9 +19,12 @@ def create_app():
     
     # Payload limit: 16MB
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-    
+
     # Production flag
     app.config['PRODUCTION'] = os.getenv("PRODUCTION", "False").lower() == "true"
+
+    # Cache static files for 1 year in production
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000
     
     # SQLAlchemy
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
@@ -54,6 +57,15 @@ def create_app():
     # Register Jinja2 helpers and globals
     register_jinja(app)
     
+    # Cache-Control headers for static assets
+    @app.after_request
+    def set_cache_headers(response):
+        if request.path.startswith('/static/'):
+            ext = request.path.rsplit('.', 1)[-1].lower()
+            if ext in ('webp', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'woff', 'woff2', 'js', 'css'):
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        return response
+
     # Session initialization - ensure session exists for CSRF token
     @app.before_request
     def ensure_session():

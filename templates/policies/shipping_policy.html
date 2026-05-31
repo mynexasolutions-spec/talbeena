@@ -1,0 +1,128 @@
+{% extends 'user_base.html' %}
+{% block title %}Shipping Policy – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-banner { background: linear-gradient(135deg, #082e32 0%, #0e4a4e 60%, #1a6b72 100%); padding: 52px 5%; text-align: center; position: relative; overflow: hidden; }
+  .policy-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 60%, rgba(200,146,42,0.09) 0%, transparent 55%), radial-gradient(ellipse at 80% 40%, rgba(200,146,42,0.09) 0%, transparent 55%); pointer-events: none; }
+  .policy-banner-inner { position: relative; z-index: 1; }
+  .policy-banner-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); font-weight: 700; margin-bottom: 0.8rem; }
+  .policy-banner h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-banner-sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+  .policy-banner-divider { width: 40px; height: 2px; background: var(--gold); margin: 1rem auto 0; border-radius: 2px; }
+  .policy-page { max-width: 860px; margin: 0 auto; padding: 3.5rem 5% 5rem; }
+  .policy-meta { font-size: 0.82rem; color: var(--text-soft); margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+  .policy-section { margin-bottom: 2.2rem; }
+  .policy-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.8rem; padding-top: 0.5rem; }
+  .policy-section p { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.8rem; }
+  .policy-section ul { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+  .policy-section ul li { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.3rem; }
+  .shipping-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.9rem; }
+  .shipping-table th { background: var(--teal-dark); color: #fff; padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.04em; }
+  .shipping-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-mid); }
+  .shipping-table tr:last-child td { border-bottom: none; }
+  .shipping-table tr:nth-child(even) td { background: var(--cream); }
+  .shipping-table th:first-child, .shipping-table td:first-child { border-radius: 0; }
+  .free-badge { display: inline-block; background: #d1fae5; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+  .policy-highlight { background: #fffbf0; border-left: 3px solid var(--gold); padding: 1rem 1.4rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+  .policy-highlight p { margin: 0; font-size: 0.92rem; color: var(--text-mid); }
+  .policy-contact-box { background: #f0f9fa; border: 1px solid #c8e6e8; border-radius: 10px; padding: 1.4rem 1.8rem; margin-top: 2rem; }
+  .policy-contact-box h3 { font-size: 1rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-contact-box p { font-size: 0.9rem; color: var(--text-mid); margin: 0; line-height: 1.7; }
+  .policy-contact-box a { color: var(--teal); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-banner">
+  <div class="policy-banner-inner">
+    <div class="policy-banner-label">Legal</div>
+    <h1>Shipping Policy</h1>
+    <p class="policy-banner-sub">Fast, reliable delivery across India</p>
+    <div class="policy-banner-divider"></div>
+  </div>
+</div>
+
+<div class="policy-page">
+  <p class="policy-meta">Last updated: June 1, 2026 &nbsp;|&nbsp; Effective: June 1, 2026</p>
+
+  <div class="policy-highlight">
+    <p><strong>Free shipping</strong> on all orders above ₹999. Standard shipping charges of ₹99 apply for orders below ₹999.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>1. Shipping Coverage</h2>
+    <p>We ship to all serviceable PIN codes across India. At this time, we do not offer international shipping. If your PIN code is not serviceable, you will be notified at checkout.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>2. Shipping Charges</h2>
+    <table class="shipping-table">
+      <thead>
+        <tr>
+          <th>Order Value</th>
+          <th>Shipping Charge</th>
+          <th>Delivery Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Below ₹999</td>
+          <td>₹99</td>
+          <td>4–7 business days</td>
+        </tr>
+        <tr>
+          <td>₹999 and above</td>
+          <td><span class="free-badge">FREE</span></td>
+          <td>4–7 business days</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="policy-section">
+    <h2>3. Processing Time</h2>
+    <p>Orders are processed within <strong>1–2 business days</strong> after payment confirmation. Orders placed on weekends or public holidays will be processed on the next business day.</p>
+    <p>You will receive a confirmation email with your order details after payment, and a shipping notification with tracking information once your order is dispatched.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>4. Estimated Delivery Time</h2>
+    <ul>
+      <li><strong>Metro cities</strong> (Mumbai, Delhi, Bangalore, Hyderabad, Chennai, Kolkata): 3–5 business days</li>
+      <li><strong>Tier 2 &amp; Tier 3 cities:</strong> 5–7 business days</li>
+      <li><strong>Remote areas:</strong> 7–10 business days</li>
+    </ul>
+    <p>Delivery timelines are estimates and may vary due to courier partner delays, festivals, or circumstances beyond our control.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>5. Order Tracking</h2>
+    <p>Once your order is shipped, you will receive an SMS and/or email with the tracking number and courier partner details. You can use this to track your shipment directly on the courier's website.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>6. Delivery Attempts</h2>
+    <p>Our courier partners will attempt delivery up to <strong>3 times</strong>. If the delivery is unsuccessful after 3 attempts (e.g., no one available to receive, incorrect address), the package will be returned to us. In such cases, re-shipping charges will apply.</p>
+    <p>Please ensure your delivery address and phone number are correct at the time of placing the order.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>7. Damaged in Transit</h2>
+    <p>If your order arrives damaged due to transit, please photograph the damaged package and product immediately and contact us within <strong>48 hours</strong> of delivery. We will arrange a replacement or refund as per our <a href="/refund-policy" style="color:var(--teal);">Refund Policy</a>.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>8. Contact for Shipping Queries</h2>
+    <div class="policy-contact-box">
+      <h3>Shipping Support</h3>
+      <p>
+        <strong>Talbeena Customer Support</strong><br>
+        Email: <a href="mailto:mynexasolutions@gmail.com">mynexasolutions@gmail.com</a><br>
+        Contact: <a href="/contact">Visit our Contact Page</a><br>
+        Response time: Within 1–2 business days
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

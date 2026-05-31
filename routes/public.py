@@ -150,6 +150,26 @@ def about():
     return render_template("about.html")
 
 
+@bp.route("/privacy-policy")
+def privacy_policy():
+    return render_template("policies/privacy_policy.html")
+
+
+@bp.route("/terms")
+def terms():
+    return render_template("policies/terms.html")
+
+
+@bp.route("/refund-policy")
+def refund_policy():
+    return render_template("policies/refund_policy.html")
+
+
+@bp.route("/shipping-policy")
+def shipping_policy():
+    return render_template("policies/shipping_policy.html")
+
+
 @bp.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":

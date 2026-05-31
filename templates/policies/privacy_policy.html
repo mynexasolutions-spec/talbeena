@@ -1,0 +1,159 @@
+{% extends 'user_base.html' %}
+{% block title %}Privacy Policy – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-banner {
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 60%, #1a6b72 100%);
+    padding: 52px 5%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .policy-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 60%, rgba(200,146,42,0.09) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 40%, rgba(200,146,42,0.09) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .policy-banner-inner { position: relative; z-index: 1; }
+  .policy-banner-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); font-weight: 700; margin-bottom: 0.8rem; }
+  .policy-banner h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-banner-sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+  .policy-banner-divider { width: 40px; height: 2px; background: var(--gold); margin: 1rem auto 0; border-radius: 2px; }
+
+  .policy-page { max-width: 860px; margin: 0 auto; padding: 3.5rem 5% 5rem; }
+  .policy-toc { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+  .policy-toc h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--teal-dark); margin-bottom: 0.8rem; font-weight: 700; }
+  .policy-toc ol { padding-left: 1.2rem; margin: 0; }
+  .policy-toc li { margin-bottom: 0.3rem; font-size: 0.9rem; }
+  .policy-toc a { color: var(--teal); text-decoration: none; }
+  .policy-toc a:hover { text-decoration: underline; }
+
+  .policy-meta { font-size: 0.82rem; color: var(--text-soft); margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+  .policy-section { margin-bottom: 2.2rem; }
+  .policy-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.8rem; padding-top: 0.5rem; }
+  .policy-section p { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.8rem; }
+  .policy-section ul { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+  .policy-section ul li { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.3rem; }
+  .policy-contact-box { background: #f0f9fa; border: 1px solid #c8e6e8; border-radius: 10px; padding: 1.4rem 1.8rem; margin-top: 2rem; }
+  .policy-contact-box h3 { font-size: 1rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-contact-box p { font-size: 0.9rem; color: var(--text-mid); margin: 0; line-height: 1.7; }
+  .policy-contact-box a { color: var(--teal); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-banner">
+  <div class="policy-banner-inner">
+    <div class="policy-banner-label">Legal</div>
+    <h1>Privacy Policy</h1>
+    <p class="policy-banner-sub">How we collect, use and protect your information</p>
+    <div class="policy-banner-divider"></div>
+  </div>
+</div>
+
+<div class="policy-page">
+  <p class="policy-meta">Last updated: June 1, 2026 &nbsp;|&nbsp; Effective: June 1, 2026</p>
+
+  <div class="policy-toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#info-collect">Information We Collect</a></li>
+      <li><a href="#info-use">How We Use Your Information</a></li>
+      <li><a href="#info-share">Information Sharing</a></li>
+      <li><a href="#payments">Payment Security</a></li>
+      <li><a href="#cookies">Cookies</a></li>
+      <li><a href="#rights">Your Rights</a></li>
+      <li><a href="#retention">Data Retention</a></li>
+      <li><a href="#changes">Changes to This Policy</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ol>
+  </div>
+
+  <p style="font-size:0.95rem;color:var(--text-mid);line-height:1.8;margin-bottom:2rem;">
+    Talbeena ("we", "us", or "our") is committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase. By using our services, you agree to the practices described in this policy.
+  </p>
+
+  <div class="policy-section" id="info-collect">
+    <h2>1. Information We Collect</h2>
+    <p>We collect information you provide directly to us, including:</p>
+    <ul>
+      <li><strong>Personal details:</strong> Name, email address, phone number, and delivery address when you place an order or register an account.</li>
+      <li><strong>Payment information:</strong> We do not store card details. All payment data is processed securely by Razorpay.</li>
+      <li><strong>Order history:</strong> Records of products purchased, order amounts, and delivery status.</li>
+      <li><strong>Communications:</strong> Messages you send us via our contact form or email.</li>
+      <li><strong>Technical data:</strong> IP address, browser type, device information, and pages visited, collected automatically.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section" id="info-use">
+    <h2>2. How We Use Your Information</h2>
+    <p>We use your information to:</p>
+    <ul>
+      <li>Process and fulfil your orders, and send order confirmations and shipping updates.</li>
+      <li>Manage your account and provide customer support.</li>
+      <li>Send promotional emails about products, offers and updates (you may unsubscribe at any time).</li>
+      <li>Improve our website, products and services.</li>
+      <li>Comply with legal obligations and prevent fraud.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section" id="info-share">
+    <h2>3. Information Sharing</h2>
+    <p>We do not sell or rent your personal data. We may share your information only with:</p>
+    <ul>
+      <li><strong>Shipping partners:</strong> To deliver your orders (name, address, phone).</li>
+      <li><strong>Payment processors:</strong> Razorpay, to process payments securely.</li>
+      <li><strong>Service providers:</strong> Email and analytics services that help us operate our business, bound by confidentiality agreements.</li>
+      <li><strong>Legal authorities:</strong> When required by law or to protect our rights.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section" id="payments">
+    <h2>4. Payment Security</h2>
+    <p>All online payments on our website are processed by <strong>Razorpay</strong>, a PCI-DSS compliant payment gateway. We do not store your credit/debit card details, UPI IDs, or net banking credentials on our servers. All payment transactions are encrypted using SSL technology.</p>
+  </div>
+
+  <div class="policy-section" id="cookies">
+    <h2>5. Cookies</h2>
+    <p>We use cookies to enhance your browsing experience. Cookies help us remember your cart, preferences and login status. You may disable cookies in your browser settings, but some features of our website may not function correctly.</p>
+  </div>
+
+  <div class="policy-section" id="rights">
+    <h2>6. Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access the personal data we hold about you.</li>
+      <li>Request correction of inaccurate or incomplete data.</li>
+      <li>Request deletion of your personal data, subject to legal obligations.</li>
+      <li>Unsubscribe from marketing communications at any time.</li>
+    </ul>
+    <p>To exercise these rights, please contact us at the details below.</p>
+  </div>
+
+  <div class="policy-section" id="retention">
+    <h2>7. Data Retention</h2>
+    <p>We retain your personal data for as long as necessary to fulfil the purposes outlined in this policy, or as required by law. Order records are retained for a minimum of 7 years for accounting and legal compliance.</p>
+  </div>
+
+  <div class="policy-section" id="changes">
+    <h2>8. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with a revised effective date. We encourage you to review this policy periodically.</p>
+  </div>
+
+  <div class="policy-section" id="contact">
+    <h2>9. Contact Us</h2>
+    <div class="policy-contact-box">
+      <h3>Privacy Enquiries</h3>
+      <p>
+        <strong>Talbeena</strong><br>
+        Email: <a href="mailto:mynexasolutions@gmail.com">mynexasolutions@gmail.com</a><br>
+        Contact: <a href="/contact">Visit our Contact Page</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

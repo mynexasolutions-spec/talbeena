@@ -30,30 +30,83 @@
   .section-label { font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:0.8rem; }
   .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(1.9rem,3.5vw,3rem); font-weight:700; line-height:1.2; color:var(--teal-dark); margin-bottom:1.2rem; }
   .section-body { font-size:1.05rem; line-height:1.8; color:var(--text-mid); margin-bottom:1.5rem; }
-  .divider { width:50px; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-light)); margin-bottom:1.5rem; border-radius:2px; }
+  .divider { width:50px; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-light)); margin:0 auto 1.5rem; border-radius:2px; }
 
   /* ── SHOP PRODUCTS ── */
   .shop-section { padding:90px 5%; background:var(--cream); }
-  .shop-header { text-align:center; max-width:620px; margin:0 auto 3.5rem; }
+  .shop-section { padding:90px 5%; background:var(--warm-white); }
+  .shop-header { text-align:center; max-width:700px; margin:0 auto 3rem; }
   .shop-header p { font-size:1.05rem; color:var(--text-mid); line-height:1.7; }
-  .fp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1000px; margin:0 auto; }
-  .fp-card { background:#fff; border-radius:10px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-  .fp-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.1); }
-  .fp-img { width:100%; height:300px; object-fit:contain; display:block; background:#fff; padding:1rem; }
-  .fp-body { padding:12px 14px 8px; }
-  .fp-name { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--teal-dark); }
-  .fp-sub { font-size:0.8rem; color:var(--text-soft); margin-top:3px; }
-  .fp-foot { display:flex; align-items:center; justify-content:space-between; padding:8px 14px 12px; border-top:1px solid var(--border); }
-  .fp-price { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--teal-dark); }
-  .fp-btn { background:var(--gold); color:#fff; border:none; padding:5px 12px; border-radius:4px; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:none; }
-  @media (max-width:768px) { .fp-grid { grid-template-columns:repeat(2,1fr); gap:12px; } }
+  .fp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; max-width:1400px; margin:0 auto; }
+  .fp-card { background:#fff; border-radius:16px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 10px rgba(0,0,0,0.07); border:1px solid var(--border); transition:box-shadow 0.3s,transform 0.3s; }
+  .fp-card:hover { box-shadow:0 8px 28px rgba(0,0,0,0.11); transform:translateY(-3px); }
+  .fp-img { width:100%; height:280px; object-fit:contain; display:block; background:#fff; padding:1.5rem; }
+  .fp-body { padding:1.1rem 1.4rem 0.8rem; }
+  .fp-name { font-family:'Cormorant Garamond',serif; font-size:1.35rem; font-weight:700; color:var(--teal-dark); line-height:1.3; }
+  .fp-sub { font-size:0.92rem; color:var(--gold); margin-top:4px; font-weight:500; }
+  .fp-foot { display:flex; align-items:center; justify-content:space-between; padding:0.9rem 1.4rem 1.2rem; border-top:1px solid var(--border); }
+  .fp-price { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--teal-dark); }
+  .fp-btn { background:var(--gold); color:#fff; border:none; padding:10px 22px; border-radius:6px; font-size:0.9rem; font-weight:700; cursor:pointer; text-decoration:none; letter-spacing:0.03em; transition:background 0.2s; }
+  .fp-btn:hover { background:#b8882e; }
+  @media (max-width:1100px) { .fp-grid { grid-template-columns:repeat(2,1fr); gap:16px; } }
+  @media (max-width:540px) { .fp-grid { grid-template-columns:repeat(2,1fr); gap:10px; } .fp-img { height:200px; padding:1rem; } }
+  .fp-shop-more-btn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.85rem 2.4rem; border:2px solid var(--teal-dark); color:var(--teal-dark); border-radius:8px; font-weight:700; font-size:0.95rem; text-decoration:none; letter-spacing:0.02em; transition:background 0.2s, color 0.2s; }
+  .fp-shop-more-btn:hover { background:var(--teal-dark); color:#fff; }
+
+  /* ── New Arrivals ── */
+  .arrivals-section { padding:90px 5%; background:var(--cream); }
+  .arrivals-header { text-align:center; max-width:680px; margin:0 auto 3rem; }
+  .arrivals-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.4rem; max-width:1400px; margin:0 auto; }
+  .arrivals-card { background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:box-shadow 0.3s, transform 0.25s; }
+  .arrivals-card:hover { box-shadow:0 8px 28px rgba(0,0,0,0.09); transform:translateY(-3px); }
+  .arrivals-img { width:100%; aspect-ratio:1/1; object-fit:contain; background:var(--warm-white); padding:1rem; display:block; }
+  .arrivals-body { padding:0.9rem 1rem 0.7rem; flex:1; }
+  .arrivals-name { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:700; color:var(--teal-dark); line-height:1.3; margin-bottom:0.2rem; }
+  .arrivals-sub { font-size:0.78rem; color:var(--gold); font-weight:500; }
+  .arrivals-foot { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 1rem 0.9rem; border-top:1px solid var(--border); }
+  .arrivals-price { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:var(--teal-dark); }
+  .arrivals-btn { background:var(--gold); color:#fff; padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none; transition:background 0.2s; }
+  .arrivals-btn:hover { background:#b8882e; }
+  .arrivals-shop-more { text-align:center; margin-top:2.5rem; }
+  @media(max-width:1100px) { .arrivals-grid { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:540px) { .arrivals-grid { grid-template-columns:repeat(2,1fr); gap:0.8rem; } .arrivals-img { padding:0.7rem; } .arrivals-name { font-size:0.95rem; } .arrivals-price { font-size:1.1rem; } }
 
   /* ── WHAT IS TALBEENA ── */
-  .what-section { padding:90px 5%; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
-  .what-images { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-  .what-images img { border-radius:10px; width:100%; object-fit:cover; box-shadow:0 8px 30px rgba(0,0,0,0.1); }
-  .what-images img:first-child { aspect-ratio:1; margin-top:2rem; }
-  .what-images img:last-child { aspect-ratio:4/5; }
+  .what-section { padding:90px 5%; background:var(--warm-white); display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center; }
+  .what-images { position:relative; min-height:460px; }
+  .what-img-back {
+    position:absolute; top:0; left:0; width:55%; aspect-ratio:3/4;
+    border-radius:18px; object-fit:cover;
+    box-shadow:0 8px 28px rgba(0,0,0,0.10);
+  }
+  .what-img-front {
+    position:absolute; top:60px; right:0; width:65%; aspect-ratio:3/4;
+    border-radius:18px; object-fit:cover;
+    box-shadow:0 14px 40px rgba(0,0,0,0.16);
+    border:4px solid #fff;
+  }
+  .what-img-badge {
+    position:absolute; bottom:10px; left:0; z-index:3;
+    background:#fff; border:1px solid var(--border);
+    border-radius:12px; padding:0.8rem 1.1rem;
+    display:flex; align-items:center; gap:0.7rem;
+    box-shadow:0 4px 16px rgba(0,0,0,0.08);
+    font-size:0.82rem; color:var(--teal-dark); font-weight:700;
+  }
+  .what-img-badge span { font-size:1.4rem; }
+  .what-content .section-label { text-align:left; }
+  .what-content .section-title { font-size:clamp(2rem,3.5vw,3rem); text-align:left; }
+  .what-content .divider { margin:1rem 0 1.5rem; }
+  .what-content p { font-size:1rem; color:var(--text-mid); line-height:1.8; margin-bottom:1rem; }
+  .what-btn {
+    display:inline-flex; align-items:center; gap:0.5rem;
+    margin-top:0.8rem; padding:0.9rem 2rem;
+    background:var(--gold); color:#fff;
+    border-radius:8px; font-weight:700; font-size:0.95rem;
+    text-decoration:none; letter-spacing:0.02em;
+    transition:background 0.2s, transform 0.2s;
+  }
+  .what-btn:hover { background:#b8882e; transform:translateX(3px); }
 
   /* ── HADITH ── */
   .hadith-section { background:var(--teal-dark); padding:80px 5%; position:relative; overflow:hidden; }
@@ -78,48 +131,303 @@
 
   /* ── TESTIMONIALS (Carousel) ── */
   .testimonials-section { padding:90px 5%; background:var(--warm-white); overflow:hidden; }
-  .testimonials-header { text-align:center; max-width:600px; margin:0 auto 4rem; }
-  .testimonials-track-wrapper { position:relative; max-width:1100px; margin:0 auto; }
-  .testimonials-track { display:flex; gap:1.5rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; padding:0.5rem 0; }
+  .testimonials-header { text-align:center; max-width:600px; margin:0 auto 3rem; }
+  .testimonials-track-wrapper { position:relative; max-width:1400px; margin:0 auto; padding:0 3rem; }
+  .testimonials-track { display:flex; gap:1.2rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; padding:0.5rem 0 1rem; }
   .testimonials-track::-webkit-scrollbar { display:none; }
-  .testimonial-card { flex:0 0 calc(33.333% - 1rem); min-width:300px; scroll-snap-align:start; background:#fff; border-radius:12px; padding:1.8rem; border:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,0.05); }
+  .testimonial-card { flex:0 0 calc(25% - 0.9rem); min-width:240px; scroll-snap-align:start; background:#fff; border-radius:12px; padding:1.6rem; border:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,0.05); }
   .testimonial-stars { color:var(--gold); margin-bottom:0.6rem; font-size:1rem; }
   .testimonial-text { font-size:0.92rem; line-height:1.7; color:var(--text-mid); margin-bottom:1.2rem; font-style:italic; }
   .testimonial-author strong { font-size:0.9rem; color:var(--text-dark); }
   .testimonial-author .location { font-size:0.78rem; color:var(--text-soft); display:block; margin-top:2px; }
-  .testimonial-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:40px; height:40px; border-radius:50%; background:#fff; border:1px solid var(--border); cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.08); opacity:0; transition:opacity 0.3s,background 0.2s; color:var(--text-mid); }
-  .testimonials-track-wrapper:hover .testimonial-arrow { opacity:1; }
-  .testimonial-arrow:hover { background:var(--cream); color:var(--teal); }
-  .testimonial-arrow.prev { left:-1.2rem; }
-  .testimonial-arrow.next { right:-1.2rem; }
-  @media (max-width:768px) { .testimonial-card { flex:0 0 85%; min-width:0; } .testimonial-arrow { display:none; } }
+  .testimonial-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:44px; height:44px; border-radius:50%; background:#0e4a4e; border:none; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.18); opacity:1; transition:background 0.2s,transform 0.2s; color:#fff; }
+  .testimonial-arrow:hover { background:#c49a45; transform:translateY(-50%) scale(1.08); }
+  .testimonial-arrow.prev { left:0; }
+  .testimonial-arrow.next { right:0; }
+  @media (max-width:1024px) { .testimonial-card { flex:0 0 calc(33.333% - 0.8rem); } }
+  @media (max-width:768px) { .testimonial-card { flex:0 0 80%; min-width:0; } .testimonials-track-wrapper { padding:0 2.5rem; } }
+  @media (max-width:480px) { .testimonial-card { flex:0 0 90%; } .testimonials-track-wrapper { padding:0 2rem; } }
 
   /* ── BLOG ── */
-  .blog-section { padding:80px 5%; background:var(--gold-pale); text-align:center; }
+  .blog-section { padding:80px 5%; background:var(--cream); text-align:center; }
   .blog-header { max-width:600px; margin:0 auto 3rem; }
   .blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; text-align:left; }
-  .blog-card { background:#fff; border-radius:12px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 2px 12px rgba(0,0,0,0.07); transition:transform 0.3s,box-shadow 0.3s; display:flex; flex-direction:column; }
-  .blog-card:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,0,0,0.12); }
-  .blog-card-img { width:100%; height:200px; object-fit:cover; background:#fff; }
-  .blog-card-body { padding:1.25rem; flex:1; display:flex; flex-direction:column; }
-  .blog-card-title { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:700; color:var(--teal-dark); margin-bottom:0.5rem; line-height:1.3; }
-  .blog-card-excerpt { font-size:0.88rem; line-height:1.6; color:var(--text-mid); flex:1; margin-bottom:0.8rem; }
-  .blog-card-meta { font-size:0.78rem; color:var(--text-soft); }
-  @media (max-width:768px) { .blog-grid { grid-template-columns:1fr; } }
+  .blog-card { background:#fff; border-radius:16px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 4px 16px rgba(0,0,0,0.07); border:1px solid var(--border); transition:transform 0.3s,box-shadow 0.3s; display:flex; flex-direction:column; }
+  .blog-card:hover { transform:translateY(-4px); box-shadow:0 10px 32px rgba(0,0,0,0.12); }
+  .blog-card-img { width:100%; height:200px; object-fit:cover; display:block; }
+  .blog-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
+  .blog-card-title { font-family:'Cormorant Garamond',serif; font-size:1.45rem; font-weight:700; color:var(--teal-dark); margin-bottom:0.7rem; line-height:1.3; }
+  .blog-card-excerpt { font-size:1rem; line-height:1.75; color:var(--text-mid); flex:1; margin-bottom:1.2rem; }
+  .blog-card-read { display:inline-block; margin-top:auto; padding:0.65rem 1.4rem; background:var(--teal-dark); color:#fff; border-radius:7px; font-size:0.88rem; font-weight:700; letter-spacing:0.03em; text-align:center; transition:background 0.2s; }
+  .blog-card-read:hover { background:var(--teal); }
+  @media (max-width:900px) { .blog-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:768px) {
+    .blog-section { padding:60px 0 60px 5%; }
+    .blog-grid { display:flex; gap:1.2rem; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-right:5%; padding-bottom:1rem; grid-template-columns:unset; }
+    .blog-grid::-webkit-scrollbar { display:none; }
+    .blog-card { flex:0 0 78vw; scroll-snap-align:start; }
+  }
+  @media (max-width:480px) { .blog-card { flex:0 0 85vw; } }
 
   @media (max-width: 768px) {
-    .what-section { grid-template-columns:1fr; gap:2rem; }
-    .what-images { order:2; }
-    .what-section > div:last-child { order:1; }
-    .what-images img:first-child { margin-top:0; }
+    .what-section { grid-template-columns:1fr; gap:2rem; padding:60px 5%; }
+    .what-images { order:2; min-height:unset; display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+    .what-img-back { position:static; width:100%; aspect-ratio:3/4; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.10); }
+    .what-img-front { position:static; width:100%; aspect-ratio:3/4; top:unset; right:unset; border-radius:14px; border:3px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,0.13); }
+    .what-img-badge { display:none; }
+    .what-content { order:1; }
     .benefits-grid { grid-template-columns:1fr 1fr; gap:1rem; }
-    .what-images { grid-template-columns:1fr; }
-    .what-images img { aspect-ratio:4/3 !important; }
     .newsletter-form { flex-direction:column; }
   }
   @media (max-width: 480px) {
     .benefits-grid { grid-template-columns:1fr; }
   }
+
+
+  /* ── NEW SECTIONS CSS ── */
+  .benefits-section-new { padding:90px 5%; background:#fcf9f2; position: relative; overflow:hidden; }
+  .benefits-header-new { text-align:center; max-width:700px; margin:0 auto 3rem; }
+  .benefits-header-new .section-label { font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; color:#c49a45; font-weight:700; margin-bottom:0.8rem; }
+  .benefits-header-new .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,4vw,3.5rem); font-weight:700; line-height:1.2; color:#0e4a4e; margin-bottom:1rem; }
+  .benefits-header-new .divider { width:50px; height:2px; background:#c49a45; margin:0 auto 1.5rem; border-radius:2px; }
+  .benefits-header-new .section-body { font-size:1.05rem; line-height:1.6; color:#555; }
+  
+  .benefits-layout { display:flex; align-items:center; justify-content:center; max-width:1400px; margin:0 auto; gap:2.5rem; flex-wrap:nowrap; }
+  .benefits-left { flex:0 0 auto; display:flex; justify-content:center; position: relative; z-index: 2; }
+  .benefits-left img { width:100%; max-width:450px; height:auto; object-fit:contain; filter:drop-shadow(0 20px 30px rgba(0,0,0,0.1)); }
+  
+  .benefits-right { flex:1; display:flex; flex-wrap:nowrap; gap:1.2rem; z-index: 2; padding: 1rem 0; width:100%; }
+  .benefit-item { flex: 1 1 0; min-width: 170px; background:#fff; border:1px solid #eee1cf; border-radius:12px; padding:1.8rem 1rem; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.02); transition:transform 0.3s, border-color 0.3s; display:flex; flex-direction:column; align-items:center; }
+  .benefit-item:hover { transform:translateY(-5px); border-color:#c49a45; box-shadow:0 8px 25px rgba(0,0,0,0.06); }
+  .benefit-icon-new { font-size:2.4rem; color:#0e4a4e; margin-bottom:1.2rem; display:inline-block; }
+  .benefit-item h3 { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size:1.05rem; color:#333; margin-bottom:0.6rem; font-weight:700; line-height:1.3; }
+  .benefit-item p { font-size:0.85rem; color:#666; line-height:1.5; margin:0; }
+
+  @media (max-width:1100px) {
+    .benefits-layout { flex-wrap: wrap; }
+    .benefits-right { flex-wrap: wrap; justify-content: center; }
+    .benefit-item { flex: 0 1 200px; }
+  }
+  @media (max-width:768px) {
+    .benefits-layout { flex-direction: column; gap: 2rem; }
+    .benefits-left { display: none; }
+    .benefits-right { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; flex-wrap: unset; }
+    .benefit-item { flex: unset; min-width: 0; }
+  }
+  @media (max-width:480px) {
+    .benefits-right { grid-template-columns: 1fr; }
+  }
+
+  .hadith-img-section { position:relative; overflow:hidden; border-radius:20px; margin:0 5% 90px; min-height:340px; display:flex; align-items:stretch; }
+  .hadith-img-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:right center; }
+  .hadith-img-overlay { position:absolute; inset:0; background:linear-gradient(to right, #0b3d3e 0%, #0b3d3e 48%, rgba(11,61,62,0.55) 70%, transparent 100%); }
+  .hadith-img-content { position:relative; z-index:2; width:58%; padding:3.5rem 5%; display:flex; flex-direction:column; justify-content:center; }
+  .hadith-img-label { font-size:0.85rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-light); font-weight:700; margin-bottom:1.4rem; }
+  .hadith-arabic { font-family:'Amiri','Scheherazade New','Traditional Arabic',serif; font-size:clamp(2rem,3.5vw,3.2rem); line-height:1.7; color:#e8d5a3; text-align:left; direction:rtl; margin-bottom:1.6rem; font-weight:700; }
+  .hadith-quote { font-family:'Cormorant Garamond',serif; font-size:clamp(1.2rem,2vw,1.6rem); line-height:1.7; color:#fff; font-style:italic; margin-bottom:0.7rem; }
+  .hadith-author { font-size:1rem; color:var(--gold-light); margin-bottom:2rem; font-weight:600; }
+  .hadith-badges { display:flex; gap:2rem; flex-wrap:wrap; }
+  .hadith-badge { display:flex; align-items:center; gap:0.6rem; font-size:0.8rem; color:rgba(255,255,255,0.85); font-weight:600; letter-spacing:0.03em; }
+  .hadith-badge-icon { width:32px; height:32px; border-radius:50%; border:1.5px solid rgba(232,213,163,0.6); display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; }
+  @media (max-width:768px) {
+    .hadith-img-section { margin:0 0 60px; border-radius:0; min-height:auto; }
+    .hadith-img-overlay { background:linear-gradient(to bottom, rgba(11,61,62,0.92) 0%, rgba(11,61,62,0.88) 70%, rgba(11,61,62,0.6) 100%); }
+    .hadith-img-content { width:100%; padding:3rem 6%; }
+    .hadith-arabic { font-size:clamp(1.4rem,5vw,2rem); }
+    .hadith-badges { gap:1.2rem; }
+  }
+
+  .ingredients-section { padding:90px 5%; background:var(--cream); }
+  .ingredients-container { display: flex; align-items: center; background: #fffdf9; border: 1px solid #f0e6d2; border-radius: 24px; padding: 2.5rem; max-width: 1400px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.02); gap: 3rem; }
+  .ingredients-left { flex: 0 0 280px; text-align: left; }
+  .ingredients-left .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 3vw, 3rem); line-height: 1.2; color: #0e4a4e; margin-bottom: 1rem; font-weight: 700; }
+  .ingredients-left .divider-left { width: 40px; height: 2px; background: #c49a45; margin-bottom: 1.5rem; }
+  .ingredients-left .section-body { font-size: 0.95rem; color: #555; line-height: 1.6; margin: 0; }
+
+  .ingredients-right { flex: 1; display: flex; gap: 1rem; overflow-x: auto; scrollbar-width: none; padding-bottom: 0.5rem; }
+  .ingredients-right::-webkit-scrollbar { display: none; }
+  .ingredient-card { flex: 1 1 0; min-width: 150px; border: 1px solid #f0e6d2; border-radius: 20px; padding: 1.1rem 1rem 1.4rem; text-align: center; background: #fff; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .ingredient-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-color: #e5d8c1; }
+  .ingredient-img-wrapper { background: #f5ede0; width: 100%; aspect-ratio: 1 / 1; border-radius: 50% 50% 16px 16px / 38% 38% 16px 16px; overflow: hidden; position: relative; }
+  .ingredient-img-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .ingredient-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #0e4a4e; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
+
+  @media (max-width: 1024px) {
+    .ingredients-container { flex-direction: column; padding: 2.5rem 1.5rem; text-align: center; gap: 2rem; }
+    .ingredients-left { flex: none; text-align: center; max-width: 600px; }
+    .ingredients-left .divider-left { margin: 0 auto 1.5rem; }
+    .ingredients-right { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); overflow-x: visible; }
+    .ingredient-card { flex: none; }
+  }
+  @media (max-width: 600px) {
+    .ingredients-section { padding: 60px 4%; }
+    .ingredients-container { padding: 2rem 1.2rem; gap: 1.8rem; }
+    .ingredients-left .section-title { font-size: 2.4rem; }
+    .ingredients-left .section-body { font-size: 1rem; }
+    .ingredients-right { grid-template-columns: repeat(2, 1fr); gap: 0.9rem; }
+    .ingredient-card { padding: 1.2rem 0.8rem 1.5rem; gap: 0.9rem; border-radius: 18px; }
+    .ingredient-card h4 { font-size: 1.1rem; }
+  }
+
+  /* ── For Every Age ── */
+  .family-section { padding:90px 5%; background:var(--cream); }
+  .family-header { text-align:center; max-width:680px; margin:0 auto 3.5rem; }
+  .family-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.4rem; }
+  .family-card {
+    position:relative; border-radius:20px; overflow:hidden;
+    aspect-ratio:1/1; cursor:pointer;
+    box-shadow:0 4px 20px rgba(0,0,0,0.10);
+    transition:transform 0.35s, box-shadow 0.35s;
+  }
+  .family-card:hover { transform:translateY(-6px); box-shadow:0 12px 36px rgba(0,0,0,0.18); }
+  .family-card img {
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform 0.5s ease;
+  }
+  .family-card:hover img { transform:scale(1.05); }
+  .family-card-overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(8,46,50,0.92) 0%, rgba(8,46,50,0.3) 55%, transparent 100%);
+  }
+  .family-card-text {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:1.4rem 1.4rem 1.5rem;
+    color:#fff;
+  }
+  .family-card-text h3 {
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.6rem; font-weight:700;
+    margin-bottom:0.4rem; line-height:1.2;
+  }
+  .family-card-text p {
+    font-size:0.95rem; color:rgba(255,255,255,0.88);
+    line-height:1.5; margin:0;
+  }
+  @media(max-width:900px) { .family-grid { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:500px)  { .family-grid { grid-template-columns:repeat(2,1fr); gap:0.8rem; }
+    .family-card-text h3 { font-size:1.3rem; } .family-card-text p { font-size:0.88rem; } }
+
+  /* ── How to Prepare (redesigned) ── */
+  .prepare-section { padding:90px 5%; background:var(--warm-white); }
+  .prepare-layout { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:stretch; }
+  .prepare-content .section-label { text-align:left; }
+  .prepare-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,4vw,3.2rem); font-weight:700; color:var(--teal-dark); line-height:1.2; margin-bottom:0.8rem; }
+  .prepare-subtitle { font-size:1rem; color:var(--text-mid); margin-bottom:2.5rem; }
+  .prepare-steps { display:flex; flex-direction:column; gap:1.6rem; }
+  .prep-step { display:flex; align-items:flex-start; gap:1.2rem; }
+  .prep-num { width:40px; height:40px; border-radius:50%; background:var(--teal-dark); color:#fff; font-weight:700; font-size:0.95rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+  .prep-body h4 { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:700; color:var(--teal-dark); margin-bottom:0.25rem; }
+  .prep-body p { font-size:0.92rem; color:var(--text-mid); line-height:1.7; margin:0; }
+  .prepare-img-wrap { border-radius:20px; overflow:hidden; box-shadow:0 16px 48px rgba(0,0,0,0.12); height:100%; min-height:400px; }
+  .prepare-img-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+  @media(max-width:900px) {
+    .prepare-section { padding:60px 5%; }
+    .prepare-layout { grid-template-columns:1fr; gap:2.5rem; }
+    .prepare-img-wrap { height:280px; min-height:unset; border-radius:16px; }
+  }
+  @media(max-width:480px) {
+    .prepare-section { padding:50px 4%; }
+    .prepare-title { font-size:2rem; }
+    .prepare-subtitle { margin-bottom:1.8rem; }
+    .prepare-steps { gap:1.2rem; }
+    .prep-num { width:34px; height:34px; font-size:0.85rem; }
+    .prep-body h4 { font-size:1.05rem; }
+    .prepare-img-wrap { height:240px; border-radius:14px; }
+  }
+
+  /* ── Blessed Mothers ── */
+  .blessed-section { display:grid; grid-template-columns:1fr 1fr; align-items:stretch; min-height:560px; }
+  .blessed-img { overflow:hidden; }
+  .blessed-img img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
+  .blessed-content {
+    background:#fdf4d3;
+    padding:5rem 5% 5rem 4rem;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .blessed-content .section-label { text-align:left; margin-bottom:0.8rem; }
+  .blessed-content .divider { margin:0.8rem 0 1.4rem; }
+  .blessed-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,3.2vw,2.9rem); font-weight:700; color:var(--teal-dark); line-height:1.2; margin-bottom:1.2rem; }
+  .blessed-desc { font-size:0.97rem; color:var(--text-mid); line-height:1.8; margin-bottom:1.4rem; }
+  .blessed-list { list-style:none; padding:0; margin:0 0 2rem; display:flex; flex-direction:column; gap:0.75rem; }
+  .blessed-list li { display:flex; align-items:flex-start; gap:0.7rem; font-size:0.95rem; color:var(--text-mid); line-height:1.6; }
+  .blessed-list li::before { content:'✦'; color:var(--gold); font-size:0.75rem; flex-shrink:0; margin-top:3px; }
+  .blessed-btn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.9rem 2rem; background:var(--gold); color:#fff; border-radius:8px; font-weight:700; font-size:0.95rem; text-decoration:none; transition:background 0.2s; align-self:flex-start; }
+  .blessed-btn:hover { background:#b8882e; }
+  @media(max-width:900px) {
+    .blessed-section { grid-template-columns:1fr; }
+    .blessed-img { min-height:55vw; }
+    .blessed-content { padding:3rem 6%; }
+  }
+
+  /* ── Begin Your Journey CTA ── */
+  .journey-section { padding:100px 5%; background:var(--teal-dark); text-align:center; position:relative; overflow:hidden; }
+  .journey-section::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'%3E%3Cpolygon points='40,2 78,21 78,59 40,78 2,59 2,21'/%3E%3Cpolygon points='40,14 66,28 66,52 40,66 14,52 14,28'/%3E%3C/g%3E%3C/svg%3E") center/80px 80px; pointer-events:none; }
+  .journey-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; }
+  .journey-label { font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold-light); font-weight:700; margin-bottom:1rem; }
+  .journey-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5vw,3.6rem); font-weight:700; color:#fff; line-height:1.15; margin-bottom:1.2rem; }
+  .journey-sub { font-size:1rem; color:rgba(255,255,255,0.72); line-height:1.7; max-width:520px; margin:0 auto 2.5rem; }
+  .journey-btns { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:2.2rem; }
+  .journey-btn-primary { display:inline-flex; align-items:center; gap:0.5rem; padding:1rem 2.2rem; background:var(--gold); color:#fff; border-radius:8px; font-weight:700; font-size:1rem; text-decoration:none; transition:background 0.2s,transform 0.2s; }
+  .journey-btn-primary:hover { background:#b8882e; transform:translateY(-2px); }
+  .journey-btn-outline { display:inline-flex; align-items:center; gap:0.5rem; padding:1rem 2.2rem; background:transparent; color:#fff; border:2px solid rgba(255,255,255,0.5); border-radius:8px; font-weight:700; font-size:1rem; text-decoration:none; transition:border-color 0.2s,transform 0.2s; }
+  .journey-btn-outline:hover { border-color:#fff; transform:translateY(-2px); }
+  .journey-trust { font-size:0.85rem; color:rgba(255,255,255,0.55); display:flex; justify-content:center; align-items:center; gap:1rem; flex-wrap:wrap; }
+  .journey-trust span { display:inline-flex; align-items:center; gap:0.3rem; }
+
+  .compare-section { padding:90px 5%; background:var(--cream); }
+  .compare-section-header { max-width:1400px; margin:0 auto 2.5rem; text-align:center; }
+  .compare-section-header .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,3vw,3rem); color:#0e4a4e; font-weight:700; margin-bottom:0.6rem; }
+  .compare-section-header .divider-gold { width:44px; height:2px; background:#c49a45; margin:0.8rem auto 1rem; }
+  .compare-section-header .section-body { font-size:1rem; color:#777; }
+  .compare-wrapper { display:flex; align-items:stretch; background:#fff; border-radius:20px; box-shadow:0 4px 24px rgba(0,0,0,0.07); border:1px solid #f0e6d2; max-width:1400px; margin:0 auto; overflow:hidden; }
+  .compare-center { flex:1; display:flex; position:relative; min-width:0; }
+  .compare-col { flex:1; padding:2rem 2.2rem; }
+  .compare-col.regular { background:#fafafa; border-right:1px solid #f0e6d2; }
+  .compare-col.talbeena { background:#fff; }
+  .compare-title { font-size:1.05rem; font-weight:800; text-align:left; margin-bottom:1.2rem; color:#222; letter-spacing:0.01em; }
+  .compare-title.talbeena-title { color:#0e4a4e; }
+  .compare-list { list-style:none; padding:0; margin:0; }
+  .compare-list li { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.75rem; font-size:1rem; color:#444; line-height:1.4; }
+  .compare-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; }
+  .compare-icon.cross { border:2px solid #e05252; color:#e05252; }
+  .compare-icon.check { background:#2a9d6e; color:#fff; }
+  .compare-vs { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:46px; height:46px; background:#0e4a4e; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; z-index:2; border:4px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,0.15); letter-spacing:0.05em; }
+  .compare-right { flex:0 0 380px; overflow:hidden; }
+  .compare-right img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
+  @media (max-width:1100px) { .compare-right { flex:0 0 280px; } }
+  @media (max-width:900px) {
+    .compare-wrapper { flex-direction:column; }
+    .compare-right { flex:0 0 260px; }
+    .compare-vs { display:flex; }
+  }
+  @media (max-width:600px) {
+    .compare-center { flex-direction:column; }
+    .compare-col { padding:1.4rem 1.2rem; }
+    .compare-col.regular { border-right:none; border-bottom:1px solid #f0e6d2; }
+    .compare-vs { display:none; }
+    .compare-right { flex:0 0 210px; }
+  }
+
+  .features-bar { display:flex; justify-content:center; gap:3rem; padding:36px 5%; background:var(--warm-white); flex-wrap:wrap; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .feature-item { display:flex; align-items:center; gap:0.8rem; font-size:0.95rem; color:var(--teal-dark); font-weight:700; white-space:nowrap; }
+  .feature-icon { font-size:1.8rem; color:var(--gold); flex-shrink:0; }
+  @media (max-width:768px) {
+    .features-bar { justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:28px 5%; gap:0; }
+    .features-bar::-webkit-scrollbar { display:none; }
+    .feature-item { scroll-snap-align:start; flex-shrink:0; padding:0 1.8rem; border-right:1px solid var(--border); }
+    .feature-item:first-child { padding-left:0; }
+    .feature-item:last-child { border-right:none; padding-right:5vw; }
+  }
+
+  .faq-header { margin-bottom:2rem; }
+  .faq-accordion { border-top:1px solid var(--border); }
+  .faq-item { border-bottom:1px solid var(--border); padding:1.2rem 0; cursor:pointer; }
+  .faq-q { display:flex; justify-content:space-between; font-weight:700; color:var(--teal-dark); font-size:1.05rem; }
+  .faq-a { display:none; padding-top:1rem; color:var(--text-mid); font-size:0.95rem; line-height:1.6; }
+  .cta-card { background:linear-gradient(135deg, var(--teal-dark), var(--teal)); color:#fff; padding:4rem; border-radius:16px; text-align:center; box-shadow:0 10px 40px rgba(13,74,80,0.2); }
+  .cta-card h2 { font-family:'Cormorant Garamond',serif; font-size:2.5rem; margin-bottom:1rem; line-height:1.2; }
+  .cta-card p { margin-bottom:2.5rem; font-size:1.1rem; color:rgba(255,255,255,0.9); }
+  @media (max-width:768px) { .faq-cta-section { grid-template-columns:1fr; } }
 
   /* ── SCROLL FADE-IN ── */
   .fade-in { opacity:0; transform:translateY(35px); transition:opacity 0.8s ease, transform 0.8s ease; }
@@ -136,13 +444,13 @@
 <section class="hero">
   <div class="hero-slideshow" id="heroSlideshow">
     <div class="hero-slide active">
-      <img src="{{ url_for('static', filename='images/hero-1.jfif') }}" alt="Talbeena" />
+      <img src="{{ url_for('static', filename='images/hero-1.webp') }}" alt="Talbeena" fetchpriority="high" />
     </div>
     <div class="hero-slide">
-      <img src="{{ url_for('static', filename='images/hero-2.jfif') }}" alt="Ingredients" />
+      <img src="{{ url_for('static', filename='images/hero-2.webp') }}" alt="Ingredients" loading="lazy" />
     </div>
     <div class="hero-slide">
-      <img src="{{ url_for('static', filename='images/hero-3.jfif') }}" alt="Barley" />
+      <img src="{{ url_for('static', filename='images/hero-3.webp') }}" alt="Barley" loading="lazy" />
     </div>
   </div>
   <div class="hero-overlay"></div>
@@ -163,14 +471,14 @@
   </div>
 </section>
 
-<section class="shop-section fade-in" id="shop">
+<section class="shop-section fade-in" id="shop" style="background:var(--warm-white);">
   <div class="shop-header">
     <div class="section-label">Our Products</div>
     <h2 class="section-title">Featured Blends</h2>
     <p>Handcrafted from the finest barley, each blend is curated to bring warmth, health, and the blessing of Sunnah to your table.</p>
   </div>
   <div class="fp-grid">
-    {% for product in featured[:6] %}
+    {% for product in featured[:4] %}
     <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="fp-card">
       <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" class="fp-img" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'" />
       <div class="fp-body">
@@ -184,62 +492,338 @@
     </a>
     {% endfor %}
   </div>
+  <div style="text-align:center; margin-top:2.5rem;">
+    <a href="{{ url_for('public.shop') }}" class="fp-shop-more-btn">View All Products &rarr;</a>
+  </div>
 </section>
 
-<section class="what-section fade-in" id="about">
+<!-- ── What is Talbeena ── -->
+<section class="what-section fade-in">
   <div class="what-images">
-    <img src="{{ url_for('static', filename='images/sample3.webp') }}" alt="Talbeena bowl" loading="lazy" />
-    <img src="{{ url_for('static', filename='images/sample4.webp') }}" alt="Barley grain" loading="lazy" />
+    <img class="what-img-back"
+         src="{{ url_for('static', filename='images/talbeena_2.webp') }}"
+         alt="Talbeena" loading="lazy" />
+    <img class="what-img-front"
+         src="{{ url_for('static', filename='images/benefits.webp') }}"
+         alt="Bowl of Talbeena" loading="lazy" />
+    <div class="what-img-badge">
+      <span>🕌</span>
+      Sunnah for 1,400+ Years
+    </div>
   </div>
-  <div>
-    <div class="section-label">Rooted in Tradition</div>
-    <h2 class="section-title">What is Talbeena?</h2>
+  <div class="what-content">
+    <div class="section-label">What is Talbeena?</div>
+    <h2 class="section-title">A Healing Porridge<br>Loved for Centuries</h2>
     <div class="divider"></div>
-    <p class="section-body">Talbeena is a nourishing barley-based porridge mentioned in the Sunnah of Prophet Muhammad (SAW). Made from barley flour mixed with water or milk, it is a simple yet profoundly healing food — gentle on the stomach, comforting to the heart, and loved by generations.</p>
-    <p class="section-body">Rich in beta-glucan fiber, natural vitamins, and minerals, talbeena supports heart health, digestion, and provides calm, sustained energy throughout the day.</p>
-    <a href="{{ url_for('public.shop') }}" class="btn-primary" style="display:inline-block;">Explore Our Range</a>
+    <p>Talbeena (التَّلْبِينَة) is a traditional barley-based porridge that has been treasured across the Muslim world for over 1,400 years. Made by simmering barley flour with water or milk and a touch of honey, it resembles milk in its soft whiteness — and in its gentleness on the body.</p>
+    <p>Modern nutrition now confirms what generations already knew — barley is a powerhouse of fiber, vitamins, and minerals. Whether you seek comfort, energy, or healing, Talbeena delivers.</p>
+    <a href="{{ url_for('public.about') }}" class="what-btn">See Health Benefits &rarr;</a>
   </div>
 </section>
 
-<section class="hadith-section fade-in">
-  <div class="hadith-inner">
-    <div class="hadith-icon">&#9733;</div>
-    <div class="hadith-text">"Talbeena gives rest to the heart of the patient and relieves him from some of his grief."</div>
-    <div class="hadith-source">— Sahih Al-Bukhari &amp; Sahih Muslim</div>
-    <div class="hadith-stars">&#10059; &#10059; &#10059;</div>
+<section class="benefits-section-new fade-in">
+  <div class="benefits-header-new">
+    <div class="section-label">Rooted in Sunnah, Made for Wellness</div>
+    <h2 class="section-title">Benefits of Talbeena</h2>
+    <div class="divider"></div>
+    <p class="section-body">A timeless nourishment mentioned in the Sunnah, loved for its comforting qualities and wholesome benefits for the body and heart.</p>
+  </div>
+  <div class="benefits-layout">
+    <div class="benefits-left">
+      <img src="{{ url_for('static', filename='images/benefits.webp') }}" alt="Bowl of Talbeena" loading="lazy" />
+    </div>
+    <div class="benefits-right">
+      <div class="benefit-item">
+        <div class="benefit-icon-new">📖</div>
+        <h3>Sunnah Healing</h3>
+        <p>Mentioned in Hadith, Talbeena comforts the heart and relieves sorrow.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon-new">🥣</div>
+        <h3>Gentle on Digestion</h3>
+        <p>Easy to digest and soothing for the stomach.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon-new">⚡</div>
+        <h3>Sustained Energy</h3>
+        <p>Provides slow-releasing energy to keep you active all day.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon-new">❤️</div>
+        <h3>Heart Wellness</h3>
+        <p>Rich in beta-glucan fiber that supports heart health.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon-new">🕊️</div>
+        <h3>Brings Calm & Comfort</h3>
+        <p>Traditionally associated with emotional ease and mental comfort.</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="benefits-section fade-in">
-  <div class="benefits-header">
-    <div class="section-label">Why Talbeena</div>
-    <h2 class="section-title">Blessings in Every Bowl</h2>
-    <p>Discover the time-honoured benefits that make talbeena a beloved Sunnah food for over 14 centuries.</p>
-  </div>
-  <div class="benefits-grid">
-    <div class="benefit-card fade-in fade-in-d1">
-      <img src="{{ url_for('static', filename='images/sample5.webp') }}" alt="Heart health" class="benefit-img" loading="lazy" />
-      <div class="benefit-body">
-        <h3><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Heart &amp; Digestion</h3>
-        <p>Rich in beta-glucan, talbeena supports healthy cholesterol levels and soothes the digestive system naturally.</p>
-      </div>
+<section class="hadith-img-section fade-in">
+  <img src="{{ url_for('static', filename='images/after_benefits.webp') }}" alt="Bowl of Talbeena" class="hadith-img-bg" />
+  <div class="hadith-img-overlay"></div>
+  <div class="hadith-img-content">
+    <div class="hadith-img-label">The Prophet Muhammad ﷺ Said</div>
+    <div class="hadith-arabic">
+      التَّلْبِينَةُ مَجْمَعَةٌ لِفُؤَادِ الْمَرِيضِ<br>
+      وَذَهَابُ بَعْضِ الْحُزْنِ
     </div>
-    <div class="benefit-card fade-in fade-in-d3">
-      <img src="{{ url_for('static', filename='images/sample6.webp') }}" alt="Sunnah food" class="benefit-img" loading="lazy" />
-      <div class="benefit-body">
-        <h3><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Prophetic Healing</h3>
-        <p>Recommended by Prophet Muhammad (SAW) for its restorative properties — nourishing both body and soul.</p>
+    <p class="hadith-quote">"Talbeena gives rest to the heart of the patient and relieves some of his sorrow."</p>
+    <div class="hadith-author">— Sahih al-Bukhari</div>
+    <div class="hadith-badges">
+      <div class="hadith-badge">
+        <div class="hadith-badge-icon">🕌</div>
+        Authentic Sunnah Food
       </div>
-    </div>
-    <div class="benefit-card fade-in fade-in-d5">
-      <img src="{{ url_for('static', filename='images/sample7.webp') }}" alt="Family" class="benefit-img" loading="lazy" />
-      <div class="benefit-body">
-        <h3><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> For the Whole Family</h3>
-        <p>From children to elders, our gentle blends are crafted for every member of your household to enjoy together.</p>
+      <div class="hadith-badge">
+        <div class="hadith-badge-icon">⏳</div>
+        Timeless Tradition
+      </div>
+      <div class="hadith-badge">
+        <div class="hadith-badge-icon">💖</div>
+        Nourishment for Body &amp; Soul
       </div>
     </div>
   </div>
 </section>
+
+<section class="ingredients-section fade-in">
+  <div class="ingredients-container">
+    <div class="ingredients-left">
+      <h2 class="section-title">Wholesome Ingredients</h2>
+      <div class="divider-left"></div>
+      <p class="section-body">Carefully selected natural ingredients that bring you the best of taste, nutrition and tradition.</p>
+    </div>
+    <div class="ingredients-right">
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/barley.webp') }}" alt="Barley" loading="lazy" />
+        </div>
+        <h4>Barley</h4>
+      </div>
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/dates.webp') }}" alt="Dates" loading="lazy" />
+        </div>
+        <h4>Dates</h4>
+      </div>
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/almonds.webp') }}" alt="Almonds" loading="lazy" />
+        </div>
+        <h4>Almonds</h4>
+      </div>
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/pistachios.webp') }}" alt="Pistachios" loading="lazy" />
+        </div>
+        <h4>Pistachios</h4>
+      </div>
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/cardamom.webp') }}" alt="Cardamom" loading="lazy" />
+        </div>
+        <h4>Cardamom</h4>
+      </div>
+      <div class="ingredient-card">
+        <div class="ingredient-img-wrapper">
+          <img src="{{ url_for('static', filename='images/honey.webp') }}" alt="Honey" loading="lazy" />
+        </div>
+        <h4>Honey</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="features-bar fade-in">
+  <div class="feature-item"><span class="feature-icon">🌿</span> Made with Natural Ingredients</div>
+  <div class="feature-item"><span class="feature-icon">🚫</span> No Artificial Colors or Flavors</div>
+  <div class="feature-item"><span class="feature-icon">✨</span> Preservative Free</div>
+  <div class="feature-item"><span class="feature-icon">👨‍👩‍👧‍👦</span> Suitable for All Ages</div>
+  <div class="feature-item"><span class="feature-icon">✅</span> Halal Certified</div>
+</div>
+
+<!-- ── For Every Age ── -->
+<section class="family-section fade-in">
+  <div class="family-header">
+    <div class="section-label">For Every Age</div>
+    <h2 class="section-title">Made for Your Whole Family</h2>
+    <div class="divider"></div>
+    <p class="section-body">From the youngest child to the eldest grandparent, Talbeena brings warmth and nourishment to every stage of life.</p>
+  </div>
+  <div class="family-grid">
+
+    <div class="family-card">
+      <img src="{{ url_for('static', filename='images/children.webp') }}" alt="Children" loading="lazy" />
+      <div class="family-card-overlay"></div>
+      <div class="family-card-text">
+        <h3>Children</h3>
+        <p>Gentle on little tummies, supports growth and focus</p>
+      </div>
+    </div>
+
+    <div class="family-card">
+      <img src="{{ url_for('static', filename='images/adults.webp') }}" alt="Adults" loading="lazy" />
+      <div class="family-card-overlay"></div>
+      <div class="family-card-text">
+        <h3>Adults</h3>
+        <p>Sustained energy, stress relief, and heart health</p>
+      </div>
+    </div>
+
+    <div class="family-card">
+      <img src="{{ url_for('static', filename='images/expecting_mother.webp') }}" alt="Expecting Mothers" loading="lazy" />
+      <div class="family-card-overlay"></div>
+      <div class="family-card-text">
+        <h3>Expecting Mothers</h3>
+        <p>Essential nutrients for mama and baby both</p>
+      </div>
+    </div>
+
+    <div class="family-card">
+      <img src="{{ url_for('static', filename='images/elderly.webp') }}" alt="Elderly" loading="lazy" />
+      <div class="family-card-overlay"></div>
+      <div class="family-card-text">
+        <h3>Elderly</h3>
+        <p>Easy to digest, comforting, and strength-restoring</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="prepare-section fade-in">
+  <div class="prepare-layout">
+    <div class="prepare-content">
+      <div class="section-label">How to Prepare</div>
+      <h2 class="prepare-title">Simple. Warm.<br>Ready in Minutes.</h2>
+      <p class="prepare-subtitle">No complicated instructions. Just pure nourishment prepared with love.</p>
+      <div class="prepare-steps">
+        <div class="prep-step">
+          <div class="prep-num">1</div>
+          <div class="prep-body">
+            <h4>Add Barley Flour</h4>
+            <p>Mix 2–3 tablespoons of our pure barley flour into a cup of cold water or milk until smooth.</p>
+          </div>
+        </div>
+        <div class="prep-step">
+          <div class="prep-num">2</div>
+          <div class="prep-body">
+            <h4>Simmer Gently</h4>
+            <p>Pour into a small pot and heat on low flame, stirring continuously for 5–7 minutes until it thickens.</p>
+          </div>
+        </div>
+        <div class="prep-step">
+          <div class="prep-num">3</div>
+          <div class="prep-body">
+            <h4>Sweeten with Honey</h4>
+            <p>Remove from heat and stir in a spoonful of pure natural honey for extra nourishment.</p>
+          </div>
+        </div>
+        <div class="prep-step">
+          <div class="prep-num">4</div>
+          <div class="prep-body">
+            <h4>Serve Warm &amp; Enjoy</h4>
+            <p>Pour into your favourite bowl and savour each healing sip. Best enjoyed in the morning.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="prepare-img-wrap">
+      <img src="{{ url_for('static', filename='images/talbeena_3.webp') }}" alt="Talbeena preparation" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<section class="compare-section fade-in">
+  <div class="compare-section-header">
+    <h2 class="section-title">The Better Choice</h2>
+    <div class="divider-gold"></div>
+    <p class="section-body">A simple swap for a healthier you.</p>
+  </div>
+  <div class="compare-wrapper">
+    <div class="compare-center">
+      <div class="compare-vs">VS</div>
+      <div class="compare-col regular">
+        <h3 class="compare-title">Regular Breakfast</h3>
+        <ul class="compare-list">
+          <li><span class="compare-icon cross">✕</span> Heavy and hard to digest</li>
+          <li><span class="compare-icon cross">✕</span> Causes sugar spikes</li>
+          <li><span class="compare-icon cross">✕</span> Low in natural nutrients</li>
+          <li><span class="compare-icon cross">✕</span> Processed &amp; artificial ingredients</li>
+          <li><span class="compare-icon cross">✕</span> Makes you feel tired</li>
+        </ul>
+      </div>
+      <div class="compare-col talbeena">
+        <h3 class="compare-title talbeena-title">Talbeena</h3>
+        <ul class="compare-list">
+          <li><span class="compare-icon check">✓</span> Light and easy on the stomach</li>
+          <li><span class="compare-icon check">✓</span> Sustained energy all day</li>
+          <li><span class="compare-icon check">✓</span> Rich in vitamins &amp; minerals</li>
+          <li><span class="compare-icon check">✓</span> 100% natural and wholesome</li>
+          <li><span class="compare-icon check">✓</span> Keeps you active and fresh</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-right">
+      <img src="{{ url_for('static', filename='images/benefits.webp') }}" alt="Bowl of Talbeena" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<!-- ── Blessed Mothers ── -->
+<section class="blessed-section fade-in">
+  <div class="blessed-img">
+    <img src="{{ url_for('static', filename='images/expecting_mother.webp') }}" alt="Expecting Mother" loading="lazy" />
+  </div>
+  <div class="blessed-content">
+    <div class="section-label">For Expecting Mothers</div>
+    <h2 class="blessed-title">The Blessed Bowl for<br>Blessed Mothers</h2>
+    <div class="divider"></div>
+    <p class="blessed-desc">Pregnancy demands extraordinary nourishment. Talbeena is gentle enough for morning sickness, yet powerful enough to support both mother and baby through every trimester.</p>
+    <ul class="blessed-list">
+      <li>Rich in folate and iron to support healthy fetal development</li>
+      <li>Calms nausea with its warm, smooth, easy-to-digest texture</li>
+      <li>Steady energy release prevents fatigue and blood sugar spikes</li>
+      <li>Magnesium and calcium strengthen bones for mother and baby</li>
+      <li>Natural mood support through serotonin-boosting tryptophan</li>
+    </ul>
+    <a href="{{ url_for('public.shop') }}" class="blessed-btn">Shop Mum-to-Be Bundle &rarr;</a>
+  </div>
+</section>
+
+<!-- ── New Arrivals ── -->
+{% if latest %}
+<section class="arrivals-section fade-in">
+  <div class="arrivals-header">
+    <div class="section-label">Fresh from the Kitchen</div>
+    <h2 class="section-title">New Arrivals</h2>
+    <div class="divider"></div>
+    <p class="section-body">Discover our latest Talbeena blends — crafted with the same purity and Sunnah tradition you love.</p>
+  </div>
+  <div class="arrivals-grid">
+    {% for product in latest[:4] %}
+    <a href="{{ url_for('public.product_detail', product_id=product.id) }}{% if product._preselect_label %}?preselect={{ product._preselect_label|urlencode }}{% endif %}" class="arrivals-card">
+      <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" class="arrivals-img" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'" />
+      <div class="arrivals-body">
+        <div class="arrivals-name">{{ product.name }}</div>
+        {% if product.category_name %}<div class="arrivals-sub">{{ product.category_name }}</div>{% endif %}
+      </div>
+      <div class="arrivals-foot">
+        <span class="arrivals-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+        <span class="arrivals-btn">View</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="arrivals-shop-more">
+    <a href="{{ url_for('public.shop') }}" class="fp-shop-more-btn">Shop All Products &rarr;</a>
+  </div>
+</section>
+{% endif %}
 
 <section class="testimonials-section fade-in">
   <div class="testimonials-header">
@@ -298,8 +882,38 @@
           <span class="location">Bengaluru, Karnataka</span>
         </div>
       </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">"Talbeena has become our morning ritual. Simple, nourishing, and rooted in Sunnah — it gives our day the most beautiful start. Truly a blessing."</p>
+        <div class="testimonial-author">
+          <strong>Umm Khalid</strong>
+          <span class="location">Pune, Maharashtra</span>
+        </div>
+      </div>
     </div>
     <button class="testimonial-arrow next" id="testNext" type="button">&#10095;</button>
+  </div>
+</section>
+
+
+
+<!-- ── Begin Your Journey CTA ── -->
+<section class="journey-section fade-in">
+  <div class="journey-inner">
+    <div class="journey-label">Start Today</div>
+    <h2 class="journey-title">Begin Your Talbeena Journey</h2>
+    <p class="journey-sub">Pure, natural, wholesome — for every member of your family. Pick your size and start nourishing from day one.</p>
+    <div class="journey-btns">
+      <a href="{{ url_for('public.shop') }}" class="journey-btn-primary">🛒 Shop Now</a>
+      <a href="{{ url_for('public.shop') }}" class="journey-btn-outline">View Bundles</a>
+    </div>
+    <div class="journey-trust">
+      <span>✦ Free delivery on orders over ₹999</span>
+      <span>·</span>
+      <span>100% Natural</span>
+      <span>·</span>
+      <span>No Additives</span>
+    </div>
   </div>
 </section>
 
@@ -320,7 +934,7 @@
       <div class="blog-card-body">
         <div class="blog-card-title">{{ post.title }}</div>
         <div class="blog-card-excerpt">{{ post.excerpt }}</div>
-        <div class="blog-card-meta">{{ post.author }} · {{ post.created_at|date_short }}</div>
+        <span class="blog-card-read">Read More</span>
       </div>
     </a>
     {% endfor %}

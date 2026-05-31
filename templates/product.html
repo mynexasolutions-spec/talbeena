@@ -4,9 +4,7 @@
 {% block extra_css %}
 <style>
   .product-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 5% 4rem;
+    padding: 2rem 5% 5rem;
   }
 
   .breadcrumb {
@@ -21,15 +19,61 @@
   .product-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 4rem;
     align-items: start;
+    max-width: 1400px;
   }
 
-  /* ── Gallery ── */
-  .gallery-main {
+  /* ── Gallery: thumbs left, main right ── */
+  .gallery {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  /* Vertical thumbnail strip on the left */
+  .gallery-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    width: 70px;
+    max-height: 460px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .gallery-thumbs::-webkit-scrollbar { display: none; }
+
+  .gallery-thumb {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s, border-color 0.2s;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .gallery-thumb.active, .gallery-thumb:hover {
+    border-color: var(--gold);
+    opacity: 1;
+  }
+  .gallery-thumb img {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    border-radius: 12px;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.3rem;
+  }
+
+  /* Main image — square, fills remaining space */
+  .gallery-main {
+    flex: 1;
+    aspect-ratio: 1 / 1;
+    max-height: 480px;
+    border-radius: 14px;
     overflow: hidden;
     background: #fff;
     border: 1px solid var(--border);
@@ -39,62 +83,32 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    padding: 1.5rem;
+    padding: 1.2rem;
     transition: opacity 0.3s;
   }
   .gallery-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.9);
     border: none;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.3s ease, background 0.2s;
+    transition: opacity 0.3s, background 0.2s;
     z-index: 5;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     opacity: 0;
   }
   .gallery-main:hover .gallery-arrow { opacity: 1; }
   .gallery-arrow:hover { background: #fff; opacity: 1 !important; }
-  .gallery-arrow.prev { left: 0.8rem; }
-  .gallery-arrow.next { right: 0.8rem; }
-
-  .gallery-thumbs {
-    display: flex;
-    gap: 0.6rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-  }
-  .gallery-thumb {
-    width: 72px;
-    height: 72px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid transparent;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s, border-color 0.2s;
-  }
-  .gallery-thumb.active, .gallery-thumb:hover {
-    border-color: var(--gold);
-    opacity: 1;
-  }
-  .gallery-thumb {
-    background: #fff;
-  }
-  .gallery-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 0.3rem;
-  }
+  .gallery-arrow.prev { left: 0.7rem; }
+  .gallery-arrow.next { right: 0.7rem; }
 
   /* ── Info ── */
   .product-info h1 {
@@ -278,50 +292,90 @@
 
   /* ── Related ── */
   .related-section {
-    margin-top: 4rem;
+    margin-top: 5rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
   }
-  .related-section h2 {
+  .related-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .related-header h2 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem;
-    margin-bottom: 1.5rem;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 0.5rem;
+  }
+  .related-header .rel-divider {
+    width: 44px; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    margin: 0.8rem auto 0;
+    border-radius: 2px;
   }
   .related-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.4rem;
   }
   .related-card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    text-decoration: none;
-    color: inherit;
-    transition: box-shadow 0.3s;
+    background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:box-shadow 0.3s, transform 0.25s;
   }
-  .related-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-  .related-card img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    background: #fff;
+  .related-card:hover { box-shadow:0 8px 28px rgba(0,0,0,0.09); transform:translateY(-3px); }
+  .related-img {
+    width:100%; aspect-ratio:1/1; object-fit:contain; background:var(--warm-white); padding:1rem; display:block;
   }
-  .related-card .rc-info {
-    padding: 0.8rem;
+  .related-card .rc-body {
+    padding:0.9rem 1rem 0.7rem; flex:1;
   }
   .related-card .rc-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
+    font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:700; color:var(--teal-dark); line-height:1.3; margin-bottom:0.2rem;
+  }
+  .related-card .rc-sub {
+    font-size:0.78rem; color:var(--gold); font-weight:500;
+  }
+  .related-card .rc-foot {
+    display:flex; align-items:center; justify-content:space-between; padding:0.6rem 1rem 0.9rem; border-top:1px solid var(--border);
   }
   .related-card .rc-price {
-    color: var(--teal);
-    font-weight: 700;
+    font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:var(--teal-dark);
   }
+  .related-card .rc-btn {
+    background:var(--gold); color:#fff; padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none; transition:background 0.2s;
+  }
+  .related-card .rc-btn:hover { background:#b8882e; }
 
+  /* ── MOBILE ── */
   @media (max-width: 768px) {
-    .product-layout { grid-template-columns: 1fr; }
-    .related-grid { grid-template-columns: repeat(2, 1fr); }
+    .product-page { padding: 1.2rem 4% 4rem; }
+    .breadcrumb { font-size: 0.78rem; margin-bottom: 1.2rem; }
+    .product-layout { grid-template-columns: 1fr; gap: 1.8rem; }
+
+    /* On mobile: stack thumbs below main image */
+    .gallery { flex-direction: column; gap: 0.6rem; }
+    .gallery-thumbs {
+      flex-direction: row;
+      width: 100%;
+      max-height: unset;
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex-wrap: nowrap;
+    }
+    .gallery-thumb { width: 60px; height: 60px; flex-shrink: 0; }
+    .gallery-main { aspect-ratio: 4/3; max-height: 280px; }
+
+    .product-info h1 { font-size: 1.5rem; }
+    .current-price { font-size: 1.5rem; }
+    .btn-add-cart { padding: 0.9rem 1rem; font-size: 0.95rem; }
+    .qty-row { gap: 0.7rem; }
+    .product-desc { margin-top: 1.8rem; padding-top: 1.5rem; }
+    .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+    .related-section { margin-top: 3rem; }
+  }
+  @media (max-width: 480px) {
+    .swatch { padding: 0.5rem 0.8rem; font-size: 0.85rem; min-width: 60px; }
+    .related-card .rc-name { font-size: 0.9rem; }
+    .related-card .rc-price { font-size: 1.05rem; }
   }
 </style>
 {% endblock %}
@@ -343,17 +397,17 @@
   <div class="product-layout">
     <!-- ── Gallery ── -->
     <div class="gallery" id="productGallery">
-      <div class="gallery-main" id="galleryMain">
-        <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" id="mainImage" />
-        <button class="gallery-arrow prev" id="galleryPrev" type="button">&#10094;</button>
-        <button class="gallery-arrow next" id="galleryNext" type="button">&#10095;</button>
-      </div>
       <div class="gallery-thumbs" id="galleryThumbs">
         {% for img in images %}
         <div class="gallery-thumb {% if img.is_primary %}active{% endif %}" data-url="{{ resolve_image(img.image_url) }}" data-alt="{{ img.alt_text or product.name }}">
           <img src="{{ resolve_image(img.image_url) }}" alt="{{ img.alt_text or product.name }}" loading="lazy" />
         </div>
         {% endfor %}
+      </div>
+      <div class="gallery-main" id="galleryMain">
+        <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" id="mainImage" />
+        <button class="gallery-arrow prev" id="galleryPrev" type="button">&#10094;</button>
+        <button class="gallery-arrow next" id="galleryNext" type="button">&#10095;</button>
       </div>
     </div>
 
@@ -417,14 +471,21 @@
   <!-- ── Related Products ── -->
   {% if related %}
   <div class="related-section">
-    <h2>You May Also Like</h2>
+    <div class="related-header">
+      <h2>You May Also Like</h2>
+      <div class="rel-divider"></div>
+    </div>
     <div class="related-grid">
       {% for r in related %}
       <a href="{{ url_for('public.product_detail', product_id=r.id) }}" class="related-card">
-        <img src="{{ resolve_image(r.image_url) }}" alt="{{ r.name }}" loading="lazy" />
-        <div class="rc-info">
+        <img src="{{ resolve_image(r.image_url) }}" alt="{{ r.name }}" class="related-img" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'" />
+        <div class="rc-body">
           <div class="rc-name">{{ r.name }}</div>
-          <div class="rc-price">₹{{ "%.0f"|format(r.sale_price or r.price or 0) }}</div>
+          {% if r.category_name %}<div class="rc-sub">{{ r.category_name }}</div>{% endif %}
+        </div>
+        <div class="rc-foot">
+          <span class="rc-price">₹{{ "%.0f"|format(r.sale_price or r.price or 0) }}</span>
+          <span class="rc-btn">View</span>
         </div>
       </a>
       {% endfor %}
@@ -666,16 +727,16 @@ window.__variationsList = {{ vars_json|safe }};
     const gallery = document.getElementById("productGallery");
     if (!gallery) return;
     if (varImages && varImages.length > 0) {
-      let html = '<div class="gallery-main"><img src="' + varImages[0] + '" alt="" id="mainImage" />';
-      html += '<button class="gallery-arrow prev" id="galleryPrev" type="button">&#10094;</button>';
-      html += '<button class="gallery-arrow next" id="galleryNext" type="button">&#10095;</button>';
-      html += '</div>';
-      html += '<div class="gallery-thumbs" id="galleryThumbs">';
+      let html = '<div class="gallery-thumbs" id="galleryThumbs">';
       varImages.forEach((url, i) => {
         html += '<div class="gallery-thumb' + (i === 0 ? ' active' : '') + '" data-url="' + url + '">';
         html += '<img src="' + url + '" alt="" loading="lazy" />';
         html += '</div>';
       });
+      html += '</div>';
+      html += '<div class="gallery-main" id="galleryMain"><img src="' + varImages[0] + '" alt="" id="mainImage" />';
+      html += '<button class="gallery-arrow prev" id="galleryPrev" type="button">&#10094;</button>';
+      html += '<button class="gallery-arrow next" id="galleryNext" type="button">&#10095;</button>';
       html += '</div>';
       gallery.innerHTML = html;
       // Re-attach thumb click handlers

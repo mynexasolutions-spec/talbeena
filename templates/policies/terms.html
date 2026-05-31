@@ -1,0 +1,107 @@
+{% extends 'user_base.html' %}
+{% block title %}Terms & Conditions – Talbeena{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-banner { background: linear-gradient(135deg, #082e32 0%, #0e4a4e 60%, #1a6b72 100%); padding: 52px 5%; text-align: center; position: relative; overflow: hidden; }
+  .policy-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 60%, rgba(200,146,42,0.09) 0%, transparent 55%), radial-gradient(ellipse at 80% 40%, rgba(200,146,42,0.09) 0%, transparent 55%); pointer-events: none; }
+  .policy-banner-inner { position: relative; z-index: 1; }
+  .policy-banner-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); font-weight: 700; margin-bottom: 0.8rem; }
+  .policy-banner h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-banner-sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+  .policy-banner-divider { width: 40px; height: 2px; background: var(--gold); margin: 1rem auto 0; border-radius: 2px; }
+  .policy-page { max-width: 860px; margin: 0 auto; padding: 3.5rem 5% 5rem; }
+  .policy-meta { font-size: 0.82rem; color: var(--text-soft); margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+  .policy-section { margin-bottom: 2.2rem; }
+  .policy-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.8rem; padding-top: 0.5rem; }
+  .policy-section p { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.8rem; }
+  .policy-section ul { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+  .policy-section ul li { font-size: 0.95rem; color: var(--text-mid); line-height: 1.8; margin-bottom: 0.3rem; }
+  .policy-contact-box { background: #f0f9fa; border: 1px solid #c8e6e8; border-radius: 10px; padding: 1.4rem 1.8rem; margin-top: 2rem; }
+  .policy-contact-box h3 { font-size: 1rem; color: var(--teal-dark); font-weight: 700; margin-bottom: 0.5rem; }
+  .policy-contact-box p { font-size: 0.9rem; color: var(--text-mid); margin: 0; line-height: 1.7; }
+  .policy-contact-box a { color: var(--teal); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-banner">
+  <div class="policy-banner-inner">
+    <div class="policy-banner-label">Legal</div>
+    <h1>Terms &amp; Conditions</h1>
+    <p class="policy-banner-sub">Please read these terms carefully before using our services</p>
+    <div class="policy-banner-divider"></div>
+  </div>
+</div>
+
+<div class="policy-page">
+  <p class="policy-meta">Last updated: June 1, 2026 &nbsp;|&nbsp; Effective: June 1, 2026</p>
+
+  <p style="font-size:0.95rem;color:var(--text-mid);line-height:1.8;margin-bottom:2rem;">
+    Welcome to Talbeena. By accessing our website or placing an order, you agree to be bound by the following Terms and Conditions. Please read them carefully before using our services.
+  </p>
+
+  <div class="policy-section">
+    <h2>1. General</h2>
+    <p>These Terms and Conditions govern the use of the Talbeena website and the purchase of products through it. By browsing our website or completing a purchase, you confirm that you are at least 18 years of age and agree to these terms.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>2. Products</h2>
+    <p>All products sold on Talbeena are food products made from natural ingredients. While we take every care to describe products accurately, colours and packaging may vary slightly from product images shown on the website.</p>
+    <ul>
+      <li>Products are subject to availability. We reserve the right to limit quantities or discontinue any product at any time.</li>
+      <li>We make no medical claims about our products. Talbeena is a food product, not a medicine.</li>
+      <li>If you have any food allergies or medical conditions, please consult your doctor before consuming our products.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>3. Pricing &amp; Payment</h2>
+    <p>All prices are listed in Indian Rupees (₹) and are inclusive of applicable taxes unless stated otherwise.</p>
+    <ul>
+      <li>We reserve the right to change prices at any time without prior notice.</li>
+      <li>Payment is accepted via UPI, credit/debit cards, net banking, and Cash on Delivery (where available), processed securely through Razorpay.</li>
+      <li>Your order is confirmed only after successful payment processing.</li>
+      <li>In the event of a pricing error, we reserve the right to cancel the order and issue a full refund.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>4. Orders &amp; Cancellations</h2>
+    <p>Once an order is placed, you may cancel it within 12 hours by contacting us at <a href="/contact" style="color:var(--teal);">our contact page</a>. Orders that have already been dispatched cannot be cancelled. Please refer to our <a href="/refund-policy" style="color:var(--teal);">Refund & Cancellation Policy</a> for full details.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>5. Shipping</h2>
+    <p>We ship across India. Estimated delivery times and shipping charges are described in our <a href="/shipping-policy" style="color:var(--teal);">Shipping Policy</a>. We are not responsible for delays caused by courier partners, natural disasters, or circumstances beyond our control.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>6. Intellectual Property</h2>
+    <p>All content on this website — including text, images, logos, product names and branding — is the property of Talbeena and may not be copied, reproduced, or used without our written permission.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>7. Limitation of Liability</h2>
+    <p>Talbeena shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or website. Our total liability for any claim shall not exceed the amount paid for the specific order in question.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>8. Governing Law</h2>
+    <p>These Terms and Conditions are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts of India.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>9. Contact Us</h2>
+    <div class="policy-contact-box">
+      <h3>Questions about our Terms?</h3>
+      <p>
+        <strong>Talbeena</strong><br>
+        Email: <a href="mailto:mynexasolutions@gmail.com">mynexasolutions@gmail.com</a><br>
+        Contact: <a href="/contact">Visit our Contact Page</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
