@@ -219,32 +219,43 @@
 
       /* ── TOP NAVBAR ── */
       nav {
-        padding: 0 4%;
-        gap: 0;
+        display: flex !important;
+        padding: 0 2%;
+        gap: 0.5rem;
         justify-content: space-between;
+        align-items: center;
       }
       .nav-links,
-      .nav-search,
-      .nav-cta,
+      .nav-right,
       .main-nav > div { display: none !important; }
+      .nav-search { display: none !important; }
 
-      .nav-brand { gap: 0.5rem; }
-      .nav-brand-name { font-size: 1.25rem; }
-      .nav-logo-img { height: 42px; }
+      .nav-left {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        order: 1;
+        flex: 1;
+      }
+      .nav-brand { gap: 0.25rem; }
+      .nav-brand-name { font-size: 1.1rem; }
+      .nav-logo-img { height: 36px; }
 
       .hamburger {
         display: flex !important;
         flex-direction: column;
-        gap: 5px;
+        gap: 4px;
         background: none;
         border: none;
         cursor: pointer;
-        padding: 10px 8px;
+        padding: 6px 0;
         flex-shrink: 0;
+        order: -1;
+        margin-right: 0.5rem;
       }
       .hamburger span {
         display: block;
-        width: 24px;
+        width: 18px;
         height: 2px;
         background: var(--teal-dark);
         border-radius: 2px;
@@ -257,9 +268,14 @@
         background: none;
         border: none;
         cursor: pointer;
-        padding: 8px;
+        padding: 4px;
         color: var(--teal-dark);
         flex-shrink: 0;
+        order: 2;
+      }
+      .search-toggle-btn svg {
+        width: 18px;
+        height: 18px;
       }
       .mobile-search-bar {
         display: none;
