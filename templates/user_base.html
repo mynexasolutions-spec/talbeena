@@ -220,10 +220,11 @@
       /* ── TOP NAVBAR ── */
       nav {
         display: flex !important;
-        padding: 0 3%;
+        padding: 0;
         gap: 0;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
+        position: relative;
       }
       .nav-links,
       .nav-right,
@@ -236,19 +237,23 @@
         align-items: center;
         justify-content: center;
         order: 0;
-        flex: 1;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 0;
+        bottom: 0;
       }
       .nav-brand {
         display: flex !important;
         gap: 0;
         align-items: center;
         justify-content: center;
-        flex-shrink: 1;
+        flex-shrink: 0;
         text-decoration: none;
       }
       .nav-brand-name { display: none !important; }
       .nav-logo-img {
-        height: 42px;
+        height: 44px;
         width: auto;
         display: block !important;
         object-fit: contain;
