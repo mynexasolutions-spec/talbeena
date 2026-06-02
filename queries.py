@@ -49,7 +49,7 @@ PRODUCTS_MINIMAL_SELECT = """
 """
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=600)
 def _get_variation_cards():
     """
     Returns a lookup: { product_id: [ expanded_row_dict, ... ] }
@@ -151,7 +151,7 @@ def _expand_product_list(products):
     return expanded
 
 
-@ttl_cache(ttl_seconds=60)
+@ttl_cache(ttl_seconds=300)
 def get_products(search=None, categories=(), brands=(),
                  sort="created_at_desc", page=1, per_page=16,
                  featured=False, limit=None, on_sale=False,
@@ -257,7 +257,7 @@ def get_products(search=None, categories=(), brands=(),
     return products, total, total_pages
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=600)
 def get_homepage_products():
     """Single query for all homepage product sections; partitioned in Python."""
     rows = db.query(
@@ -286,7 +286,7 @@ def get_homepage_products():
     }
 
 
-@ttl_cache(ttl_seconds=600)
+@ttl_cache(ttl_seconds=1800)
 def get_featured_categories():
     return db.query("""
         SELECT name AS label, image_url AS img, slug
@@ -504,7 +504,7 @@ def get_related_products(category_slug, exclude_id, limit=4):
     return results + fallback
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=600)
 def get_categories():
     return db.query("""
         SELECT c.id, c.name, c.slug, c.parent_id, cp.name AS parent_name, c.image_url AS img,
@@ -525,7 +525,7 @@ def get_categories():
     """)
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=600)
 def get_brands():
     return db.query("""
         SELECT b.id, b.name, b.slug, COUNT(p.id) AS product_count
@@ -536,7 +536,7 @@ def get_brands():
     """)
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=300)
 def get_admin_stats():
     """All dashboard stats in a single round-trip."""
     row = db.query_one("""
