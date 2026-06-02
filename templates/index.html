@@ -2137,22 +2137,6 @@
     }
   }
 
-  /* ── All Ingredients Grid Section ── */
-  .all-ingredients-section { padding:90px 5%; background:var(--warm-white); }
-  .all-ingredients-header { text-align:center; max-width:700px; margin:0 auto 3rem; }
-  .all-ingredients-header .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,3.5vw,3rem); color:var(--teal-dark); font-weight:700; margin-bottom:1rem; }
-  .all-ingredients-header .divider { width:50px; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-light)); margin:0 auto 1.5rem; border-radius:2px; }
-  .all-ingredients-header .section-body { font-size:1rem; color:var(--text-mid); line-height:1.8; }
-  .all-ingredients-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:1.5rem; max-width:1400px; margin:0 auto; }
-  .all-ingredient-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:1.5rem 1.2rem; text-align:center; transition:transform 0.3s,box-shadow 0.3s; }
-  .all-ingredient-card:hover { transform:translateY(-5px); box-shadow:0 10px 30px rgba(0,0,0,0.1); }
-  .all-ingredient-img { width:100%; aspect-ratio:1/1; object-fit:contain; margin-bottom:1rem; background:var(--cream); border-radius:12px; padding:1rem; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .all-ingredient-img img { width:100%; height:100%; object-fit:contain; }
-  .all-ingredient-card h4 { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--teal-dark); font-weight:700; margin:0; }
-  @media(max-width:1100px) { .all-ingredients-grid { grid-template-columns:repeat(4,1fr); gap:1.2rem; } }
-  @media(max-width:768px) { .all-ingredients-grid { grid-template-columns:repeat(3,1fr); gap:1rem; } .all-ingredient-card { padding:1.2rem 0.8rem; } .all-ingredient-card h4 { font-size:1rem; } }
-  @media(max-width:480px) { .all-ingredients-grid { grid-template-columns:repeat(2,1fr); gap:0.8rem; } }
-
   .features-bar {
     display: flex;
     justify-content: center;
@@ -2550,88 +2534,6 @@
   </div>
 </section>
 
-<section class="all-ingredients-section fade-in">
-  <div class="all-ingredients-header">
-    <h2 class="section-title">All Our Premium Ingredients</h2>
-    <div class="divider"></div>
-    <p class="section-body">A complete selection of nature's finest ingredients, carefully sourced and blended for maximum nutrition and taste.</p>
-  </div>
-  <div class="all-ingredients-grid">
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/barley.webp') }}" alt="Barley" loading="lazy" />
-      </div>
-      <h4>Barley</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/dates.webp') }}" alt="Dates" loading="lazy" />
-      </div>
-      <h4>Dates</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/almonds.webp') }}" alt="Almonds" loading="lazy" />
-      </div>
-      <h4>Almonds</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/pistachios.webp') }}" alt="Pistachios" loading="lazy" />
-      </div>
-      <h4>Pistachios</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/cardamom.webp') }}" alt="Cardamom" loading="lazy" />
-      </div>
-      <h4>Cardamom</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/honey.webp') }}" alt="Honey" loading="lazy" />
-      </div>
-      <h4>Honey</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/oats.webp') }}" alt="Oats" loading="lazy" />
-      </div>
-      <h4>Oats</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/cashews.webp') }}" alt="Cashews" loading="lazy" />
-      </div>
-      <h4>Cashew</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/walnut.webp') }}" alt="Walnut" loading="lazy" />
-      </div>
-      <h4>Walnut</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Watermelon Seed.webp') }}" alt="Watermelon Seed" loading="lazy" />
-      </div>
-      <h4>Watermelon Seed</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Rock Sugar.webp') }}" alt="Rock Sugar" loading="lazy" />
-      </div>
-      <h4>Rock Sugar</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Black Cumin.webp') }}" alt="Black Cumin" loading="lazy" />
-      </div>
-      <h4>Black Cumin</h4>
-    </div>
-  </div>
-</section>
-
 <div class="features-bar fade-in">
   <div class="feature-item"><span class="feature-icon">🌿</span> Made with Natural Ingredients</div>
   <div class="feature-item"><span class="feature-icon">🚫</span> No Artificial Colors or Flavors</div>
@@ -2926,88 +2828,6 @@
 </section>
 
 <!-- INGREDIENTS SECTION AFTER JOURNEY -->
-<section class="all-ingredients-section fade-in">
-  <div class="all-ingredients-header">
-    <h2 class="section-title">All Our Premium Ingredients</h2>
-    <div class="divider"></div>
-    <p class="section-body">A complete selection of nature's finest ingredients, carefully sourced and blended for maximum nutrition and taste.</p>
-  </div>
-  <div class="all-ingredients-grid">
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/barley.webp') }}" alt="Barley" loading="lazy" />
-      </div>
-      <h4>Barley</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/dates.webp') }}" alt="Dates" loading="lazy" />
-      </div>
-      <h4>Dates</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/almonds.webp') }}" alt="Almonds" loading="lazy" />
-      </div>
-      <h4>Almonds</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/pistachios.webp') }}" alt="Pistachios" loading="lazy" />
-      </div>
-      <h4>Pistachios</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/cardamom.webp') }}" alt="Cardamom" loading="lazy" />
-      </div>
-      <h4>Cardamom</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/honey.webp') }}" alt="Honey" loading="lazy" />
-      </div>
-      <h4>Honey</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/oats.webp') }}" alt="Oats" loading="lazy" />
-      </div>
-      <h4>Oats</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/cashews.webp') }}" alt="Cashews" loading="lazy" />
-      </div>
-      <h4>Cashew</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/walnut.webp') }}" alt="Walnut" loading="lazy" />
-      </div>
-      <h4>Walnut</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Watermelon Seed.webp') }}" alt="Watermelon Seed" loading="lazy" />
-      </div>
-      <h4>Watermelon Seed</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Rock Sugar.webp') }}" alt="Rock Sugar" loading="lazy" />
-      </div>
-      <h4>Rock Sugar</h4>
-    </div>
-    <div class="all-ingredient-card">
-      <div class="all-ingredient-img">
-        <img src="{{ url_for('static', filename='images/ingredients/Black Cumin.webp') }}" alt="Black Cumin" loading="lazy" />
-      </div>
-      <h4>Black Cumin</h4>
-    </div>
-  </div>
-</section>
-
 <section class="blog-section fade-in">
   <div class="blog-header">
     <div class="section-label">From Our Blog</div>
