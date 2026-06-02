@@ -257,32 +257,37 @@
         right: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
+        gap: 1rem;
         z-index: 400;
       }
       .float-btn {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
         text-decoration: none;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
       }
       .float-btn:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+        transform: scale(1.15) translateY(-6px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.35);
         color: #fff;
       }
-      .float-whatsapp { background: #25D366; }
-      .float-call { background: var(--teal); }
-      .float-btn svg { width: 24px; height: 24px; fill: currentColor; }
+      .float-whatsapp { background: linear-gradient(135deg, #25D366 0%, #20BA5C 100%); }
+      .float-call { background: linear-gradient(135deg, #1A6B72 0%, #0D4A50 100%); }
+      .float-btn svg { width: 28px; height: 28px; fill: currentColor; stroke: currentColor; }
 
       @media (min-width: 851px) {
-        .floating-actions { bottom: 2rem; right: 2rem; }
+        .floating-actions { bottom: 2rem; right: 2rem; gap: 1.2rem; }
+        .float-btn { width: 65px; height: 65px; }
+        .float-btn svg { width: 32px; height: 32px; }
       }
 
       /* ── MOBILE BOTTOM FOOTER BAR ── */

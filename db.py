@@ -494,6 +494,21 @@ _MIGRATIONS = [
         is_read INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
+
+    # 17. Google OAuth support
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT UNIQUE",
+    "ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL",
+
+    # 18. Password reset OTPs
+    """CREATE TABLE IF NOT EXISTS password_reset_otps (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id),
+        otp TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP NOT NULL,
+        is_used INTEGER DEFAULT 0
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_password_reset_user_id ON password_reset_otps(user_id)",
 ]
 
 def migrate():

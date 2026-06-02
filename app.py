@@ -11,6 +11,8 @@ from extensions import csrf, limiter, handle_csrf_error
 from extensions import db_sql, migrate as db_migrate
 from helpers import register_jinja
 import db
+from routes.auth import oauth
+from email_utils import mail
 
 
 def create_app():
@@ -50,6 +52,8 @@ def create_app():
     # Initialize extensions
     csrf.init_app(app)
     limiter.init_app(app)
+    oauth.init_app(app)
+    mail.init_app(app)
     
     # Register CSRF error handler
     app.register_error_handler(400, handle_csrf_error)
