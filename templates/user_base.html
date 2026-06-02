@@ -171,9 +171,46 @@
     }
     .nav-cta:hover { background: var(--teal-dark) !important; }
 
+    /* search toggle and mobile search bar */
+    .search-toggle-btn { display: none; }
+    .mobile-search-bar { display: none; }
+
     .hamburger { display: none; }
     .mobile-menu { display: none; }
     .mob-footer-bar { display: none; }
+
+    /* ── FLOATING CONTACT BUTTONS (ALL SCREENS) ── */
+    .floating-actions {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      z-index: 400;
+    }
+    .float-btn {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .float-btn:hover {
+      transform: scale(1.15) translateY(-6px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    }
+    .float-whatsapp { background: linear-gradient(135deg, #25D366 0%, #20BA5C 100%); }
+    .float-call { background: linear-gradient(135deg, #1A6B72 0%, #0D4A50 100%); }
+    .float-btn svg { width: 32px; height: 32px; fill: currentColor; stroke: currentColor; }
 
     /* ── ALL MOBILE STYLES (≤ 768px) ── */
     @media (max-width: 768px) {
@@ -214,6 +251,48 @@
         transition: 0.3s;
       }
 
+      /* ── MOBILE SEARCH ── */
+      .search-toggle-btn {
+        display: flex !important;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        color: var(--teal-dark);
+        flex-shrink: 0;
+      }
+      .mobile-search-bar {
+        display: none;
+        position: fixed;
+        top: 70px; left: 0; right: 0;
+        background: #fff;
+        border-bottom: 2px solid var(--border);
+        padding: 1rem 4%;
+        z-index: 360;
+      }
+      .mobile-search-bar.open { display: block; }
+      .mob-search-form {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .mob-search-form button {
+        background: none;
+        border: none;
+        color: var(--text-soft);
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 0;
+      }
+      .mob-search-form input {
+        flex: 1;
+        padding: 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+
       /* ── MOBILE SLIDE MENU ── */
       .mobile-menu.open {
         display: flex;
@@ -250,45 +329,17 @@
         border-bottom: none;
       }
 
-      /* ── FLOATING CONTACT BUTTONS ── */
+      /* ── FLOATING CONTACT BUTTONS (MOBILE) ── */
       .floating-actions {
-        position: fixed;
         bottom: 5rem; /* Above mobile footer */
         right: 1.5rem;
-        display: flex;
-        flex-direction: column;
         gap: 1rem;
-        z-index: 400;
       }
       .float-btn {
         width: 60px;
         height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        text-decoration: none;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
       }
-      .float-btn:hover {
-        transform: scale(1.15) translateY(-6px);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.35);
-        color: #fff;
-      }
-      .float-whatsapp { background: linear-gradient(135deg, #25D366 0%, #20BA5C 100%); }
-      .float-call { background: linear-gradient(135deg, #1A6B72 0%, #0D4A50 100%); }
-      .float-btn svg { width: 28px; height: 28px; fill: currentColor; stroke: currentColor; }
-
-      @media (min-width: 851px) {
-        .floating-actions { bottom: 2rem; right: 2rem; gap: 1.2rem; }
-        .float-btn { width: 65px; height: 65px; }
-        .float-btn svg { width: 32px; height: 32px; }
-      }
+      .float-btn svg { width: 28px; height: 28px; }
 
       /* ── MOBILE BOTTOM FOOTER BAR ── */
       .mob-footer-bar {
@@ -495,6 +546,21 @@
         if (m.classList.contains('open') && !e.target.closest('nav')) {
           m.classList.remove('open');
           h.classList.remove('open');
+        }
+      });
+    }
+
+    // Search toggle for mobile
+    const sb = document.getElementById('searchToggleBtn');
+    const msb = document.getElementById('mobileSearchBar');
+    if (sb && msb) {
+      sb.addEventListener('click', e => {
+        e.stopPropagation();
+        msb.classList.toggle('open');
+      });
+      document.addEventListener('click', e => {
+        if (msb.classList.contains('open') && !e.target.closest('.mobile-search-bar') && !e.target.closest('.search-toggle-btn')) {
+          msb.classList.remove('open');
         }
       });
     }
