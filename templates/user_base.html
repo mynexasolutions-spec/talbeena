@@ -225,13 +225,14 @@
         justify-content: flex-start;
         align-items: center;
         position: relative;
+        height: 70px;
       }
       .nav-links,
       .nav-right,
       .main-nav > div { display: none !important; }
       .nav-search { display: none !important; }
 
-      .nav-left {
+      .main-nav > .nav-left {
         display: flex !important;
         gap: 0;
         align-items: center;
@@ -253,7 +254,7 @@
       }
       .nav-brand-name { display: none !important; }
       .nav-logo-img {
-        height: 44px;
+        height: 52px;
         width: auto;
         display: block !important;
         object-fit: contain;
@@ -290,6 +291,7 @@
         color: var(--teal-dark);
         flex-shrink: 0;
         order: 2;
+        margin-left: auto;
       }
       .search-toggle-btn svg {
         width: 18px;
@@ -548,7 +550,9 @@
       setTimeout(function() { toast.remove(); }, 300);
     }, 3000);
   }
-  // Convert server flash messages to toasts
+  // Convert server flash messages to toasts — clear old ones first
+  var tc = document.getElementById('toastContainer');
+  if (tc) tc.innerHTML = '';
   document.querySelectorAll('[data-toast]').forEach(function(el) {
     showToast(el.textContent.trim(), el.dataset.toast);
   });
