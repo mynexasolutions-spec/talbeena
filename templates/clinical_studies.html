@@ -1,0 +1,576 @@
+{% extends 'user_base.html' %}
+{% block title %}Clinical & Scientific Studies – HTWO Talbina{% endblock %}
+
+{% block extra_css %}
+<!-- Urdu / Nastaliq font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"></noscript>
+<style>
+  /* ── Page Banner ── */
+  .page-banner {
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 55%, #1a6b72 100%);
+    padding: 56px 5%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 15% 60%, rgba(200,146,42,0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 40%, rgba(200,146,42,0.10) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .page-banner-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .page-banner-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+  }
+  .page-banner h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.7rem;
+  }
+  .page-banner-sub {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.6;
+  }
+  .page-banner-divider {
+    width: 44px;
+    height: 2px;
+    background: var(--gold);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+  }
+
+  /* ── Page body ── */
+  .cs-page { padding: 70px 5% 90px; }
+
+  /* ── Section number badge + heading ── */
+  .cs-section {
+    margin-bottom: 2.5rem;
+    background: var(--cream);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .cs-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 100%);
+    padding: 1.4rem 2.5rem;
+  }
+  .cs-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #fff;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cs-section-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .cs-section-body {
+    padding: 2.2rem 2.5rem;
+    color: var(--text-mid);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+
+  /* ── Intro paragraph (before the sections) ── */
+  .cs-intro {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-mid);
+  }
+  .cs-intro strong { color: var(--teal-dark); }
+
+  /* ── Bullet list with highlight ── */
+  .cs-list { list-style: none; padding: 0; margin: 0; }
+  .cs-list li {
+    padding: 0.8rem 0 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    padding-left: 1.6rem;
+  }
+  .cs-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .cs-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1.2rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* ── Highlight cards (for key findings) ── */
+  .cs-findings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .cs-finding-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.3rem;
+    border-top: 3px solid var(--gold);
+  }
+  .cs-finding-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .cs-finding-title svg { color: var(--gold); flex-shrink: 0; }
+  .cs-finding-card p {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  /* ── Stat highlights ── */
+  .cs-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .cs-stat {
+    background: var(--teal-dark);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1.4rem 1.2rem;
+    text-align: center;
+  }
+  .cs-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .cs-stat-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.4;
+  }
+
+  /* ── Inline tag ── */
+  .cs-tag {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  /* ── CTA banner at bottom ── */
+  .cs-cta {
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 100%);
+    border-radius: 16px;
+    padding: 3rem 3.5rem;
+    text-align: center;
+    margin-top: 3rem;
+    color: rgba(255,255,255,0.85);
+  }
+  .cs-cta h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+  }
+  .cs-cta p { font-size: 1rem; line-height: 1.7; margin-bottom: 1.5rem; }
+  .cs-cta-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: #fff;
+    padding: 0.85rem 2.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.04em;
+  }
+  .cs-cta-btn:hover { background: #b07d22; transform: translateY(-2px); }
+
+  /* ── Language divider ── */
+  .lang-divider {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 3rem 0 2.5rem;
+  }
+  .lang-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .lang-divider-badge {
+    background: var(--teal-dark);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.2rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ── Urdu RTL overrides ── */
+  .urdu-section {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+    font-size: 1.1rem;
+    line-height: 2.2;
+  }
+  .urdu-section .cs-intro { direction: rtl; text-align: right; }
+  .urdu-section .cs-section-header { flex-direction: row-reverse; }
+  .urdu-section .cs-section-header h2 {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+  }
+  .urdu-section .cs-section-body { direction: rtl; text-align: right; }
+  .urdu-section .cs-list li { padding-right: 1.6rem; padding-left: 0; }
+  .urdu-section .cs-list li::before { right: 0; left: auto; }
+  .urdu-section .cs-finding-card { text-align: right; }
+  .urdu-section .cs-finding-title { flex-direction: row-reverse; font-family: 'Noto Nastaliq Urdu', serif; }
+  .urdu-section .cs-stat-label { font-family: 'Noto Nastaliq Urdu', serif; line-height: 1.8; font-size: 0.9rem; }
+  .urdu-section .cs-cta h3 { font-family: 'Noto Nastaliq Urdu', serif; }
+  .urdu-section .cs-cta p { font-family: 'Noto Nastaliq Urdu', serif; }
+  .urdu-section .cs-intro strong { color: var(--teal-dark); }
+
+  @media (max-width: 900px) {
+    .cs-findings-grid { grid-template-columns: 1fr 1fr; }
+    .cs-stats-row { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .cs-page { padding: 50px 5% 70px; }
+    .cs-section-header { padding: 1.2rem 1.5rem; gap: 1rem; }
+    .cs-section-body { padding: 1.5rem 1.5rem; }
+    .cs-intro { padding: 1.5rem 1.5rem; }
+    .cs-findings-grid { grid-template-columns: 1fr; }
+    .cs-stats-row { grid-template-columns: 1fr; }
+    .cs-cta { padding: 2rem 1.5rem; }
+    .page-banner { padding: 48px 6%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── Banner ── -->
+<div class="page-banner">
+  <div class="page-banner-inner">
+    <div class="page-banner-label">&#10022; Evidence-Based Healthcare</div>
+    <h1>Clinical &amp; Scientific Studies</h1>
+    <p class="page-banner-sub">HTWO Talbina (H2 Talbeenaa) — Backed by Modern Research, Rooted in Prophetic Wisdom</p>
+    <div class="page-banner-divider"></div>
+  </div>
+</div>
+
+<div class="cs-page">
+
+  <!-- Intro -->
+  <div class="cs-intro">
+    <strong>HTWO Talbina (H2 Talbeenaa)</strong> is not just a product of tradition — it is a product of science. Every formulation is built on a foundation of rigorous clinical research, laboratory analysis, and peer-validated nutritional data. Below, we present a transparent summary of the research and scientific discoveries that define HTWO Talbina's efficacy.
+  </div>
+
+  <!-- ── Section 1: R&D Team ── -->
+  <div class="cs-section">
+    <div class="cs-section-header">
+      <div class="cs-num">1</div>
+      <h2>The Expert R&amp;D and Formulation Team</h2>
+    </div>
+    <div class="cs-section-body">
+      <ul class="cs-list">
+        <li>H2 Healthcare's core focus is dedicated to conducting extensive research on Prophetic remedies to discover and deliver highly effective, modern healthcare treatments.</li>
+        <li>The company's specialized research team consists of highly qualified, government-certified professionals, including experienced food engineers, licensed pharmacists, and experts in Unani medicine.</li>
+        <li>This scientific division works hand-in-hand with prominent Islamic scholars and Muftis to guarantee that all products are <strong>100% natural</strong>, scientifically sound, and fully <strong>Halal compliant</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Section 2: Clinical Study ── -->
+  <div class="cs-section">
+    <div class="cs-section-header">
+      <div class="cs-num">2</div>
+      <h2>Clinical and Scientific Studies on HTWO Talbina</h2>
+    </div>
+    <div class="cs-section-body">
+      <p style="margin-bottom: 1.5rem;">To rigorously test and validate the efficacy of HTWO Talbina (H2 Talbeenaa), researchers conducted a <strong>clinical monitoring study</strong> tracking the dietary intake, mood, and health outcomes of participants over a period of <strong>3 to 7 weeks</strong>.</p>
+
+      <!-- Study stats -->
+      <div class="cs-stats-row">
+        <div class="cs-stat">
+          <span class="cs-stat-num">30</span>
+          <span class="cs-stat-label">Total Participants<br>(21 Men · 9 Women)</span>
+        </div>
+        <div class="cs-stat">
+          <span class="cs-stat-num">3–7</span>
+          <span class="cs-stat-label">Weeks of Monitoring<br>(Weeks 0, 3, 4 &amp; 7)</span>
+        </div>
+        <div class="cs-stat">
+          <span class="cs-stat-num">P&lt;0.05</span>
+          <span class="cs-stat-label">Statistically Significant<br>Reduction in Stress &amp; Mood Disorders</span>
+        </div>
+      </div>
+
+      <ul class="cs-list">
+        <li>
+          <strong>Mental Health &amp; Mood Assessment:</strong> The study utilized three globally validated psychological metrics — the <em>Geriatric Depression Scale</em>, the <em>Depression Anxiety Stress Scales</em>, and the <em>Profile of Mood States</em> — to evaluate changes in mood, depression, stress, and anxiety at weeks 0, 3, 4, and 7.
+        </li>
+        <li>
+          <strong>Statistical Outcomes:</strong> Analyzing the data through the scientific <em>Wilcoxon Non-Parametric Test</em>, researchers observed a statistically significant reduction <strong>(P &lt; 0.05)</strong> in mental pressure, stress, and mood disorders among the participants. The study concluded that HTWO Talbina possesses a powerful capability to <strong>alleviate depression and elevate a patient's mood</strong>.
+        </li>
+        <li>
+          <strong>Geriatric Cognitive Benefits:</strong> The research highlights that incorporating functional foods like HTWO Talbina (H2 Talbeenaa) into daily diets offers substantial mental and cognitive health benefits for elderly individuals.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Section 3: Nutritional Analysis ── -->
+  <div class="cs-section">
+    <div class="cs-section-header">
+      <div class="cs-num">3</div>
+      <h2>Laboratory, Nutritional, and Amino Acid Analysis</h2>
+    </div>
+    <div class="cs-section-body">
+      <p style="margin-bottom: 1.5rem;">During the R&amp;D process, researchers performed a detailed <strong>proximal analysis</strong>, mineral profiling, and individual amino acid breakdown of HTWO Talbina, yielding extraordinary nutritional data:</p>
+
+      <div class="cs-findings-grid">
+        <div class="cs-finding-card">
+          <div class="cs-finding-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            High-Energy Carbohydrate
+          </div>
+          <p>A remarkably high carbohydrate content of <strong>74.86%</strong> confirms HTWO Talbina as a premium, energy-boosting functional food.</p>
+        </div>
+        <div class="cs-finding-card">
+          <div class="cs-finding-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Balanced BCAA Ratio
+          </div>
+          <p>A highly optimized <strong>2:1 ratio</strong> of Tryptophan to Branch-Chain Amino Acids (BCAA) calms the nervous system, boosts brain health, and repairs muscle tissues.</p>
+        </div>
+        <div class="cs-finding-card">
+          <div class="cs-finding-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Antioxidant Power
+          </div>
+          <p>An abundant presence of <strong>Avenanthramides</strong> — a powerful antioxidant unique to barley — aids in producing nitric oxide, lowering blood pressure and enhancing circulation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section 4: Key Breakthroughs ── -->
+  <div class="cs-section">
+    <div class="cs-section-header">
+      <div class="cs-num">4</div>
+      <h2>Key Scientific Breakthroughs &amp; Discoveries</h2>
+    </div>
+    <div class="cs-section-body">
+      <p style="margin-bottom: 1.5rem;">By seamlessly bridging the gap between historical Prophetic insights and modern medical science, H2 Healthcare's researchers have made significant therapeutic breakthroughs:</p>
+
+      <ul class="cs-list">
+        <li>
+          <strong>Cognitive Enhancements:</strong> Developed targeted formulations proven to sharpen memory, combat forgetfulness, and accelerate brain development in growing children.
+        </li>
+        <li>
+          <strong>Maternal Care Solutions:</strong> Formulated specialized natural supplements that successfully fulfill the high nutritional and safety demands of pregnant women and lactating mothers.
+        </li>
+        <li>
+          <strong>Pain &amp; Deficiencies Management:</strong> Achieved exceptional success in formulating natural remedies that rapidly reverse severe hemoglobin deficiencies (anemia) and significantly optimize the management of nerve and joint pains.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cs-cta">
+    <h3>Experience the Science Behind Every Sip</h3>
+    <p>Every jar of HTWO Talbina carries over 1,400 years of Prophetic wisdom — now validated by modern clinical science. Trusted by researchers. Loved by families.</p>
+    <a href="/shop" class="cs-cta-btn">Shop HTWO Talbina</a>
+  </div>
+
+  <!-- ── Language Divider ── -->
+  <div class="lang-divider">
+    <div class="lang-divider-line"></div>
+    <span class="lang-divider-badge">اردو — Urdu Version</span>
+    <div class="lang-divider-line"></div>
+  </div>
+
+  <!-- ══════════════ URDU SECTION ══════════════ -->
+  <div class="urdu-section">
+
+    <!-- Intro -->
+    <div class="cs-intro">
+      <strong>ایچ ٹو (H2) تلبینہ</strong> صرف ایک روایتی غذا نہیں، بلکہ ایک مکمل "فنکشنل فوڈ" (Functional Food) ہے جس کی افادیت کو کلینیکل ٹیسٹس کے ذریعے جدید میڈیکل سائنس نے بھی تسلیم کیا ہے۔ ذیل میں سائنسی اور کلینیکل تحقیق کی روشنی میں تفصیلی نتائج پیش کیے جا رہے ہیں۔
+    </div>
+
+    <!-- Section 1: ذہنی دباؤ -->
+    <div class="cs-section">
+      <div class="cs-section-header">
+        <div class="cs-num">۱</div>
+        <h2>ذہنی دباؤ اور اضطراب (Anxiety &amp; Depression) پر تحقیق</h2>
+      </div>
+      <div class="cs-section-body">
+        <p style="margin-bottom: 1.5rem;">ایچ ٹو تلبینہ پر ہونے والی تحقیق میں <strong>30 افراد</strong> (21 مرد اور 9 خواتین) پر <strong>3 سے 7 ہفتوں</strong> تک مشاہدہ کیا گیا۔</p>
+
+        <div class="cs-stats-row">
+          <div class="cs-stat">
+            <span class="cs-stat-num">30</span>
+            <span class="cs-stat-label">شرکاء<br>(21 مرد · 9 خواتین)</span>
+          </div>
+          <div class="cs-stat">
+            <span class="cs-stat-num">۷-۳</span>
+            <span class="cs-stat-label">ہفتوں کا مشاہدہ<br>(ہفتہ 0، 3، 4 اور 7)</span>
+          </div>
+          <div class="cs-stat">
+            <span class="cs-stat-num">P&lt;0.05</span>
+            <span class="cs-stat-label">نمایاں کمی<br>ذہنی دباؤ اور موڈ خرابی میں</span>
+          </div>
+        </div>
+
+        <ul class="cs-list">
+          <li><strong>نتائج:</strong> تحقیق میں "جیریاٹرک ڈپریشن اسکیل" اور "اسٹریس اسکیلز" جیسے عالمی پیمانوں کا استعمال کیا گیا، جس سے ثابت ہوا کہ تلبینہ کے باقاعدہ استعمال سے ذہنی دباؤ، تناؤ اور موڈ کی خرابی میں <strong>نمایاں کمی (P&lt;0.05)</strong> واقع ہوئی۔</li>
+          <li><strong>اہم جزء — ٹرپٹوفن (Tryptophan):</strong> ایچ ٹو تلبینہ میں "ٹرپٹوفن" کی وافر مقدار موجود ہوتی ہے، جو موڈ کو بہتر بنانے اور ڈپریشن کو ختم کرنے میں اہم کردار ادا کرتی ہے۔</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 2: دل اور خون -->
+    <div class="cs-section">
+      <div class="cs-section-header">
+        <div class="cs-num">۲</div>
+        <h2>دل اور خون کی شریانوں کے لیے فوائد</h2>
+      </div>
+      <div class="cs-section-body">
+        <p style="margin-bottom: 1.2rem;">سائنسی مطالعات سے ثابت ہوا ہے کہ جو (Barley) کا باقاعدہ استعمال دل کے امراض کے خطرے کو نمایاں طور پر کم کرتا ہے۔</p>
+        <ul class="cs-list">
+          <li><strong>بیٹا گلوکن (Beta-Glucan):</strong> تلبینہ میں موجود حل پذیر فائبر "بیٹا گلوکن" خون میں کولیسٹرول کی سطح کو کم رکھنے میں مدد دیتا ہے۔</li>
+          <li><strong>بلڈ پریشر:</strong> جو میں پایا جانے والا اہم اینٹی آکسیڈنٹ <strong>"ایوینتھرامائڈ" (Avenanthramides)</strong> نائٹرک آکسائیڈ کی پیداوار میں مدد کرتا ہے، جس سے خون کی شریانیں کھلتی ہیں اور بلڈ پریشر کنٹرول میں رہتا ہے۔</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 3: شوگر اور میٹابولک -->
+    <div class="cs-section">
+      <div class="cs-section-header">
+        <div class="cs-num">۳</div>
+        <h2>خون میں شوگر اور میٹابولک صحت</h2>
+      </div>
+      <div class="cs-section-body">
+        <ul class="cs-list">
+          <li><strong>ذیابیطس ٹائپ 2:</strong> تلبینہ ان افراد کے لیے بہترین ہے جن کا وزن ذیابیطس کے باعث بڑھ جاتا ہے۔ یہ خون میں شوگر کی سطح کو مستحکم رکھنے اور انسولین کی حساسیت (Insulin Sensitivity) کو بہتر بنانے میں معاون ہے۔</li>
+          <li><strong>توانائی کی فراہمی:</strong> اس میں فاسفورس کی بڑی مقدار موجود ہوتی ہے جو ATP کے ذریعے جسم کو بھرپور توانائی فراہم کرتی ہے۔</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 4: ہڈیاں -->
+    <div class="cs-section">
+      <div class="cs-section-header">
+        <div class="cs-num">۴</div>
+        <h2>ہڈیوں اور جوڑوں کی صحت</h2>
+      </div>
+      <div class="cs-section-body">
+        <p style="margin-bottom: 1rem;">ایچ ٹو تلبینہ اہم معدنیات سے بھرپور ہے:</p>
+        <div class="cs-findings-grid">
+          <div class="cs-finding-card">
+            <div class="cs-finding-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              مینگنیز (Manganese)
+            </div>
+            <p>روزانہ کی ضرورت کا <strong>191%</strong> — ہڈیوں کی مضبوطی کے لیے ضروری۔</p>
+          </div>
+          <div class="cs-finding-card">
+            <div class="cs-finding-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              فاسفورس (Phosphorus)
+            </div>
+            <p>روزانہ کی ضرورت کا <strong>41%</strong> — توانائی اور ہڈیوں کی نشوونما کے لیے۔</p>
+          </div>
+          <div class="cs-finding-card">
+            <div class="cs-finding-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              میگنیشیم (Magnesium)
+            </div>
+            <p>روزانہ کی ضرورت کا <strong>34%</strong> — جوڑوں کے درد اور سوجن میں راحت۔</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: پروٹین -->
+    <div class="cs-section">
+      <div class="cs-section-header">
+        <div class="cs-num">۵</div>
+        <h2>پروٹین اور مسلز کی تعمیر</h2>
+      </div>
+      <div class="cs-section-body">
+        <ul class="cs-list">
+          <li><strong>کیمیکل سے پاک قدرتی پروٹین:</strong> ایچ ٹو تلبینہ میں موجود قدرتی پروٹین اور امینو ایسڈز (جیسے لائیسین) مسلز بنانے اور جسمانی طاقت میں اضافے کے لیے کیمیکل والے پروٹین پاؤڈرز سے کہیں زیادہ <strong>محفوظ اور موثر</strong> ہیں۔</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Urdu CTA / Summary -->
+    <div class="cs-cta">
+      <h3>مختصر خلاصہ</h3>
+      <p>ایچ ٹو تلبینہ ہر عمر کے افراد — بشمول بچوں اور بوڑھوں — کے لیے ایک محفوظ اور طاقتور سپلیمنٹ ہے۔ طبِ نبویﷺ کی روشنی میں تیار اور جدید سائنس سے ثابت شدہ۔</p>
+      <a href="/shop" class="cs-cta-btn">ابھی خریدیں — HTWO Talbina</a>
+    </div>
+
+  </div>
+  <!-- ══════════════ END URDU ══════════════ -->
+
+</div>
+{% endblock %}

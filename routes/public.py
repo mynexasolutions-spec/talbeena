@@ -166,6 +166,11 @@ def about():
     return render_template("about.html")
 
 
+@bp.route("/clinical-studies")
+def clinical_studies():
+    return render_template("clinical_studies.html")
+
+
 @bp.route("/privacy-policy")
 def privacy_policy():
     return render_template("policies/privacy_policy.html")

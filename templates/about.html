@@ -2,6 +2,10 @@
 {% block title %}About HTWO Healthcare – Talbeena{% endblock %}
 
 {% block extra_css %}
+<!-- Urdu / Nastaliq font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"></noscript>
 <style>
   /* ── Page Banner ── */
   .page-banner {
@@ -60,82 +64,180 @@
     .page-banner-sub { font-size: 0.88rem; }
   }
 
-  .about-page { max-width: 1400px; margin: 0 auto; padding: 90px 5%; }
+  .about-page { padding: 70px 5% 80px; }
 
-  .about-hero {
-    text-align: center;
-    margin-bottom: 4rem;
+  /* Section blocks */
+  .about-section-block {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 3rem 3.5rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.8;
+    color: var(--text-mid);
+    font-size: 1.05rem;
   }
-  .about-hero h2 {
+  .about-section-heading {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-size: clamp(1.7rem, 2.5vw, 2.4rem);
     font-weight: 700;
     color: var(--teal-dark);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    padding-bottom: 0.8rem;
   }
-  .about-hero p {
-    font-size: 1.2rem;
+  .about-section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 48px; height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+  .about-subheading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-top: 2rem;
+    margin-bottom: 0.6rem;
+  }
+  .about-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.75rem;
+  }
+  .about-list li {
+    padding: 0.45rem 0 0.45rem 1.4rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
     color: var(--text-mid);
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.8;
   }
+  .about-list li:last-child { border-bottom: none; }
+  .about-list li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.5rem;
+    top: 0.75rem;
+  }
+  .cert-list li { padding-left: 1.8rem; }
 
+  /* Vision / Mission grid */
   .about-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-    margin-bottom: 4rem;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
   }
   .about-card {
     background: #fff;
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 3rem 2rem;
-    text-align: center;
+    padding: 2.5rem 2rem;
     transition: transform 0.3s, box-shadow 0.3s;
   }
   .about-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.07);
   }
-  .about-card .icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+  .about-card-icon {
+    width: 58px; height: 58px;
+    border-radius: 14px;
+    background: var(--teal-light);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal-dark);
+    margin-bottom: 1.3rem;
   }
   .about-card h3 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     font-weight: 700;
     color: var(--teal-dark);
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
   .about-card p {
     color: var(--text-mid);
-    font-size: 1.05rem;
-    line-height: 1.7;
+    font-size: 1rem;
+    line-height: 1.75;
   }
 
-  .story-section {
-    background: var(--cream);
-    border-radius: 16px;
-    padding: 4rem;
-    line-height: 1.8;
-    color: var(--text-mid);
-    text-align: center;
-    max-width: 1000px;
-    margin: 0 auto;
+  /* ── Language divider ── */
+  .lang-divider {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 3rem 0 2.5rem;
   }
-  .story-section h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2.5rem;
+  .lang-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .lang-divider-badge {
+    background: var(--teal-dark);
+    color: #fff;
+    font-size: 0.78rem;
     font-weight: 700;
-    color: var(--teal-dark);
-    margin-bottom: 1.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.2rem;
+    border-radius: 999px;
+    white-space: nowrap;
   }
-  .story-section p {
-    font-size: 1.15rem;
-    margin-bottom: 1.5rem;
+
+  /* ── Urdu (RTL) overrides ── */
+  .urdu-section {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', serif;
+    font-size: 1.1rem;
+    line-height: 2.2;
+  }
+  .urdu-section .about-section-heading {
+    font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+  }
+  .urdu-section .about-section-heading::after { left: auto; right: 0; }
+  .urdu-section .about-subheading {
+    font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+  }
+  .urdu-section .about-list li { padding-right: 1.4rem; padding-left: 0; }
+  .urdu-section .about-list li::before { right: 0; left: auto; }
+  .urdu-section .about-card { text-align: right; }
+  .urdu-section .about-card h3 { font-family: 'Noto Nastaliq Urdu', serif; }
+  .urdu-section .about-card-icon { margin-right: 0; margin-left: auto; }
+  .urdu-section .about-connect-box { text-align: right; }
+  .urdu-section .about-connect-box h3 { font-family: 'Noto Nastaliq Urdu', serif; }
+
+  /* Connect box */
+  .about-connect-box {
+    background: linear-gradient(135deg, #082e32 0%, #0e4a4e 100%);
+    border-radius: 16px;
+    padding: 3rem 3.5rem;
+    margin-bottom: 2.5rem;
+    color: rgba(255,255,255,0.85);
+  }
+  .about-connect-box h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 2rem;
+  }
+  .about-connect-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .about-connect-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .about-connect-value {
+    font-size: 1.05rem;
+    line-height: 1.65;
   }
 
   .bismillah {
@@ -143,13 +245,18 @@
     font-family: 'Cormorant Garamond', serif;
     font-size: 2.2rem;
     color: var(--gold);
-    margin: 4rem 0 1rem;
+    margin: 3rem 0 0;
     font-style: italic;
   }
 
+  @media (max-width: 900px) {
+    .about-connect-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
   @media (max-width: 768px) {
-    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .story-section { padding: 2.5rem 1.5rem; }
+    .about-page { padding: 50px 5% 60px; }
+    .about-section-block { padding: 2rem 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .about-connect-box { padding: 2rem 1.5rem; }
   }
 </style>
 {% endblock %}
@@ -166,96 +273,211 @@
 </div>
 
 <div class="about-page">
-  <div class="story-section" style="text-align: left; max-width: 100%;">
-    <h2 style="text-align: center;">Welcome to HTWO Healthcare LLP</h2>
-    <p>
-      Our foundation is built upon the strong principles of <strong>"Research, Service, and Quality."</strong> We firmly believe that a healthy body is the baseline of a prosperous society, which drives our core motto: <strong>"Our Society, Our Responsibility."</strong>
-    </p>
-    <p>
-      HTWO Healthcare operates through two major divisions in the health sector:
-    </p>
-    <ul style="margin: 1.5rem 0; padding-left: 2rem; list-style: disc;">
-      <li><strong>Nutraceutical Division</strong></li>
-      <li><strong>Pharmaceutical Division</strong></li>
+
+  <!-- Welcome -->
+  <div class="about-section-block">
+    <h2 class="about-section-heading">Welcome to HTWO Healthcare LLP</h2>
+    <p>Our foundation is built upon the strong principles of <strong>"Research, Service, and Quality."</strong> We firmly believe that a healthy body is the baseline of a prosperous society, which drives our core motto: <strong>"Our Society, Our Responsibility."</strong></p>
+    <p style="margin-top: 1rem;">HTWO Healthcare operates through two major divisions in the health sector:</p>
+    <ul class="about-list" style="margin-top: 0.75rem;">
+      <li><strong>Nutraceutical</strong></li>
+      <li><strong>Pharmaceutical</strong></li>
     </ul>
   </div>
 
+  <!-- Vision & Mission -->
   <div class="about-grid">
     <div class="about-card">
-      <div class="icon">🎯</div>
+      <div class="about-card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+      </div>
       <h3>Our Vision</h3>
       <p>To become one of the most innovative, top-performing, and trusted companies globally in the healthcare sector. We aim to be a leading manufacturer of chemical-free products, delivering the highest international standards at the most affordable prices.</p>
     </div>
     <div class="about-card">
-      <div class="icon">💼</div>
+      <div class="about-card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
       <h3>Our Mission</h3>
       <p>To build a dynamic, profitable, and progressive company in collaboration with all our stakeholders. Our business philosophy is rooted in maximizing value while respecting human dignity and investing wisely for a healthier future.</p>
     </div>
   </div>
 
-  <div class="story-section" style="text-align: left; max-width: 100%;">
-    <h2 style="text-align: center;">Convergence of Prophetic Medicine & Modern Science</h2>
-    <p>
-      HTWO Healthcare focuses deeply on boosting immunity and providing advanced remedies inspired by <strong>Prophetic Medicine (Tibb-e-Nabawi)</strong>. Our dedicated researchers work meticulously on these traditional formulations. Through extensive R&D, they have made significant breakthroughs in developing products that effectively combat physical weakness, boost children's brain development, support pregnant and lactating mothers, treat iron deficiency, enhance vitality, and manage nerve and joint pains.
-    </p>
-    <p>
-      While Prophetic traditions highlighted the incredible healing benefits of Talbina and other natural foods over 1,400 years ago, today's modern medical science validates every single one of those claims word for word through rigorous research.
-    </p>
+  <!-- Prophetic Medicine -->
+  <div class="about-section-block">
+    <h2 class="about-section-heading">The Convergence of Prophetic Medicine &amp; Modern Science</h2>
+    <p>HTWO Healthcare focuses deeply on boosting immunity and providing advanced remedies inspired by <strong>Prophetic Medicine (Tibb-e-Nabawi)</strong>. Our dedicated researchers work meticulously on these traditional formulations. Through extensive R&amp;D, they have made significant breakthroughs in developing products that effectively combat physical weakness, boost children's brain development, support pregnant and lactating mothers, treat iron deficiency, enhance vitality, and manage nerve and joint pains.</p>
+    <p style="margin-top: 1rem;">While Prophetic traditions highlighted the incredible healing benefits of Talbina and other natural foods over 1,400 years ago, today's modern medical science validates every single one of those claims word for word through rigorous research.</p>
   </div>
 
-  <div class="story-section" style="text-align: left; max-width: 100%;">
-    <h2 style="text-align: center;">Our Extensive Product Range</h2>
+  <!-- Product Range -->
+  <div class="about-section-block">
+    <h2 class="about-section-heading">Our Extensive Product Range</h2>
     <p>We successfully bring 100% natural, Halal, and Prophetic remedy-based premium products into the daily lives of our consumers.</p>
 
-    <h3 style="color: var(--teal-dark); margin-top: 2rem; margin-bottom: 1rem;">1. HTWO Talbina Protein Range</h3>
+    <h3 class="about-subheading">1. HTWO Talbina Protein Range</h3>
     <p>We are proud to be the pioneer company offering the widest variety of targeted Talbina products, including:</p>
-    <ul style="margin: 1rem 0; padding-left: 2rem; list-style: disc;">
+    <ul class="about-list">
       <li><strong>HTWO Talbina Protein DHA</strong> – Specially formulated for children's cognitive growth.</li>
       <li><strong>HTWO Talbina Protein</strong> – Curated for pregnant women and general family wellness.</li>
-      <li><strong>HTWO Talbina Protein & Mass Protein</strong> – Premium, chemical-free nutrition for gym-goers and fitness enthusiasts.</li>
+      <li><strong>HTWO Talbina Protein &amp; Mass Protein</strong> – Premium, chemical-free nutrition for gym-goers and fitness enthusiasts.</li>
       <li><strong>HTWO Talbina for Weight Management</strong> – Separate variants designed for healthy weight gain and weight loss.</li>
     </ul>
 
-    <h3 style="color: var(--teal-dark); margin-top: 2rem; margin-bottom: 1rem;">2. Nutritional & Dietary Essentials</h3>
-    <p>Wheat Dalia, Barley Flour (Jau ka Aata), Oats Flour, Multi-grain Flour, Kheer Mix, Sattu, Hareesa, Pure Honey, and Sharbate Ubaid (Premium Date Syrup—which is a Sunnah, a nourishing food, and a cure).</p>
+    <h3 class="about-subheading">2. Nutritional &amp; Dietary Essentials</h3>
+    <p>Wheat Dalia, Barley Flour (Jau ka Aata), Oats Flour, Multi-grain Flour, Kheer Mix, Sattu, Hareesa, Pure Honey, and Sharbate Ubaid (Premium Date Syrup — which is a Sunnah, a nourishing food, and a cure).</p>
 
-    <h3 style="color: var(--teal-dark); margin-top: 2rem; margin-bottom: 1rem;">3. Skin Care</h3>
+    <h3 class="about-subheading">3. Skin Care</h3>
     <p>Formulated with 100% natural ingredients, including Charcoal Powder, Capsule Face Wash, Aloe Vera Soap, and Premium Skin Cream.</p>
 
-    <h3 style="color: var(--teal-dark); margin-top: 2rem; margin-bottom: 1rem;">4. Hair Care</h3>
+    <h3 class="about-subheading">4. Hair Care</h3>
     <p>Chemical-free premium solutions to control hair fall and combat baldness, including our highly popular Ion Oil, Ion Shampoo, and Ameer Serum.</p>
   </div>
 
-  <div class="story-section" style="text-align: left; max-width: 100%;">
-    <h2 style="text-align: center;">Our Team & Accreditations</h2>
-    <p>
-      We take pride in our multidisciplinary team. Our workforce features highly qualified, government-certified food engineers, experienced pharmacists, and experts in Unani medicine, working hand-in-hand with prominent Islamic scholars and Muftis. This ensures that every single product complies perfectly with both scientific benchmarks and Halal guidelines.
-    </p>
-    <p style="margin-top: 1.5rem;"><strong>International Certifications & Standards:</strong></p>
-    <ul style="margin: 1rem 0; padding-left: 2rem; list-style: disc;">
-      <li><strong>FSSAI</strong> (Food Safety and Standards Authority of India)</li>
-      <li><strong>MSME</strong> (Ministry of Micro, Small & Medium Enterprises, Govt. of India)</li>
+  <!-- Team & Accreditations -->
+  <div class="about-section-block">
+    <h2 class="about-section-heading">Our Team &amp; Accreditations</h2>
+    <p>We take pride in our multidisciplinary team. Our workforce features highly qualified, government-certified food engineers, experienced pharmacists, and experts in Unani medicine, working hand-in-hand with prominent Islamic scholars and Muftis. This ensures that every single product complies perfectly with both scientific benchmarks and Halal guidelines.</p>
+    <p style="margin-top: 1.5rem;">HTWO Healthcare aligns with global operational standards and holds prestigious international certifications:</p>
+    <ul class="about-list cert-list">
+      <li><strong>FSSAI</strong> — Food Safety and Standards Authority of India</li>
+      <li><strong>MSME</strong> — Ministry of Micro, Small &amp; Medium Enterprises, Govt. of India</li>
       <li><strong>HALAL Certified</strong></li>
       <li><strong>ISO Certified</strong> (London)</li>
-      <li><strong>GMP Certified</strong> (Good Manufacturing Practice - London)</li>
+      <li><strong>GMP Certified</strong> — Good Manufacturing Practice, London</li>
     </ul>
   </div>
 
-  <div class="story-section" style="text-align: left; max-width: 100%;">
-    <h2 style="text-align: center;">Our Commitment</h2>
-    <p>
-      The entire team at HTWO Healthcare prioritizes quality above all else. We are devoted to serving both our long-term and new clients with utmost sincerity, warmth, and professional hospitality. Together, through innovation and continuous growth, we can shape a healthier, brighter future for the healthcare industry.
-    </p>
+  <!-- Commitment -->
+  <div class="about-section-block">
+    <h2 class="about-section-heading">Our Commitment</h2>
+    <p>The entire team at HTWO Healthcare prioritizes quality above all else. We are devoted to serving both our long-term and new clients with utmost sincerity, warmth, and professional hospitality. Together, through innovation and continuous growth, we can shape a healthier, brighter future for the healthcare industry.</p>
   </div>
 
-  <div class="story-section" style="text-align: center; max-width: 100%; background: var(--teal-light); border-radius: 16px;">
-    <h3 style="color: var(--teal-dark); margin-bottom: 1.5rem;">Connect With Us</h3>
-    <p><strong>Contact Numbers:</strong></p>
-    <p style="font-size: 1.1rem; margin: 0.5rem 0;">+91 7722020407 | +91 7741030603 | +91 9423030135</p>
-    <p style="margin-top: 1.5rem;"><strong>Corporate Presence:</strong></p>
-    <p>Nagpur (H.O), Malegaon (Maharashtra), and Darjeeling (West Bengal)</p>
+  <!-- Connect CTA -->
+  <div class="about-connect-box">
+    <h3>Connect With Us</h3>
+    <div class="about-connect-grid">
+      <div>
+        <p class="about-connect-label">Contact Numbers</p>
+        <p class="about-connect-value">+91 7722020407 | +91 7741030603 | +91 9423030135</p>
+      </div>
+      <div>
+        <p class="about-connect-label">Corporate Presence</p>
+        <p class="about-connect-value">Nagpur (H.O) &nbsp;·&nbsp; Malegaon, Maharashtra &nbsp;·&nbsp; Darjeeling, West Bengal</p>
+      </div>
+    </div>
   </div>
 
   <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+
+  <!-- ── Language Divider ── -->
+  <div class="lang-divider">
+    <div class="lang-divider-line"></div>
+    <span class="lang-divider-badge">اردو — Urdu Version</span>
+    <div class="lang-divider-line"></div>
+  </div>
+
+  <!-- ══════════════ URDU SECTION ══════════════ -->
+  <div class="urdu-section">
+
+    <!-- خوش آمدید -->
+    <div class="about-section-block">
+      <h2 class="about-section-heading">ہمارے بارے میں</h2>
+      <p><strong>ایچ ٹو ہیلتھ کیئر ایل ایل پی (HTWO Healthcare LLP)</strong> میں آپ کا خیر مقدم ہے۔ ہماری بنیاد <strong>"ریسرچ، خدمت اور معیار"</strong> کے مضبوط اصولوں پر رکھی گئی ہے۔ ہمارا ماننا ہے کہ ایک صحت مند جسم ہی ایک صحت مند معاشرے کی ضامن ہے، اسی لیے ہمارا نعرہ ہے: <strong>"ہمارا معاشرہ، ہماری ذمہ داری"</strong>۔</p>
+      <p style="margin-top: 1rem;">ایچ ٹو ہیلتھ کیئر صحت کے شعبے میں دو بڑے ڈویژنز کے تحت کام کرتی ہے:</p>
+      <ul class="about-list" style="margin-top: 0.75rem;">
+        <li><strong>نیوٹراسیوٹیکل (Nutraceutical)</strong></li>
+        <li><strong>فارماسیوٹیکل (Pharmaceutical)</strong></li>
+      </ul>
+    </div>
+
+    <!-- وژن اور مشن -->
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        </div>
+        <h3>ہمارا وژن</h3>
+        <p>ہیلتھ کیئر کے شعبے میں دنیا کی جدید تخلیقی صلاحیتوں کی حامل، بہترین کارکردگی رکھنے والی اور قابلِ بھروسہ کمپنی بننا۔ ہم اپنے صارفین کو کم سے کم قیمت پر اعلیٰ ترین بین الاقوامی معیار کی کیمیکلز سے پاک مصنوعات فراہم کر کے صحت کا ایک بہترین مینوفیکچرر بننا چاہتے ہیں۔</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>ہمارا مشن</h3>
+        <p>تمام اسٹیک ہولڈرز کے ساتھ مل کر ایک متحرک اور ترقی پسند کمپنی قائم کرنا، جو انسانی وقار کا احترام کرے اور ایک خوشحال و صحت مند مستقبل کے لیے کام کرے۔</p>
+      </div>
+    </div>
+
+    <!-- طب نبوی اور جدید سائنس -->
+    <div class="about-section-block">
+      <h2 class="about-section-heading">طبِ نبویﷺ اور جدید سائنس کا حسین سنگم</h2>
+      <p>ایچ ٹو ہیلتھ کیئر کی خاص توجہ قوتِ مدافعت (Immunity) بڑھانے اور <strong>نبوی نسخوں (طبِ نبویﷺ)</strong> پر وسیع رینج کے لیے نئے علاج اور بہترین غذائیں فراہم کرنے پر مرکوز ہے۔ ہمارے ماہر ریسرچرز نے جدید سائنسی اصولوں اور طبِ نبویﷺ کی روشنی میں خاص طور پر کمزور لوگوں، بچوں کے دماغ کو تیز کرنے، حاملہ خواتین، دودھ پلانے والی ماؤں، اعصابی و جوڑوں کے درد اور جسم میں خون کی کمی کو دور کرنے کے لیے اہم اور مؤثر مصنوعات تیار کی ہیں۔</p>
+      <p style="margin-top: 1rem;">چودہ سو سال پہلے رسول پاک ﷺ نے تلبینہ اور دیگر غذاؤں کے جو فوائد بتائے تھے، آج کی جدید میڈیکل سائنس تحقیق کے بعد حرف بہ حرف ان کی تصدیق کر رہی ہے۔</p>
+    </div>
+
+    <!-- مصنوعات کی رینج -->
+    <div class="about-section-block">
+      <h2 class="about-section-heading">ہماری مصنوعات کی وسیع رینج</h2>
+      <p>ہم مارکیٹ میں 100% قدرتی اجزاء سے تیار کردہ حلال و نبوی نسخوں پر مبنی پروڈکٹس پیش کرتے ہیں۔</p>
+
+      <h3 class="about-subheading">۱. ایچ ٹو تلبینہ پروٹین کی وسیع رینج</h3>
+      <p>ہم تلبینہ میں سب سے زیادہ اقسام پیش کرنے والی واحد کمپنی ہیں:</p>
+      <ul class="about-list">
+        <li>بچوں کے لیے (DHA کے ساتھ) — دماغی نشوونما کے لیے خصوصی فارمولا</li>
+        <li>حاملہ خواتین اور پورے خاندان کے لیے</li>
+        <li>جم (Gym) اور فٹنس کے شوقین افراد کے لیے — کیمیکل سے پاک ماس پروٹین</li>
+        <li>وزن بڑھانے اور کم کرنے کے لیے تلبینہ — الگ الگ ویری اینٹس</li>
+      </ul>
+
+      <h3 class="about-subheading">۲. طبی و غذائی اشیاء</h3>
+      <p>گندم کا دلیہ، جو کا آٹا، ملٹی گرین آٹا، کھیر میکس، ستو، ہریسہ، خالص شہد اور شربتِ عبید (کھجور کا شربت — جو سنت بھی ہے، غذا بھی اور شفاء بھی)۔</p>
+
+      <h3 class="about-subheading">۳. اسکن کیئر (Skin Care)</h3>
+      <p>100% قدرتی اجزاء سے تیار کردہ: چارکول پاؤڈر، کپسول فیس واش، ایلوویرا صابن اور اسکن کریم۔</p>
+
+      <h3 class="about-subheading">۴. ہیئر کیئر (Hair Care)</h3>
+      <p>بالوں کی حفاظت، گرتے بالوں اور گنج پن سے نجات کے لیے کیمیکلز سے پاک: <strong>آئیون آئل</strong>، <strong>آئیون شیمپو</strong> اور <strong>امیر سیرم</strong>۔</p>
+    </div>
+
+    <!-- ٹیم اور سرٹیفیکیشنز -->
+    <div class="about-section-block">
+      <h2 class="about-section-heading">ہماری ٹیم اور سرٹیفیکیشنز</h2>
+      <p>ہمیں فخر ہے کہ ہماری ٹیم میں اعلیٰ تعلیم یافتہ، گورنمنٹ سے سند یافتہ فوڈ انجینئرز، فارماسسٹس اور یونانی ادویات کے ماہرین کے ساتھ ساتھ جید علمائے دین اور مفتیانِ کرام بھی شامل ہیں، جو اس بات کو یقینی بناتے ہیں کہ ہر پروڈکٹ مکمل طور پر حلال اور شریعت و طب کے اصولوں کے مطابق ہو۔</p>
+      <p style="margin-top: 1.5rem;">ایچ ٹو ہیلتھ کیئر انٹرنیشنل معیار پر پورا اترتی ہے اور درج ذیل اداروں سے سند یافتہ ہے:</p>
+      <ul class="about-list cert-list">
+        <li><strong>FSSAI</strong> — فوڈ سیفٹی لائسنس، بھارت</li>
+        <li><strong>MSME</strong> — وزارتِ صنعت، حکومتِ ہند</li>
+        <li><strong>HALAL Certified</strong> — حلال سرٹیفائیڈ</li>
+        <li><strong>ISO Certified</strong> — لندن</li>
+        <li><strong>GMP Certified</strong> — گڈ مینوفیکچرنگ پریکٹس، لندن</li>
+      </ul>
+    </div>
+
+    <!-- ہمارا عزم -->
+    <div class="about-section-block">
+      <h2 class="about-section-heading">ہمارا عزم</h2>
+      <p>کمپنی کا تمام عملہ ہمیشہ <strong>معیار (Quality)</strong> کو ترجیح دیتا ہے۔ ہم اپنے نئے اور پرانے تمام صارفین کو مخلصانہ، خوش اسلوبی اور بہترین سروس مہیا کرنے کے لیے ہمہ وقت تیار ہیں۔ آئیے ہم سب ساتھ مل کر ایک صحت مند معاشرے کی تشکیل کریں۔</p>
+    </div>
+
+    <!-- رابطہ -->
+    <div class="about-connect-box">
+      <h3>ہم سے رابطہ کریں</h3>
+      <div class="about-connect-grid">
+        <div>
+          <p class="about-connect-label">فون نمبرز</p>
+          <p class="about-connect-value">‎+91 7722020407 | +91 7741030603 | +91 9423030135</p>
+        </div>
+        <div>
+          <p class="about-connect-label">دفاتر</p>
+          <p class="about-connect-value">ناگپور (مرکزی دفتر) &nbsp;·&nbsp; مالیگاؤں (مہاراشٹرا) &nbsp;·&nbsp; دارجلنگ (مغربی بنگال)</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ══════════════ END URDU ══════════════ -->
+
 </div>
 {% endblock %}
