@@ -61,7 +61,7 @@ def login_as_admin():
     pw = bcrypt.hashpw("TestPass123!".encode(), bcrypt.gensalt()).decode()
     uid = str(uuid.uuid4())
     db_module.execute(
-        "INSERT OR IGNORE INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?)",
+        "INSERT INTO users (id, first_name, last_name, email, password_hash, role) VALUES (?,?,?,?,?,?) ON CONFLICT (email) DO NOTHING",
         [uid, "Admin", "User", "admin@talbeena.com", pw, "admin"]
     )
     user = db_module.query_one("SELECT * FROM users WHERE email=?", ["admin@talbeena.com"])

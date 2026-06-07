@@ -142,7 +142,7 @@ def account():
             try:
                 is_default = request.form.get("is_default") == "on"
                 if is_default:
-                    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
+                    db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
                 db.execute(
                     """INSERT INTO user_addresses
                        (id, user_id, label, first_name, last_name, phone,
@@ -204,8 +204,8 @@ def account_address_default(addr_id):
     if "user" not in session:
         return redirect(url_for("auth.login"))
     uid = session["user"]["id"]
-    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
-    db.execute("UPDATE user_addresses SET is_default=TRUE WHERE id=? AND user_id=?", [addr_id, uid])
+    db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
+    db.execute("UPDATE user_addresses SET is_default=1 WHERE id=? AND user_id=?", [addr_id, uid])
     flash("Default address updated.", "success")
     return redirect(url_for("auth.account"))
 
