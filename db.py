@@ -80,7 +80,9 @@ def query(sql, params=None):
     try:
         cur = conn.cursor()
         cur.execute(_pg(sql), params or ())
-        return _as_dict(cur)
+        result = _as_dict(cur)
+        cur.close()
+        return result
     finally:
         _release(conn)
 
@@ -91,6 +93,7 @@ def query_one(sql, params=None):
         cur = conn.cursor()
         cur.execute(_pg(sql), params or ())
         rows = _as_dict(cur)
+        cur.close()
         return rows[0] if rows else None
     finally:
         _release(conn)
@@ -102,7 +105,9 @@ def execute(sql, params=None):
         cur = conn.cursor()
         cur.execute(_pg(sql), params or ())
         conn.commit()
-        return cur.rowcount
+        rowcount = cur.rowcount
+        cur.close()
+        return rowcount
     except Exception:
         conn.rollback()
         raise
@@ -116,6 +121,7 @@ def execute_returning(sql, params=None):
         cur = conn.cursor()
         cur.execute(_pg(sql), params or ())
         rows = _as_dict(cur)
+        cur.close()
         conn.commit()
         return rows[0] if rows else None
     except Exception:
