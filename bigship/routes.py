@@ -134,9 +134,9 @@ def create_shipment_in_bigship(order):
 
         if result.get("success"):
             bigship_order_id = result.get("order_id")
-
-            # Save to database
             shipment_id = str(uuid.uuid4())
+
+            # Save to database as draft first
             db.execute(
                 """INSERT INTO bigship_shipments
                    (id, order_id, bigship_order_id, status)
@@ -144,11 +144,62 @@ def create_shipment_in_bigship(order):
                 [shipment_id, order["id"], bigship_order_id, "draft"]
             )
 
-            return {
-                "success": True,
-                "bigship_order_id": bigship_order_id,
-                "shipment_id": shipment_id
-            }
+            # Automatically get courier rates and book the shipment
+            rates_result = client.get_courier_rates(bigship_order_id)
+
+            if rates_result.get("success"):
+                couriers = rates_result.get("couriers", [])
+
+                if couriers:
+                    # Select the best courier (cheapest rate)
+                    best_courier = min(couriers, key=lambda c: float(c.get("rate", float('inf'))))
+                    courier_id = best_courier.get("courier_id")
+
+                    # Place the order with selected courier
+                    place_result = client.place_order(bigship_order_id, courier_id)
+
+                    if place_result.get("success"):
+                        awb_number = place_result.get("awb_number")
+
+                        # Update shipment with AWB and confirmed status
+                        db.execute(
+                            """UPDATE bigship_shipments
+                               SET status = ?, awb_number = ?, updated_at = ?
+                               WHERE id = ?""",
+                            ["confirmed", awb_number, datetime.now().isoformat(), shipment_id]
+                        )
+
+                        return {
+                            "success": True,
+                            "bigship_order_id": bigship_order_id,
+                            "shipment_id": shipment_id,
+                            "awb_number": awb_number,
+                            "status": "confirmed"
+                        }
+                    else:
+                        # Booking failed, keep as draft
+                        return {
+                            "success": False,
+                            "error": f"Failed to book shipment: {place_result.get('error')}",
+                            "bigship_order_id": bigship_order_id,
+                            "shipment_id": shipment_id
+                        }
+                else:
+                    # No couriers available
+                    return {
+                        "success": False,
+                        "error": "No courier options available for this shipment",
+                        "bigship_order_id": bigship_order_id,
+                        "shipment_id": shipment_id
+                    }
+            else:
+                # Could not get courier rates, keep as draft
+                return {
+                    "success": False,
+                    "error": f"Failed to get courier rates: {rates_result.get('error')}",
+                    "bigship_order_id": bigship_order_id,
+                    "shipment_id": shipment_id
+                }
         else:
             return {"success": False, "error": result.get("error")}
 
