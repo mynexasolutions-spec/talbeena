@@ -202,6 +202,129 @@
     .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
     .contact-form { padding: 2rem; }
   }
+
+  /* ── FOLLOW US SECTION ── */
+  .follow-us-section {
+    padding: 90px 5%;
+    background: var(--cream);
+  }
+
+  .follow-us-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .follow-us-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .follow-us-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: var(--teal-dark);
+  }
+
+  .follow-us-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .follow-card {
+    padding: 3rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .follow-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .follow-card.instagram {
+    background: linear-gradient(135deg, #c11b8e 0%, #ff006b 25%, #ff6b35 100%);
+  }
+
+  .follow-card.facebook {
+    background: linear-gradient(135deg, #1f5fb8 0%, #0a66c2 100%);
+  }
+
+  .follow-card-icon {
+    font-size: 3.5rem;
+    flex-shrink: 0;
+  }
+
+  .follow-card-content {
+    flex: 1;
+  }
+
+  .follow-card-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.9;
+    margin-bottom: 0.3rem;
+  }
+
+  .follow-card-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .follow-card-desc {
+    font-size: 0.95rem;
+    opacity: 0.95;
+    line-height: 1.5;
+  }
+
+  .follow-card-arrow {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    opacity: 0.8;
+    transition: transform 0.3s;
+  }
+
+  .follow-card:hover .follow-card-arrow {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 768px) {
+    .follow-us-section {
+      padding: 60px 5%;
+    }
+
+    .follow-us-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .follow-card {
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+    .follow-card-icon {
+      font-size: 2.5rem;
+    }
+
+    .follow-card-name {
+      font-size: 1.2rem;
+    }
+
+    .follow-card-desc {
+      font-size: 0.9rem;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -299,4 +422,46 @@
     </div>
   </div>
 </div>
+
+<!-- Follow Us Section -->
+<section class="follow-us-section">
+  <div class="follow-us-container">
+    <div class="follow-us-header">
+      <h2>Follow Us</h2>
+    </div>
+
+    <div class="follow-us-grid">
+      <a href="https://www.instagram.com/h2talbeena/" target="_blank" class="follow-card instagram">
+        <div class="follow-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="follow-card-content">
+          <div class="follow-card-label">Instagram</div>
+          <div class="follow-card-name">@h2talbeena</div>
+          <div class="follow-card-desc">Follow for daily wellness tips, product updates & offers</div>
+        </div>
+        <div class="follow-card-arrow">→</div>
+      </a>
+
+      <a href="https://www.facebook.com/H2.HEALTH.H2" target="_blank" class="follow-card facebook">
+        <div class="follow-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="follow-card-content">
+          <div class="follow-card-label">Facebook</div>
+          <div class="follow-card-name">H2 Health</div>
+          <div class="follow-card-desc">Like our page for updates, reviews & community</div>
+        </div>
+        <div class="follow-card-arrow">→</div>
+      </a>
+    </div>
+  </div>
+</section>
+
 {% endblock %}
