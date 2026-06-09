@@ -13,6 +13,8 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/favicons/apple-touch-icon.png') }}" />
   <link rel="manifest" href="{{ url_for('static', filename='images/favicons/site.webmanifest') }}" />
 
+  <!-- Preload auth.css for faster initial rendering -->
+  <link rel="preload" href="{{ url_for('static', filename='css/auth.css') }}" as="style">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
   <script src="{{ url_for('static', filename='js/turbo.min.js') }}" defer></script>
   <script defer>
