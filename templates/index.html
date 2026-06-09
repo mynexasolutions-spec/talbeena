@@ -2325,18 +2325,20 @@
 
   /* ── VIDEO CAROUSEL ── */
   .video-carousel-section {
-    padding: 4rem 5%;
+    padding: 90px 5%;
     background: var(--warm-white);
   }
 
   .video-carousel-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
   }
 
   .video-carousel-header {
     text-align: center;
     margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .video-carousel-header .section-title {
@@ -2346,8 +2348,6 @@
   .video-carousel-wrapper {
     position: relative;
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
     aspect-ratio: 16 / 9;
   }
 
@@ -2477,12 +2477,7 @@
   /* Mobile Responsive */
   @media (max-width: 768px) {
     .video-carousel-section {
-      padding: 3rem 5%;
-    }
-
-    .video-carousel-wrapper {
-      max-width: 100%;
-      margin: 0 auto;
+      padding: 60px 4%;
     }
 
     .carousel-arrow {
@@ -2500,7 +2495,11 @@
 
   @media (max-width: 480px) {
     .video-carousel-section {
-      padding: 2rem 4%;
+      padding: 40px 4%;
+    }
+
+    .video-carousel-header {
+      margin-bottom: 2rem;
     }
 
     .video-carousel-header .section-title {
