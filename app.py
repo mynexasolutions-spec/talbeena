@@ -116,6 +116,14 @@ def create_app():
     def server_error(e):
         return render_template("errors/500.html"), 500
 
+    @app.teardown_appcontext
+    def close_db_connection(exception):
+        """Close database connection pool on app shutdown."""
+        try:
+            db.close_pool()
+        except Exception:
+            pass
+
     return app
 
 

@@ -558,3 +558,14 @@ def migrate():
         except Exception as e:
             # Ignore errors gracefully (duplicate columns, etc.)
             pass
+
+
+def close_pool():
+    """Close the connection pool to prevent threading shutdown exceptions."""
+    global _pool
+    if _pool is not None:
+        try:
+            _pool.closeall()
+            _pool = None
+        except Exception:
+            pass
