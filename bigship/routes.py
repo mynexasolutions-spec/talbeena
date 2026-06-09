@@ -130,11 +130,13 @@ def create_shipment_in_bigship(order):
 
         # Create order in Bigship
         client = get_bigship_client()
+        print(f"[Bigship] Creating order for order_id={order['id']}")
         result = client.create_order(bigship_order_data)
 
         if result.get("success"):
             bigship_order_id = result.get("order_id")
             shipment_id = str(uuid.uuid4())
+            print(f"[Bigship] Draft order created: bigship_order_id={bigship_order_id}")
 
             # Save to database as draft first
             db.execute(
@@ -145,21 +147,25 @@ def create_shipment_in_bigship(order):
             )
 
             # Automatically get courier rates and book the shipment
+            print(f"[Bigship] Fetching courier rates for bigship_order_id={bigship_order_id}")
             rates_result = client.get_courier_rates(bigship_order_id)
 
             if rates_result.get("success"):
                 couriers = rates_result.get("couriers", [])
+                print(f"[Bigship] Found {len(couriers)} courier options")
 
                 if couriers:
                     # Select the best courier (cheapest rate)
                     best_courier = min(couriers, key=lambda c: float(c.get("rate", float('inf'))))
                     courier_id = best_courier.get("courier_id")
+                    print(f"[Bigship] Selected courier: {courier_id} (rate: {best_courier.get('rate')})")
 
                     # Place the order with selected courier
                     place_result = client.place_order(bigship_order_id, courier_id)
 
                     if place_result.get("success"):
                         awb_number = place_result.get("awb_number")
+                        print(f"[Bigship] Order booked successfully. AWB: {awb_number}")
 
                         # Update shipment with AWB and confirmed status
                         db.execute(
@@ -177,31 +183,36 @@ def create_shipment_in_bigship(order):
                             "status": "confirmed"
                         }
                     else:
-                        # Booking failed, keep as draft
+                        error_msg = f"Failed to book shipment: {place_result.get('error')}"
+                        print(f"[Bigship] {error_msg}")
                         return {
                             "success": False,
-                            "error": f"Failed to book shipment: {place_result.get('error')}",
+                            "error": error_msg,
                             "bigship_order_id": bigship_order_id,
                             "shipment_id": shipment_id
                         }
                 else:
-                    # No couriers available
+                    error_msg = "No courier options available for this shipment"
+                    print(f"[Bigship] {error_msg}")
                     return {
                         "success": False,
-                        "error": "No courier options available for this shipment",
+                        "error": error_msg,
                         "bigship_order_id": bigship_order_id,
                         "shipment_id": shipment_id
                     }
             else:
-                # Could not get courier rates, keep as draft
+                error_msg = f"Failed to get courier rates: {rates_result.get('error')}"
+                print(f"[Bigship] {error_msg}")
                 return {
                     "success": False,
-                    "error": f"Failed to get courier rates: {rates_result.get('error')}",
+                    "error": error_msg,
                     "bigship_order_id": bigship_order_id,
                     "shipment_id": shipment_id
                 }
         else:
-            return {"success": False, "error": result.get("error")}
+            error_msg = result.get("error")
+            print(f"[Bigship] Failed to create draft order: {error_msg}")
+            return {"success": False, "error": error_msg}
 
     except Exception as e:
         return {"success": False, "error": str(e)}

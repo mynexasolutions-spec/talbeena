@@ -74,11 +74,14 @@ class BigshipClient:
             result = resp.json()
 
             if result.get("success"):
+                print(f"[Bigship API] create_order success: order_id={result.get('order_id')}")
                 return {"success": True, "order_id": result.get("order_id")}
             else:
                 error = result.get("error", "Unknown error")
+                print(f"[Bigship API] create_order failed: {error}")
                 return {"success": False, "error": error}
         except Exception as e:
+            print(f"[Bigship API] create_order exception: {e}")
             return {"success": False, "error": str(e)}
 
     def get_courier_rates(self, order_id):
@@ -100,10 +103,15 @@ class BigshipClient:
             result = resp.json()
 
             if result.get("success"):
-                return {"success": True, "couriers": result.get("couriers", [])}
+                couriers = result.get("couriers", [])
+                print(f"[Bigship API] get_courier_rates success: {len(couriers)} couriers found")
+                return {"success": True, "couriers": couriers}
             else:
-                return {"success": False, "error": result.get("error")}
+                error = result.get("error", "Unknown error")
+                print(f"[Bigship API] get_courier_rates failed: {error}")
+                return {"success": False, "error": error}
         except Exception as e:
+            print(f"[Bigship API] get_courier_rates exception: {e}")
             return {"success": False, "error": str(e)}
 
     def place_order(self, order_id, courier_id, risk_type_id=2, invoice_file=None):
@@ -143,14 +151,19 @@ class BigshipClient:
             result = resp.json()
 
             if result.get("success"):
+                awb = result.get("awb_number")
+                print(f"[Bigship API] place_order success: awb_number={awb}")
                 return {
                     "success": True,
                     "reference_number": result.get("reference_number"),
-                    "awb_number": result.get("awb_number")
+                    "awb_number": awb
                 }
             else:
-                return {"success": False, "error": result.get("error")}
+                error = result.get("error", "Unknown error")
+                print(f"[Bigship API] place_order failed: {error}")
+                return {"success": False, "error": error}
         except Exception as e:
+            print(f"[Bigship API] place_order exception: {e}")
             return {"success": False, "error": str(e)}
 
     def track_order(self, order_id):
