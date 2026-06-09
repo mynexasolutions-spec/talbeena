@@ -336,7 +336,7 @@ def checkout():
                 try:
                     is_default = len(addresses) == 0
                     if is_default:
-                        db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
+                        db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
                     db.execute(
                         """INSERT INTO user_addresses
                            (id, user_id, label, first_name, last_name, phone,
@@ -393,7 +393,7 @@ def order_success(order_id):
             """SELECT oi.*, p.name AS product_name, m.file_url AS image_url
                FROM order_items oi
                LEFT JOIN products p ON p.id = oi.product_id
-               LEFT JOIN product_images pi ON pi.product_id = oi.product_id AND pi.is_primary=TRUE
+               LEFT JOIN product_images pi ON pi.product_id = oi.product_id AND pi.is_primary=1
                LEFT JOIN media m ON m.id = pi.media_id
                WHERE oi.order_id=?""",
             [order_id],
@@ -500,7 +500,7 @@ def submit_review(product_id):
             flash("You have already submitted a review for this product.", "info")
             return redirect(url_for("public.product_detail", product_id=product_id))
         db.execute(
-            "INSERT INTO product_reviews (product_id, user_id, rating, comment, is_approved) VALUES (?,?,?,?,TRUE)",
+            "INSERT INTO product_reviews (product_id, user_id, rating, comment, is_approved) VALUES (?,?,?,?,1)",
             [product_id, uid, rating, comment],
         )
         flash("Thank you! Your review has been submitted.", "success")

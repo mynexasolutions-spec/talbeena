@@ -183,15 +183,14 @@ def register(app):
             recent_products = []
 
         try:
-            # SQLite-compatible: strftime instead of TO_CHAR / INTERVAL
             chart_rows = db.query("""
-                SELECT strftime('%d %b', created_at) AS day,
+                SELECT TO_CHAR(created_at, 'DD Mon') AS day,
                        SUM(total_amount) AS amount
                 FROM orders
-                WHERE created_at >= date('now', '-7 days')
+                WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
                   AND status != 'cancelled'
-                GROUP BY strftime('%Y-%m-%d', created_at)
-                ORDER BY strftime('%Y-%m-%d', created_at)
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+                ORDER BY TO_CHAR(created_at, 'YYYY-MM-DD')
             """)
             chart_data = {
                 "labels": [r["day"] for r in chart_rows],
@@ -287,7 +286,7 @@ def register(app):
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)", [str(uuid.uuid4()), product_id, mid])
                     print(f"DEBUG [{_t.time()-t0:.2f}s]: Primary image done.")
 
                 # Handle Gallery Images
@@ -299,7 +298,7 @@ def register(app):
                             url = handle_upload(gfile)
                             mid = str(uuid.uuid4())
                             db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,FALSE,?)", [str(uuid.uuid4()), product_id, mid, i+1])
+                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,0,?)", [str(uuid.uuid4()), product_id, mid, i+1])
                     print(f"DEBUG [{_t.time()-t0:.2f}s]: Gallery images done.")
 
                 # Batch-insert attribute associations (1 query instead of N)
@@ -378,8 +377,8 @@ def register(app):
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                    db.execute("DELETE FROM product_images WHERE product_id=? AND is_primary=TRUE", [product_id])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("DELETE FROM product_images WHERE product_id=? AND is_primary=1", [product_id])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle New Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
@@ -388,7 +387,7 @@ def register(app):
                         url = handle_upload(gfile)
                         mid = str(uuid.uuid4())
                         db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,FALSE)", [str(uuid.uuid4()), product_id, mid])
+                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle Deletions
                 for key in request.form:
@@ -1203,7 +1202,7 @@ def register(app):
                         result = db.execute_returning(
                             """INSERT INTO products (id, name, slug, sku, price, sale_price,
                                stock_quantity, stock_status, description, short_description, is_active)
-                               VALUES (?,?,?,?,?,?,?,?,?,?,TRUE) RETURNING id""",
+                               VALUES (?,?,?,?,?,?,?,?,?,?,1) RETURNING id""",
                             [str(uuid.uuid4()), name, slug, sku, price, sale, stock,
                              "in_stock" if stock > 0 else "out_of_stock", desc, short]
                         )
@@ -1211,7 +1210,7 @@ def register(app):
                             mid = str(uuid.uuid4())
                             db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, img])
                             db.execute(
-                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,TRUE)",
+                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,1)",
                                 [str(uuid.uuid4()), result["id"], mid]
                             )
                         imported += 1
