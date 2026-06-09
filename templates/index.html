@@ -1378,8 +1378,8 @@
   .ingredient-card {
     flex: 0 0 calc(100% / 7 - 1rem);
     border: 1px solid #f0e6d2;
-    border-radius: 20px;
-    padding: 1.1rem 1rem 1.4rem;
+    border-radius: 16px;
+    padding: 0.35rem 0.35rem 0.6rem;
     text-align: center;
     background: #fff;
     transition: transform 0.3s, box-shadow 0.3s;
@@ -1387,7 +1387,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 1rem;
+    gap: 0.45rem;
   }
 
   .ingredient-card:hover {
@@ -1400,7 +1400,7 @@
     background: #f5ede0;
     width: 100%;
     aspect-ratio: 1 / 1;
-    border-radius: 50% 50% 16px 16px / 38% 38% 16px 16px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
   }
@@ -1474,9 +1474,9 @@
 
     .ingredient-card {
       flex: 0 0 calc(33.333% - 1rem);
-      padding: 1rem 0.8rem 1.2rem;
-      gap: 0.8rem;
-      border-radius: 16px;
+      padding: 0.3rem 0.3rem 0.5rem;
+      gap: 0.35rem;
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1484,9 +1484,10 @@
     }
 
     .ingredient-img-wrapper {
-      width: 80px;
-      height: 80px;
-      border-radius: 12px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      height: auto;
+      border-radius: 10px;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -1501,7 +1502,7 @@
     }
 
     .ingredient-card h4 {
-      font-size: 1rem;
+      font-size: 0.85rem;
       line-height: 1.2;
       text-align: center;
     }
@@ -1511,11 +1512,12 @@
     .ingredients-right { gap: 0.6rem; }
     .ingredient-card {
       flex: 0 0 calc(33.333% - 0.6rem);
-      padding: 0.6rem 0.4rem 0.8rem;
+      padding: 0.25rem 0.25rem 0.45rem;
     }
     .ingredient-img-wrapper {
-      width: 60px;
-      height: 60px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      height: auto;
     }
   }
 

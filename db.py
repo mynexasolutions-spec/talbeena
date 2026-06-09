@@ -509,6 +509,46 @@ _MIGRATIONS = [
         is_used INTEGER DEFAULT 0
     )""",
     "CREATE INDEX IF NOT EXISTS idx_password_reset_user_id ON password_reset_otps(user_id)",
+
+    # 11. Bigship Shipment Tracking
+    """CREATE TABLE IF NOT EXISTS bigship_shipments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id UUID NOT NULL REFERENCES orders(id),
+        bigship_order_id TEXT UNIQUE,
+        awb_number TEXT,
+        reference_number TEXT,
+        courier_id INTEGER,
+        courier_name TEXT,
+        status TEXT DEFAULT 'draft',
+        tracking_url TEXT,
+        estimated_delivery TEXT,
+        current_location TEXT,
+        last_update TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_bigship_shipments_order_id ON bigship_shipments(order_id)",
+    "CREATE INDEX IF NOT EXISTS idx_bigship_shipments_status ON bigship_shipments(status)",
+    "CREATE INDEX IF NOT EXISTS idx_bigship_shipments_awb ON bigship_shipments(awb_number)",
+
+    # 12. Bigship Settings
+    """CREATE TABLE IF NOT EXISTS bigship_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    # 13. Insert default Bigship settings
+    """INSERT INTO bigship_settings (key, value) VALUES
+         ('pickup_address', '209, Apna Super Market, Near New Bus Stand, Old Agra Road, Malegaon, Nashik, Maharashtra, India, 423203'),
+         ('return_address', '209, Apna Super Market, Near New Bus Stand, Old Agra Road, Malegaon, Nashik, Maharashtra, India, 423203'),
+         ('pickup_contact_name', 'Mohammed Arif'),
+         ('pickup_phone', '9665354207'),
+         ('box_length', '20'),
+         ('box_width', '15'),
+         ('box_height', '10'),
+         ('default_weight', '1')
+         ON CONFLICT (key) DO NOTHING""",
 ]
 
 def migrate():

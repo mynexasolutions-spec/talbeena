@@ -95,12 +95,14 @@ def create_app():
     from routes.cart     import bp as cart_bp
     from routes.checkout import bp as checkout_bp
     from routes.blog     import bp as blog_bp
+    from bigship.routes  import bigship_bp
 
     app.register_blueprint(public_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(checkout_bp)
     app.register_blueprint(blog_bp)
+    app.register_blueprint(bigship_bp)
 
     # Admin routes (plain endpoint names — no blueprint prefix needed)
     from routes.admin import register as reg_admin
