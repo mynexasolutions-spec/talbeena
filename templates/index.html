@@ -2322,6 +2322,191 @@
   .fade-in-d5 {
     transition-delay: 0.5s;
   }
+
+  /* ── VIDEO CAROUSEL ── */
+  .video-carousel-section {
+    padding: 4rem 5%;
+    background: var(--warm-white);
+  }
+
+  .video-carousel-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .video-carousel-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .video-carousel-header .section-title {
+    margin-bottom: 0.8rem;
+  }
+
+  .video-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    aspect-ratio: 9 / 16;
+  }
+
+  .video-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .video-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-item.active {
+    opacity: 1;
+    z-index: 10;
+  }
+
+  .carousel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .video-controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    z-index: 20;
+  }
+
+  .video-btn-unmute {
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .video-btn-unmute:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.08);
+  }
+
+  .video-btn-unmute.muted {
+    background: rgba(200, 146, 42, 0.8);
+  }
+
+  /* Desktop: Arrow Navigation */
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .carousel-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .carousel-arrow-prev {
+    left: -70px;
+  }
+
+  .carousel-arrow-next {
+    right: -70px;
+  }
+
+  /* Dots Indicator */
+  .carousel-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .dot.active {
+    background: #fff;
+    transform: scale(1.25);
+  }
+
+  .dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .video-carousel-section {
+      padding: 3rem 5%;
+    }
+
+    .video-carousel-wrapper {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .carousel-arrow {
+      display: none;
+    }
+
+    .carousel-arrow-prev {
+      left: 0;
+    }
+
+    .carousel-arrow-next {
+      right: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .video-carousel-section {
+      padding: 2rem 4%;
+    }
+
+    .video-carousel-header .section-title {
+      font-size: 1.8rem;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -2448,6 +2633,94 @@
         <div class="benefit-icon-new">🕊️</div>
         <h3>Brings Calm & Comfort</h3>
         <p>Traditionally associated with emotional ease and mental comfort.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Video Carousel Section -->
+<section class="video-carousel-section fade-in">
+  <div class="video-carousel-container">
+    <div class="video-carousel-header">
+      <div class="section-label">See Talbeena In Action</div>
+      <h2 class="section-title">Discover Our Stories</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="video-carousel-wrapper">
+      <div class="video-carousel">
+        <div class="video-item active">
+          <video class="carousel-video" muted playsinline>
+            <source src="https://res.cloudinary.com/dma2bij7s/video/upload/v1781015325/video_1_xlif0q.mp4" type="video/mp4">
+          </video>
+          <div class="video-controls">
+            <button class="video-btn-unmute" title="Unmute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a7 7 0 0 1 0 9.9M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-item">
+          <video class="carousel-video" muted playsinline>
+            <source src="https://res.cloudinary.com/dma2bij7s/video/upload/v1781015325/video_2_joysfg.mp4" type="video/mp4">
+          </video>
+          <div class="video-controls">
+            <button class="video-btn-unmute" title="Unmute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a7 7 0 0 1 0 9.9M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-item">
+          <video class="carousel-video" muted playsinline>
+            <source src="https://res.cloudinary.com/dma2bij7s/video/upload/v1781015325/video_4_eb6kqt.mp4" type="video/mp4">
+          </video>
+          <div class="video-controls">
+            <button class="video-btn-unmute" title="Unmute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a7 7 0 0 1 0 9.9M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-item">
+          <video class="carousel-video" muted playsinline>
+            <source src="https://res.cloudinary.com/dma2bij7s/video/upload/v1781015324/video_3_fo77ep.mp4" type="video/mp4">
+          </video>
+          <div class="video-controls">
+            <button class="video-btn-unmute" title="Unmute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a7 7 0 0 1 0 9.9M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Arrows -->
+      <button class="carousel-arrow carousel-arrow-prev" aria-label="Previous video">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="carousel-arrow carousel-arrow-next" aria-label="Next video">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      <!-- Dots Indicator -->
+      <div class="carousel-dots">
+        <button class="dot active" data-index="0"></button>
+        <button class="dot" data-index="1"></button>
+        <button class="dot" data-index="2"></button>
+        <button class="dot" data-index="3"></button>
       </div>
     </div>
   </div>
@@ -2955,6 +3228,114 @@
       document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
     } else {
       document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+    }
+
+    // ── Video Carousel ──
+    const carousel = document.querySelector('.video-carousel');
+    const items = document.querySelectorAll('.video-item');
+    const videos = document.querySelectorAll('.carousel-video');
+    const dots = document.querySelectorAll('.carousel-dots .dot');
+    const prevBtn = document.querySelector('.carousel-arrow-prev');
+    const nextBtn = document.querySelector('.carousel-arrow-next');
+
+    if (carousel && items.length > 0) {
+      let currentIndex = 0;
+      let autoplayTimer = null;
+
+      function showSlide(index) {
+        items.forEach((item, i) => {
+          item.classList.toggle('active', i === index);
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+        currentIndex = index;
+
+        // Pause all videos and play current one
+        videos.forEach((video, i) => {
+          if (i === index) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+
+        resetAutoplay();
+      }
+
+      function nextSlide() {
+        showSlide((currentIndex + 1) % items.length);
+      }
+
+      function prevSlide() {
+        showSlide((currentIndex - 1 + items.length) % items.length);
+      }
+
+      function resetAutoplay() {
+        clearTimeout(autoplayTimer);
+        const currentVideo = videos[currentIndex];
+        if (currentVideo && !currentVideo.muted) {
+          return; // Don't auto-advance if audio is on
+        }
+
+        // Auto-play next slide when video ends
+        currentVideo.onended = () => {
+          nextSlide();
+        };
+
+        // Fallback timer (120 seconds per video)
+        autoplayTimer = setTimeout(nextSlide, 120000);
+      }
+
+      // Arrow button listeners
+      if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+      // Dot navigation
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => showSlide(index));
+      });
+
+      // Unmute button functionality
+      const unmuteButtons = document.querySelectorAll('.video-btn-unmute');
+      unmuteButtons.forEach((btn, index) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const video = videos[index];
+          video.muted = !video.muted;
+          btn.classList.toggle('muted', !video.muted);
+
+          if (!video.muted) {
+            clearTimeout(autoplayTimer);
+          } else {
+            resetAutoplay();
+          }
+        });
+      });
+
+      // Touch/Swipe support for mobile
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      carousel.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        if (touchStartX - touchEndX > 50) {
+          nextSlide();
+        } else if (touchEndX - touchStartX > 50) {
+          prevSlide();
+        }
+      }
+
+      // Initialize first slide
+      showSlide(0);
     }
   })();
 </script>
