@@ -267,3 +267,16 @@ def register_jinja(app):
         return s[:10] if len(s) >= 10 else s
 
     app.jinja_env.filters["date_short"] = _format_date
+
+    # ── JSON parsing filter ──
+    import json
+    def _fromjson(value):
+        """Parse a JSON string into a Python object."""
+        if not value:
+            return {}
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    app.jinja_env.filters["fromjson"] = _fromjson

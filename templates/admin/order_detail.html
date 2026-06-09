@@ -59,8 +59,8 @@
   <div style="display:flex; flex-direction:column; gap:1.5rem;">
     <!-- Customer Info -->
     <div class="admin-card">
-      <h3 style="font-size:0.875rem; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem;">Customer</h3>
-      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+      <h3 style="font-size:0.875rem; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem;">Customer Information</h3>
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
         <div style="width:40px; height:40px; border-radius:99px; background:#e0e7ff; color:var(--admin-primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">
           {{ (order.customer_name[0] if order.customer_name else 'G') | upper }}
         </div>
@@ -69,6 +69,36 @@
           <div style="font-size:0.8125rem; color:var(--admin-text-muted);">{{ order.customer_email }}</div>
         </div>
       </div>
+
+      <!-- Contact Details -->
+      {% if order.customer_phone %}
+      <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--admin-border);">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Phone</div>
+        <div style="font-weight:600;">{{ order.customer_phone }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Payment Method -->
+      {% if order.payment_method %}
+      <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--admin-border);">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Payment Method</div>
+        <div style="font-weight:600;">{{ order.payment_method | upper }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Shipping Address -->
+      {% if order.shipping_address_json %}
+      <div>
+        <div style="font-size:0.75rem; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Shipping Address</div>
+        <div style="font-size:0.875rem; line-height:1.5; color:var(--admin-text-main);">
+          {% set addr = order.shipping_address_json | fromjson %}
+          <div>{{ addr.address_line1 }}</div>
+          {% if addr.address_line2 %}<div>{{ addr.address_line2 }}</div>{% endif %}
+          <div>{{ addr.city }}, {{ addr.state }} {{ addr.pincode }}</div>
+          <div style="margin-top:0.5rem; font-weight:600;">{{ addr.phone }}</div>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <!-- Actions -->
