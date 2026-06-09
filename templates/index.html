@@ -3232,27 +3232,27 @@
 
     // ── Video Carousel ──
     const carousel = document.querySelector('.video-carousel');
-    const items = document.querySelectorAll('.video-item');
-    const videos = document.querySelectorAll('.carousel-video');
-    const dots = document.querySelectorAll('.carousel-dots .dot');
-    const prevBtn = document.querySelector('.carousel-arrow-prev');
-    const nextBtn = document.querySelector('.carousel-arrow-next');
+    const carouselItems = document.querySelectorAll('.video-item');
+    const carouselVideos = document.querySelectorAll('.carousel-video');
+    const carouselDots = document.querySelectorAll('.carousel-dots .dot');
+    const carouselPrevBtn = document.querySelector('.carousel-arrow-prev');
+    const carouselNextBtn = document.querySelector('.carousel-arrow-next');
 
-    if (carousel && items.length > 0) {
+    if (carousel && carouselItems.length > 0) {
       let currentIndex = 0;
       let autoplayTimer = null;
 
       function showSlide(index) {
-        items.forEach((item, i) => {
+        carouselItems.forEach((item, i) => {
           item.classList.toggle('active', i === index);
         });
-        dots.forEach((dot, i) => {
+        carouselDots.forEach((dot, i) => {
           dot.classList.toggle('active', i === index);
         });
         currentIndex = index;
 
         // Pause all videos and play current one
-        videos.forEach((video, i) => {
+        carouselVideos.forEach((video, i) => {
           if (i === index) {
             video.play().catch(() => {});
           } else {
@@ -3264,16 +3264,16 @@
       }
 
       function nextSlide() {
-        showSlide((currentIndex + 1) % items.length);
+        showSlide((currentIndex + 1) % carouselItems.length);
       }
 
       function prevSlide() {
-        showSlide((currentIndex - 1 + items.length) % items.length);
+        showSlide((currentIndex - 1 + carouselItems.length) % carouselItems.length);
       }
 
       function resetAutoplay() {
         clearTimeout(autoplayTimer);
-        const currentVideo = videos[currentIndex];
+        const currentVideo = carouselVideos[currentIndex];
         if (currentVideo && !currentVideo.muted) {
           return; // Don't auto-advance if audio is on
         }
@@ -3288,20 +3288,20 @@
       }
 
       // Arrow button listeners
-      if (prevBtn) prevBtn.addEventListener('click', prevSlide);
-      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+      if (carouselPrevBtn) carouselPrevBtn.addEventListener('click', prevSlide);
+      if (carouselNextBtn) carouselNextBtn.addEventListener('click', nextSlide);
 
       // Dot navigation
-      dots.forEach((dot, index) => {
+      carouselDots.forEach((dot, index) => {
         dot.addEventListener('click', () => showSlide(index));
       });
 
       // Unmute button functionality
-      const unmuteButtons = document.querySelectorAll('.video-btn-unmute');
-      unmuteButtons.forEach((btn, index) => {
+      const carouselUnmuteButtons = document.querySelectorAll('.video-btn-unmute');
+      carouselUnmuteButtons.forEach((btn, index) => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const video = videos[index];
+          const video = carouselVideos[index];
           video.muted = !video.muted;
           btn.classList.toggle('muted', !video.muted);
 
