@@ -642,7 +642,7 @@ def register(app):
     def admin_order_detail(order_id):
         try:
             order = db.query_one(
-                """SELECT o.*, (u.first_name || ' ' || u.last_name) AS customer_name, u.email AS customer_email, u.phone AS customer_phone
+                """SELECT o.*, (u.first_name || ' ' || u.last_name) AS customer_name, u.email AS customer_email
                    FROM orders o LEFT JOIN users u ON u.id = o.user_id WHERE o.id=?""",
                 [order_id]
             )
