@@ -495,7 +495,10 @@ _MIGRATIONS = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
 
-    # 17. Google OAuth support
+    # 17. Add phone to contact messages
+    "ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS phone TEXT",
+
+    # 18. Google OAuth support
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT UNIQUE",
     "ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL",
 

@@ -196,15 +196,16 @@ def contact():
     if request.method == "POST":
         name    = request.form.get("name", "").strip()
         email   = request.form.get("email", "").strip()
+        phone   = request.form.get("phone", "").strip()
         message = request.form.get("message", "").strip()
-        if not all([name, email, message]):
+        if not all([name, email, phone, message]):
             flash("Please fill in all required fields.", "error")
         else:
             try:
                 db.execute(
-                    "INSERT INTO contact_messages (id, name, email, message) "
-                    "VALUES (gen_random_uuid(), ?, ?, ?)",
-                    [name, email, message],
+                    "INSERT INTO contact_messages (id, name, email, phone, message) "
+                    "VALUES (gen_random_uuid(), ?, ?, ?, ?)",
+                    [name, email, phone, message],
                 )
                 flash("Thank you for your message! We'll get back to you soon.", "success")
             except Exception as e:
