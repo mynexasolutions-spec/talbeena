@@ -1,0 +1,285 @@
+{% extends 'admin_base.html' %}
+{% block title %}Shipments – Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .shipments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .shipments-header h1 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin: 0;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+
+  .shipments-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .shipments-table thead {
+    background: var(--cream);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .shipments-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .shipments-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+
+  .shipments-table tbody tr:hover {
+    background: var(--cream);
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .status-badge.draft { background: #e0e7ff; color: #3730a3; }
+  .status-badge.confirmed { background: #d1fae5; color: #065f46; }
+  .status-badge.picked { background: #fef3c7; color: #92400e; }
+  .status-badge.in_transit { background: #bfdbfe; color: #1e3a8a; }
+  .status-badge.delivered { background: #dcfce7; color: #166534; }
+  .status-badge.failed { background: #fee2e2; color: #991b1b; }
+
+  .order-number {
+    font-weight: 600;
+    color: var(--teal-dark);
+  }
+
+  .awb-number {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: var(--text-mid);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-view {
+    background: var(--teal-light);
+    color: var(--teal-dark);
+  }
+
+  .btn-view:hover {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .btn-label {
+    background: var(--gold-pale);
+    color: var(--text-dark);
+  }
+
+  .btn-label:hover {
+    background: var(--gold);
+    color: #fff;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-soft);
+  }
+
+  .pagination {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .pagination a,
+  .pagination span {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--teal);
+    transition: all 0.2s;
+  }
+
+  .pagination a:hover {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .pagination .current {
+    background: var(--teal);
+    color: #fff;
+    border-color: var(--teal);
+  }
+
+  @media (max-width: 768px) {
+    .shipments-table {
+      font-size: 0.85rem;
+    }
+
+    .shipments-table th,
+    .shipments-table td {
+      padding: 0.7rem 0.5rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  <div class="shipments-header">
+    <h1>📦 Shipments</h1>
+    <div class="filter-group">
+      <select id="statusFilter" onchange="filterShipments()">
+        <option value="">All Status</option>
+        <option value="draft">Draft</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="picked">Picked</option>
+        <option value="in_transit">In Transit</option>
+        <option value="delivered">Delivered</option>
+        <option value="failed">Failed</option>
+      </select>
+      <input type="search" id="searchInput" placeholder="Search order..." onkeyup="filterShipments()">
+    </div>
+  </div>
+
+  {% if shipments %}
+    <table class="shipments-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>AWB Number</th>
+          <th>Status</th>
+          <th>Courier</th>
+          <th>Location</th>
+          <th>Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for shipment in shipments %}
+        <tr>
+          <td>
+            <a href="{{ url_for('checkout.order_detail', order_id=shipment.order_id) }}" class="order-number">
+              {{ shipment.order_number }}
+            </a>
+          </td>
+          <td>{{ shipment.customer_name }}</td>
+          <td>
+            {% if shipment.awb_number %}
+            <span class="awb-number">{{ shipment.awb_number }}</span>
+            {% else %}
+            <span style="color: var(--text-soft);">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="status-badge {{ shipment.status }}">
+              {{ shipment.status|replace('_', ' ')|title }}
+            </span>
+          </td>
+          <td>{{ shipment.courier_name or '-' }}</td>
+          <td>{{ shipment.current_location or '-' }}</td>
+          <td style="font-size: 0.9rem; color: var(--text-soft);">
+            {% if shipment.last_update %}
+              {{ shipment.last_update|strftime('%d %b, %I:%M %p') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <a href="{{ url_for('checkout.track_order', order_id=shipment.order_id) }}" class="btn-small btn-view">
+                View
+              </a>
+              {% if shipment.awb_number %}
+              <a href="{{ url_for('bigship.download_label', shipment_id=shipment.id) }}" class="btn-small btn-label">
+                Label
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="no-data">
+      <p>No shipments yet. Orders will appear here when shipments are created.</p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  function filterShipments() {
+    const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('.shipments-table tbody tr');
+
+    rows.forEach(row => {
+      const status = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
+      const orderNum = row.querySelector('.order-number')?.textContent.toLowerCase() || '';
+      const customer = row.cells[1]?.textContent.toLowerCase() || '';
+
+      const matchStatus = !statusFilter || status.includes(statusFilter);
+      const matchSearch = !searchInput || orderNum.includes(searchInput) || customer.includes(searchInput);
+
+      row.style.display = matchStatus && matchSearch ? '' : 'none';
+    });
+  }
+</script>
+{% endblock %}

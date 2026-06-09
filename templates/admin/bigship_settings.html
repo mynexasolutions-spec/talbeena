@@ -1,0 +1,252 @@
+{% extends 'admin_base.html' %}
+{% block title %}Bigship Settings – Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .settings-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .settings-header {
+    margin-bottom: 2rem;
+  }
+
+  .settings-header h1 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .settings-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+  }
+
+  .form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-section:last-child {
+    border-bottom: none;
+  }
+
+  .form-section h3 {
+    font-size: 1.2rem;
+    color: var(--teal-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--warm-white);
+    color: var(--text-dark);
+    transition: border-color 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(26, 107, 114, 0.15);
+  }
+
+  .form-control-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .form-control-row .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-help {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-top: 0.3rem;
+    margin-left: 0.2rem;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    padding: 0.9rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--teal-dark);
+  }
+
+  .btn-secondary {
+    background: var(--cream);
+    color: var(--teal-dark);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .success-message {
+    background: #dcfce7;
+    color: #166534;
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #22c55e;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .settings-form {
+      padding: 1.5rem;
+    }
+
+    .form-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  <div class="settings-header">
+    <h1>⚙️ Bigship Configuration</h1>
+    <p>Configure default settings for shipment creation</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="success-message" style="background: {% if category == 'success' %}#dcfce7{% else %}#fee2e2{% endif %}; color: {% if category == 'success' %}#166534{% else %}#991b1b{% endif %}; border-left-color: {% if category == 'success' %}#22c55e{% else %}#dc2626{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" class="settings-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Pickup & Return Address -->
+    <div class="form-section">
+      <h3>📍 Pickup & Return Addresses</h3>
+
+      <div class="form-group">
+        <label class="form-label" for="pickup_address">Pickup Address</label>
+        <textarea class="form-control" id="pickup_address" name="pickup_address" rows="3" required>{{ settings.get('pickup_address', '') }}</textarea>
+        <div class="form-help">Full warehouse/pickup location address</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="return_address">Return Address</label>
+        <textarea class="form-control" id="return_address" name="return_address" rows="3" required>{{ settings.get('return_address', '') }}</textarea>
+        <div class="form-help">Address for returned/failed shipments</div>
+      </div>
+
+      <div class="form-control-row">
+        <div class="form-group">
+          <label class="form-label" for="pickup_contact_name">Contact Person Name</label>
+          <input type="text" class="form-control" id="pickup_contact_name" name="pickup_contact_name" value="{{ settings.get('pickup_contact_name', '') }}" required>
+          <div class="form-help">Name of pickup contact person</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pickup_phone">Contact Phone</label>
+          <input type="tel" class="form-control" id="pickup_phone" name="pickup_phone" value="{{ settings.get('pickup_phone', '') }}" required>
+          <div class="form-help">10-digit mobile number</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Default Box Dimensions -->
+    <div class="form-section">
+      <h3>📦 Default Package Dimensions</h3>
+
+      <div class="form-control-row">
+        <div class="form-group">
+          <label class="form-label" for="box_length">Length (cm)</label>
+          <input type="number" class="form-control" id="box_length" name="box_length" value="{{ settings.get('box_length', '20') }}" min="1" required>
+          <div class="form-help">Box length in centimeters</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="box_width">Width (cm)</label>
+          <input type="number" class="form-control" id="box_width" name="box_width" value="{{ settings.get('box_width', '15') }}" min="1" required>
+          <div class="form-help">Box width in centimeters</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="box_height">Height (cm)</label>
+          <input type="number" class="form-control" id="box_height" name="box_height" value="{{ settings.get('box_height', '10') }}" min="1" required>
+          <div class="form-help">Box height in centimeters</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="default_weight">Weight per Item (kg)</label>
+          <input type="number" class="form-control" id="default_weight" name="default_weight" value="{{ settings.get('default_weight', '1') }}" step="0.1" min="0.1" required>
+          <div class="form-help">Weight multiplier per product</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-buttons">
+      <button type="submit" class="btn btn-primary">
+        ✓ Save Settings
+      </button>
+      <a href="{{ url_for('admin_shipments') }}" class="btn btn-secondary">
+        View Shipments →
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -349,6 +349,17 @@ def checkout():
                 except Exception:
                     pass
 
+            # Auto-create shipment in Bigship
+            try:
+                from bigship.routes import create_shipment_in_bigship
+                shipment_result = create_shipment_in_bigship(order)
+                if not shipment_result.get("success"):
+                    # Log error but don't fail the order
+                    print(f"Warning: Failed to create Bigship shipment: {shipment_result.get('error')}")
+            except Exception as e:
+                # Log error but don't fail the order
+                print(f"Warning: Error creating Bigship shipment: {e}")
+
             session.pop("cart", None)
             flash("Order placed successfully!", "success")
             return redirect(url_for("checkout.order_success", order_id=order_id))
@@ -409,10 +420,11 @@ def order_detail(order_id):
         if not order:
             abort(404)
         items = db.query("SELECT * FROM order_items WHERE order_id=?", [order_id])
+        shipment = db.query_one("SELECT * FROM bigship_shipments WHERE order_id=?", [order_id])
     except Exception as e:
         flash(f"Error fetching order: {e}", "error")
         return redirect(url_for("auth.account"))
-    return render_template("order_detail.html", order=order, items=items)
+    return render_template("order_detail.html", order=order, items=items, shipment=shipment)
 
 
 @bp.route("/order/<order_id>/cancel", methods=["POST"])
@@ -495,3 +507,28 @@ def submit_review(product_id):
     except Exception as e:
         flash(f"Error submitting review: {e}", "error")
     return redirect(url_for("public.product_detail", product_id=product_id))
+
+
+# ── Order Tracking ────────────────────────────────────────────────────────────
+
+@bp.route("/order/<order_id>/track")
+def track_order(order_id):
+    """Track shipment status for an order"""
+    if "user" not in session:
+        return redirect(url_for("auth.login"))
+
+    uid = session["user"]["id"]
+    try:
+        order = db.query_one("SELECT * FROM orders WHERE id=? AND user_id=?", [order_id, uid])
+        if not order:
+            abort(404)
+
+        shipment = db.query_one(
+            "SELECT * FROM bigship_shipments WHERE order_id=?",
+            [order_id]
+        )
+
+        return render_template("track_shipment.html", order=order, shipment=shipment)
+    except Exception as e:
+        flash(f"Error loading tracking: {e}", "error")
+        return redirect(url_for("checkout.order_detail", order_id=order_id))

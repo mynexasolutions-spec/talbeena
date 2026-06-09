@@ -27,6 +27,26 @@
     </div>
   </div>
 
+  {% if shipment %}
+  <div style="background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border:1px solid #6ee7b7; border-radius:10px; padding:1.5rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <h4 style="font-size:0.75rem; text-transform:uppercase; color:#065f46; margin:0 0 0.5rem; font-weight:700; letter-spacing:0.05em;">📦 Shipment Status</h4>
+        <p style="margin:0.2rem 0; font-size:0.9rem; color:#065f46; font-weight:600;">{{ shipment.status|replace('_', ' ')|title }}</p>
+        {% if shipment.awb_number %}
+        <p style="margin:0.2rem 0; font-size:0.85rem; color:#047857;">AWB: <span style="font-family:'Courier New',monospace; font-weight:600;">{{ shipment.awb_number }}</span></p>
+        {% endif %}
+        {% if shipment.current_location %}
+        <p style="margin:0.2rem 0; font-size:0.85rem; color:#047857;">Location: {{ shipment.current_location }}</p>
+        {% endif %}
+      </div>
+      <a href="{{ url_for('checkout.track_order', order_id=order.id) }}" style="background:#065f46; color:#fff; padding:0.6rem 1.2rem; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.9rem; display:inline-block; white-space:nowrap;">
+        Track Order →
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
   <div style="background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:1.5rem;">
     <table style="width:100%; border-collapse:collapse;">
       <thead>

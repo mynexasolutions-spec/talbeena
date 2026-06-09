@@ -1,0 +1,321 @@
+{% extends 'user_base.html' %}
+{% block title %}Track Order – {{ order.order_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .track-container {
+    max-width: 900px;
+    margin: 80px auto;
+    padding: 2rem;
+  }
+
+  .track-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .track-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .track-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: var(--teal-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .track-header p {
+    color: var(--text-mid);
+    font-size: 1.1rem;
+  }
+
+  .shipment-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-item {
+    padding: 1.2rem;
+    background: var(--cream);
+    border-radius: 8px;
+  }
+
+  .info-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  .info-value {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .status-badge.draft { background: #e0e7ff; color: #3730a3; }
+  .status-badge.confirmed { background: #d1fae5; color: #065f46; }
+  .status-badge.picked { background: #fef3c7; color: #92400e; }
+  .status-badge.in_transit { background: #bfdbfe; color: #1e3a8a; }
+  .status-badge.delivered { background: #dcfce7; color: #166534; }
+  .status-badge.failed { background: #fee2e2; color: #991b1b; }
+
+  .timeline {
+    position: relative;
+    padding: 2rem 0;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 50px;
+    width: 2px;
+    height: 60px;
+    background: var(--border);
+  }
+
+  .timeline-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 3px solid #fff;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .timeline-dot.active {
+    background: var(--teal);
+    border-color: var(--teal-light);
+  }
+
+  .timeline-content {
+    padding-top: 0.5rem;
+  }
+
+  .timeline-title {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-time {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--teal-dark);
+  }
+
+  .btn-secondary {
+    background: var(--cream);
+    color: var(--teal-dark);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 768px) {
+    .track-container { padding: 1rem; margin-top: 40px; }
+    .track-card { padding: 1.5rem; }
+    .track-header h2 { font-size: 1.5rem; }
+    .shipment-info { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="track-container">
+  <div class="track-card">
+    <div class="track-header">
+      <h2>Track Your Order</h2>
+      <p>Order #{{ order.order_number }}</p>
+    </div>
+
+    {% if shipment %}
+      <div class="shipment-info">
+        <div class="info-item">
+          <div class="info-label">Current Status</div>
+          <div class="info-value">
+            <span class="status-badge {{ shipment.status }}">{{ shipment.status|replace('_', ' ')|title }}</span>
+          </div>
+        </div>
+
+        {% if shipment.awb_number %}
+        <div class="info-item">
+          <div class="info-label">AWB/Tracking Number</div>
+          <div class="info-value">{{ shipment.awb_number }}</div>
+        </div>
+        {% endif %}
+
+        {% if shipment.courier_name %}
+        <div class="info-item">
+          <div class="info-label">Courier</div>
+          <div class="info-value">{{ shipment.courier_name }}</div>
+        </div>
+        {% endif %}
+
+        {% if shipment.current_location %}
+        <div class="info-item">
+          <div class="info-label">Current Location</div>
+          <div class="info-value">{{ shipment.current_location }}</div>
+        </div>
+        {% endif %}
+
+        {% if shipment.estimated_delivery %}
+        <div class="info-item">
+          <div class="info-label">Estimated Delivery</div>
+          <div class="info-value">{{ shipment.estimated_delivery }}</div>
+        </div>
+        {% endif %}
+
+        <div class="info-item">
+          <div class="info-label">Last Updated</div>
+          <div class="info-value">{{ shipment.last_update|default('Pending')|strftime('%d %b, %Y') }}</div>
+        </div>
+      </div>
+
+      {% if shipment.status != 'draft' %}
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot active">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Order Confirmed</div>
+            <div class="timeline-time">{{ order.created_at|strftime('%d %b %Y, %I:%M %p') }}</div>
+          </div>
+        </div>
+
+        {% if shipment.status in ['confirmed', 'picked', 'in_transit', 'delivered'] %}
+        <div class="timeline-item">
+          <div class="timeline-dot {% if shipment.status in ['confirmed', 'picked', 'in_transit', 'delivered'] %}active{% endif %}">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Shipment Created</div>
+            <div class="timeline-time">{{ shipment.created_at|strftime('%d %b %Y, %I:%M %p') }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if shipment.status in ['picked', 'in_transit', 'delivered'] %}
+        <div class="timeline-item">
+          <div class="timeline-dot active">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Picked Up</div>
+            <div class="timeline-time">{{ shipment.updated_at|strftime('%d %b %Y, %I:%M %p') }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if shipment.status in ['in_transit', 'delivered'] %}
+        <div class="timeline-item">
+          <div class="timeline-dot {% if shipment.status in ['in_transit', 'delivered'] %}active{% endif %}">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title">In Transit</div>
+            <div class="timeline-time">{{ shipment.updated_at|strftime('%d %b %Y, %I:%M %p') }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if shipment.status == 'delivered' %}
+        <div class="timeline-item">
+          <div class="timeline-dot active">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Delivered</div>
+            <div class="timeline-time">{{ shipment.updated_at|strftime('%d %b %Y, %I:%M %p') }}</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="action-buttons">
+        <a href="{{ url_for('checkout.order_detail', order_id=order.id) }}" class="btn btn-secondary">
+          ← Back to Order
+        </a>
+      </div>
+
+    {% else %}
+      <div class="error-message">
+        <strong>No Shipment Yet</strong><br>
+        Your shipment is being prepared. Check back soon for tracking information.
+      </div>
+      <div class="action-buttons">
+        <a href="{{ url_for('checkout.order_detail', order_id=order.id) }}" class="btn btn-secondary">
+          ← Back to Order
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

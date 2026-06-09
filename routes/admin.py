@@ -1293,3 +1293,75 @@ def register(app):
         except Exception as e:
             flash(f"Error: {e}", "error")
         return redirect(url_for("admin_blog"))
+
+    # ── Shipments ──────────────────────────────────────────────────────────
+
+    @app.route("/admin/shipments")
+    def admin_shipments():
+        """Admin shipment management dashboard"""
+        if "user" not in session or session["user"].get("role") != "admin":
+            abort(403)
+
+        page = request.args.get("page", 1, type=int)
+        per_page = 20
+        offset = (page - 1) * per_page
+
+        # Get total count
+        total_row = db.query_one("SELECT COUNT(*) as cnt FROM bigship_shipments")
+        total = total_row["cnt"] if total_row else 0
+
+        # Get shipments with order details
+        shipments = db.query(
+            """SELECT s.*, o.order_number, o.customer_name, o.customer_email, o.customer_phone, o.total_amount
+               FROM bigship_shipments s
+               LEFT JOIN orders o ON o.id = s.order_id
+               ORDER BY s.updated_at DESC
+               LIMIT ? OFFSET ?""",
+            [per_page, offset]
+        )
+
+        total_pages = (total + per_page - 1) // per_page
+
+        return render_template(
+            "admin/shipments.html",
+            shipments=shipments,
+            page=page,
+            total_pages=total_pages,
+            total=total
+        )
+
+    @app.route("/admin/bigship-settings", methods=["GET", "POST"])
+    def admin_bigship_settings():
+        """Manage Bigship settings (box dimensions, addresses, etc)"""
+        if "user" not in session or session["user"].get("role") != "admin":
+            abort(403)
+
+        if request.method == "POST":
+            try:
+                # Update settings
+                settings = {
+                    "pickup_address": request.form.get("pickup_address", ""),
+                    "return_address": request.form.get("return_address", ""),
+                    "pickup_contact_name": request.form.get("pickup_contact_name", ""),
+                    "pickup_phone": request.form.get("pickup_phone", ""),
+                    "box_length": request.form.get("box_length", "20"),
+                    "box_width": request.form.get("box_width", "15"),
+                    "box_height": request.form.get("box_height", "10"),
+                    "default_weight": request.form.get("default_weight", "1"),
+                }
+
+                for key, value in settings.items():
+                    db.execute(
+                        "INSERT INTO bigship_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=?",
+                        [key, value, value]
+                    )
+
+                flash("Bigship settings updated successfully.", "success")
+            except Exception as e:
+                flash(f"Error updating settings: {e}", "error")
+
+        # Get current settings
+        settings_rows = db.query("SELECT key, value FROM bigship_settings")
+        settings = {row["key"]: row["value"] for row in settings_rows}
+
+        return render_template("admin/bigship_settings.html", settings=settings)
