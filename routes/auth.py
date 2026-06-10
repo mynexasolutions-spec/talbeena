@@ -140,7 +140,7 @@ def account():
                     flash(f"Error updating profile: {e}", "error")
         elif action == "add_address":
             try:
-                is_default = request.form.get("is_default") == "on"
+                is_default = 1 if request.form.get("is_default") == "on" else 0
                 if is_default:
                     db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
                 db.execute(
