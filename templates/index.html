@@ -2712,7 +2712,7 @@
         <div class="fp-sub">{{ product.short_description or product.category_name or '' }}</div>
       </div>
       <div class="fp-foot">
-        <span class="fp-price">{% if product.type == 'variable' %}From {% endif %}₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+        <span class="fp-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
         <span class="fp-btn">Add</span>
       </div>
     </a>
@@ -3190,7 +3190,7 @@
         {% if product.category_name %}<div class="arrivals-sub">{{ product.category_name }}</div>{% endif %}
       </div>
       <div class="arrivals-foot">
-        <span class="arrivals-price">{% if product.type == 'variable' %}From {% endif %}₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+        <span class="arrivals-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
         <span class="arrivals-btn">View</span>
       </div>
     </a>

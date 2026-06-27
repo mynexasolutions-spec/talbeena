@@ -663,7 +663,7 @@
           </div>
           <div class="card-foot">
             <div>
-              <span class="card-price">{% if product.type == 'variable' %}From {% endif %}₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
+              <span class="card-price">₹{{ "%.0f"|format(product.sale_price or product.price or 0) }}</span>
               {% if product.sale_price and product.price and product.sale_price < product.price %}
                 <span class="card-sale">₹{{ "%.0f"|format(product.price) }}</span>
               {% endif %}
