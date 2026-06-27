@@ -17,7 +17,8 @@ PRODUCTS_SELECT = """
             ) END,
             p.price
         ) AS price,
-        p.sale_price, p.stock_quantity, p.stock_status,
+        CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
+        p.stock_quantity, p.stock_status,
         p.is_featured, p.is_active, p.created_at,
         c.name  AS category_name, c.slug AS category_slug,
         b.name  AS brand_name,    b.slug AS brand_slug,
@@ -39,7 +40,8 @@ PRODUCTS_MINIMAL_SELECT = """
             ) END,
             p.price
         ) AS price,
-        p.sale_price, p.stock_status, p.is_featured, p.created_at,
+        CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
+        p.stock_status, p.is_featured, p.created_at,
         c.name AS category_name, c.slug AS category_slug,
         m.file_url AS image_url
     FROM products p

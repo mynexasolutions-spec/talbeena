@@ -370,6 +370,16 @@ def _get_variation_data(product_id):
     if not product:
         return None
 
+    # For variable products, compute min price from variations
+    if product.get("type") == "variable":
+        min_price = db.query_one(
+            "SELECT MIN(COALESCE(sale_price, price)) AS min_price FROM product_variations WHERE product_id = ? AND COALESCE(sale_price, price) > 0",
+            [product_id],
+        )
+        base_price = float(min_price["min_price"]) if min_price and min_price["min_price"] else 0
+    else:
+        base_price = float(product.get("sale_price") or product.get("price") or 0)
+
     attrs = db.query("""
         SELECT a.id, a.name, a.slug, a.variation_type
         FROM product_attributes pa
@@ -381,7 +391,7 @@ def _get_variation_data(product_id):
     if not attrs:
         return {
             "product": {
-                "price":        float(product.get("sale_price") or product.get("price") or 0),
+                "price":        base_price,
                 "stock":        int(product.get("stock_quantity") or 0),
                 "stock_status": product.get("stock_status"),
                 "sku":          product.get("sku"),
@@ -483,7 +493,7 @@ def _get_variation_data(product_id):
 
     return {
         "product": {
-            "price":        float(product.get("sale_price") or product.get("price") or 0),
+            "price":        base_price,
             "stock":        int(product.get("stock_quantity") or 0),
             "stock_status": product.get("stock_status"),
             "sku":          product.get("sku"),
