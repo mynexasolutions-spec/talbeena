@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 import db
-from helpers import refresh_cart_prices
+from helpers import refresh_cart_prices, get_cached_store_settings
 from queries import PRODUCTS_SELECT
 
 bp = Blueprint("cart", __name__)
@@ -11,7 +11,16 @@ def view_cart():
     cart_items = session.get("cart", {})
     cart_items, subtotal = refresh_cart_prices(cart_items)
     session["cart"] = cart_items
-    shipping = 0 if subtotal >= 999 else 99
+
+    # Use same shipping calculation as checkout page
+    settings = get_cached_store_settings()
+    if settings.get("free_shipping_all") == "true":
+        shipping = 0
+    elif settings.get("free_shipping_enabled", "true") == "true" and subtotal >= float(settings.get("free_shipping_threshold") or 999):
+        shipping = 0
+    else:
+        shipping = float(settings.get("shipping_fee") or 99)
+
     return render_template(
         "cart.html",
         cart_items=cart_items,
@@ -148,7 +157,16 @@ def cart_ajax_update():
 
         from helpers import refresh_cart_prices
         _, subtotal = refresh_cart_prices(cart)
-        shipping = 0 if subtotal >= 999 else 99
+
+        # Calculate shipping based on settings
+        settings = get_cached_store_settings()
+        if settings.get("free_shipping_all") == "true":
+            shipping = 0
+        elif settings.get("free_shipping_enabled", "true") == "true" and subtotal >= float(settings.get("free_shipping_threshold") or 999):
+            shipping = 0
+        else:
+            shipping = float(settings.get("shipping_fee") or 99)
+
         return jsonify({
             "success": True,
             "qty": new_qty,
@@ -170,7 +188,16 @@ def cart_ajax_remove():
         session["cart"] = cart
         from helpers import refresh_cart_prices
         _, subtotal = refresh_cart_prices(cart)
-        shipping = 0 if subtotal >= 999 else 99
+
+        # Calculate shipping based on settings
+        settings = get_cached_store_settings()
+        if settings.get("free_shipping_all") == "true":
+            shipping = 0
+        elif settings.get("free_shipping_enabled", "true") == "true" and subtotal >= float(settings.get("free_shipping_threshold") or 999):
+            shipping = 0
+        else:
+            shipping = float(settings.get("shipping_fee") or 99)
+
         return jsonify({
             "success": True,
             "subtotal": subtotal,
