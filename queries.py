@@ -17,7 +17,8 @@ PRODUCTS_SELECT = """
             ) END,
             p.price
         ) AS price,
-        p.sale_price, p.stock_quantity, p.stock_status,
+        CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
+        p.stock_quantity, p.stock_status,
         p.is_featured, p.is_active, p.created_at,
         c.name  AS category_name, c.slug AS category_slug,
         b.name  AS brand_name,    b.slug AS brand_slug,
@@ -39,7 +40,8 @@ PRODUCTS_MINIMAL_SELECT = """
             ) END,
             p.price
         ) AS price,
-        p.sale_price, p.stock_status, p.is_featured, p.created_at,
+        CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
+        p.stock_status, p.is_featured, p.created_at,
         c.name AS category_name, c.slug AS category_slug,
         m.file_url AS image_url
     FROM products p
@@ -108,10 +110,11 @@ def _get_variation_cards():
         label = r.get("label") or ""
         base_name = product_names.get(pid, "")
 
+        var_price = r.get("sale_price") if r.get("sale_price") and float(r["sale_price"]) > 0 else r.get("price") if r.get("price") and float(r["price"]) > 0 else 0
         result[pid].append({
             "var_id":         r["var_id"],
             "sku":            r["sku"],
-            "price":          float(r.get("sale_price") or r.get("price") or 0),
+            "price":          float(var_price),
             "stock_quantity": int(r.get("stock_quantity") or 0),
             "stock_status":   r.get("stock_status", "in_stock"),
             "name_override":  r.get("var_name") or f"{base_name} – {label}" if label else base_name,
@@ -132,7 +135,11 @@ def _expand_product_list(products):
     for p in (products or []):
         pid = str(p["id"])
         if pid in var_map:
+            has_valid = False
             for r in var_map[pid]:
+                if r["price"] <= 0:
+                    continue
+                has_valid = True
                 row = dict(p)
                 row["id"]             = pid
                 row["name"]           = r["name_override"]
@@ -146,6 +153,8 @@ def _expand_product_list(products):
                 row["short_description"] = r.get("short_description") or row.get("short_description") or ""
                 row["_preselect_label"] = r.get("label", "")
                 expanded.append(row)
+            if not has_valid:
+                expanded.append(p)
         else:
             expanded.append(p)
     return expanded

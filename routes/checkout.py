@@ -334,7 +334,7 @@ def checkout():
 
             if save_address:
                 try:
-                    is_default = len(addresses) == 0
+                    is_default = 1 if len(addresses) == 0 else 0
                     if is_default:
                         db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
                     db.execute(

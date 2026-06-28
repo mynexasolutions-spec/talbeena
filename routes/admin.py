@@ -1028,7 +1028,7 @@ def register(app):
     def admin_review_approve(review_id):
         action = request.form.get("action", "approve")
         try:
-            approved = action == "approve"
+            approved = 1 if action == "approve" else 0
             db.execute("UPDATE product_reviews SET is_approved=? WHERE id=?", [approved, review_id])
             get_product_detail.cache_clear()
             flash("Review " + ("approved." if approved else "rejected."), "success")
