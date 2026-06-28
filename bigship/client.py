@@ -238,3 +238,32 @@ class BigshipClient:
             return {"success": result.get("success"), "error": result.get("error")}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def get_locations(self):
+        """
+        Get list of available pickup/return locations in your Bigship account
+
+        Returns:
+            dict with success status and locations list
+        """
+        url = f"{self.BASE_URL}/v1/outbound/locations"
+        headers = self._get_headers()
+
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            result = resp.json()
+
+            if result.get("success"):
+                locations = result.get("locations", [])
+                print(f"[Bigship API] get_locations success: {len(locations)} locations found")
+                for loc in locations:
+                    print(f"  - Location ID {loc.get('location_id')}: {loc.get('name')}")
+                return {"success": True, "locations": locations}
+            else:
+                error = result.get("error", "Unknown error")
+                print(f"[Bigship API] get_locations failed: {error}")
+                return {"success": False, "error": error}
+        except Exception as e:
+            print(f"[Bigship API] get_locations exception: {e}")
+            return {"success": False, "error": str(e)}

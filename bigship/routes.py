@@ -85,9 +85,9 @@ def create_shipment_in_bigship(order):
             products.append({
                 "productName": item.get("product_name", "Product"),
                 "qty": str(item.get("quantity", 1)),
-                "amount": str(item.get("unit_price", 0)),
-                "totalAmount": item.get("total_price", 0),
-                "collectableAmount": item.get("total_price", 0),
+                "amount": str(float(item.get("unit_price", 0))),
+                "totalAmount": str(float(item.get("total_price", 0))),
+                "collectableAmount": str(float(item.get("total_price", 0))),
                 "categoryId": "1"
             })
 
@@ -99,30 +99,30 @@ def create_shipment_in_bigship(order):
         # Prepare Bigship order payload
         bigship_order_data = {
             "segment_type": "domestic_b2c",
-            "MasterOrderPickUpLocation": settings.get("pickup_location_id", 258),
-            "MasterOrderReturnLocation": settings.get("return_location_id", 258),
+            "MasterOrderPickUpLocation": int(settings.get("pickup_location_id", 258)),
+            "MasterOrderReturnLocation": int(settings.get("return_location_id", 258)),
             "MasterOrderDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "MasterOrderPaymentMode": payment_mode,
-            "OrderInvoiceNo": order.get("order_number"),
+            "OrderInvoiceNo": str(order.get("order_number", "")),
             "MasterOrderInvoiceAmount": float(order.get("total_amount", 0)),
-            "MasterOrderShippingName": order.get("customer_name", "Customer"),
-            "MasterOrderShippingMobileNo": order.get("customer_phone", ""),
-            "MasterOrderShippingAddress": shipping_addr.get("address_line1", ""),
-            "MasterOrderShippingLandmark": shipping_addr.get("address_line2", ""),
-            "MasterOrderShippingZipCode": shipping_addr.get("pincode", ""),
-            "MasterOrderShippingCountry": shipping_addr.get("country", "India"),
-            "MasterOrderShippingState": shipping_addr.get("state", "").upper(),
-            "MasterOrderShippingCity": shipping_addr.get("city", "").upper(),
+            "MasterOrderShippingName": str(order.get("customer_name", "Customer")),
+            "MasterOrderShippingMobileNo": str(order.get("customer_phone", "")),
+            "MasterOrderShippingAddress": str(shipping_addr.get("address_line1", "")),
+            "MasterOrderShippingLandmark": str(shipping_addr.get("address_line2", "")),
+            "MasterOrderShippingZipCode": str(shipping_addr.get("pincode", "")),
+            "MasterOrderShippingCountry": str(shipping_addr.get("country", "India")),
+            "MasterOrderShippingState": str(shipping_addr.get("state", "")).upper(),
+            "MasterOrderShippingCity": str(shipping_addr.get("city", "")).upper(),
             "totalNumOfBoxes": 1,
             "boxes": [{
                 "weight_unit": "kg",
                 "dimension_unit": "cm",
                 "noOfBoxes": 1,
                 "dimensions": [{
-                    "length": box_length,
-                    "breadth": box_width,
-                    "height": box_height,
-                    "weight": total_weight
+                    "length": float(box_length),
+                    "breadth": float(box_width),
+                    "height": float(box_height),
+                    "weight": float(total_weight)
                 }],
                 "products": products
             }]
@@ -337,6 +337,73 @@ def download_label(shipment_id):
         return jsonify(result)
 
     except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@bigship_bp.route("/sync-locations", methods=["POST"])
+def sync_locations():
+    """Fetch and store available locations from Bigship account"""
+    try:
+        client = get_bigship_client()
+        result = client.get_locations()
+
+        if result.get("success"):
+            locations = result.get("locations", [])
+            print(f"[Bigship] Found {len(locations)} locations in account")
+
+            if locations:
+                # Store each location in settings
+                for i, loc in enumerate(locations):
+                    loc_id = str(loc.get("location_id"))
+                    loc_name = loc.get("name", "Unknown")
+
+                    # Save to database settings
+                    db.execute(
+                        """INSERT INTO bigship_settings (key, value, updated_at)
+                           VALUES (?, ?, ?)
+                           ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at""",
+                        [f"location_{i}", json.dumps({"id": loc_id, "name": loc_name}), datetime.now()]
+                    )
+
+                # Use the first location as default
+                first_location = locations[0]
+                default_location_id = str(first_location.get("location_id"))
+
+                db.execute(
+                    """INSERT INTO bigship_settings (key, value, updated_at)
+                       VALUES (?, ?, ?)
+                       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at""",
+                    ["pickup_location_id", default_location_id, datetime.now()]
+                )
+
+                db.execute(
+                    """INSERT INTO bigship_settings (key, value, updated_at)
+                       VALUES (?, ?, ?)
+                       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at""",
+                    ["return_location_id", default_location_id, datetime.now()]
+                )
+
+                print(f"[Bigship] Using location: {first_location.get('name')} (ID: {default_location_id})")
+
+                return jsonify({
+                    "success": True,
+                    "message": f"Synced {len(locations)} locations. Using: {first_location.get('name')}",
+                    "locations": locations,
+                    "default_location_id": default_location_id
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "No locations found in your Bigship account"
+                }), 400
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.get("error", "Failed to fetch locations")
+            }), 400
+
+    except Exception as e:
+        print(f"[Bigship] Error syncing locations: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
