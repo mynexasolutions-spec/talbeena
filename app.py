@@ -13,7 +13,6 @@ from helpers import register_jinja
 import db
 from routes.auth import oauth
 from email_utils import mail
-from flask_compress import Compress
 
 
 def create_app():
@@ -54,7 +53,6 @@ def create_app():
     csrf.init_app(app)
     limiter.init_app(app)
     oauth.init_app(app)
-    Compress(app)  # Enable gzip compression
     
     # Flask-Mail config
     app.config["MAIL_SERVER"]         = os.getenv("MAIL_SERVER", "smtp.gmail.com")
