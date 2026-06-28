@@ -280,3 +280,56 @@ def register_jinja(app):
             return {}
 
     app.jinja_env.filters["fromjson"] = _fromjson
+
+
+# ─── FastAPI Jinja Registration ────────────────────────────────────────────
+def register_jinja_filters(jinja_env):
+    """Register Jinja filters and globals for FastAPI templates."""
+    jinja_env.globals["resolve_image"] = resolve_image
+    jinja_env.filters["format_description"] = format_description
+    jinja_env.filters["format_short_desc"] = format_short_desc
+
+    # ── Date formatting filter ──
+    def _format_date(value):
+        """Format a date/datetime to YYYY-MM-DD string."""
+        if value is None:
+            return ""
+        if hasattr(value, "strftime"):
+            return value.strftime("%Y-%m-%d")
+        s = str(value)
+        return s[:10] if len(s) >= 10 else s
+
+    jinja_env.filters["date_short"] = _format_date
+
+    # ── JSON parsing filter ──
+    import json
+    def _fromjson(value):
+        """Parse a JSON string into a Python object."""
+        if not value:
+            return {}
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    jinja_env.filters["fromjson"] = _fromjson
+
+    # ── URL helpers (simplified for FastAPI) ──
+    def _remove_param(key, value, query_string=""):
+        """Return a query string with the given key=value pair removed."""
+        import urllib.parse
+        params = urllib.parse.parse_qsl(query_string)
+        params = [(k, v) for k, v in params
+                  if not (k == key and (not value or str(v) == str(value)))]
+        return urllib.parse.urlencode(params, doseq=True)
+
+    def _page_url(page_num, query_string=""):
+        """Return the current query string with the page parameter updated."""
+        import urllib.parse
+        params = urllib.parse.parse_qsl(query_string)
+        params = [(k, v) for k, v in params if k != "page"]
+        params.append(("page", str(page_num)))
+        return urllib.parse.urlencode(params, doseq=True)
+
+    jinja_env.globals["remove_param"] = _remove_param
+    jinja_env.globals["page_url"] = _page_url
