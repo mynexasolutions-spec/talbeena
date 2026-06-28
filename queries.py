@@ -266,9 +266,9 @@ def get_products(search=None, categories=(), brands=(),
     return products, total, total_pages
 
 
-@ttl_cache(ttl_seconds=600)
+@ttl_cache(ttl_seconds=300)
 def get_homepage_products():
-    """Single query for all homepage product sections; partitioned in Python."""
+    """Single query for all homepage product sections; partitioned in Python. Cached for 5 minutes."""
     rows = db.query(
         f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 ORDER BY p.is_featured DESC, p.created_at DESC LIMIT 100"
     )
@@ -306,8 +306,18 @@ def get_featured_categories():
     """) or []
 
 
-@ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=3600)
+def get_blog_posts():
+    """Get latest published blog posts. Cached for 1 hour."""
+    return db.query(
+        "SELECT title, slug, excerpt, image_url, author, created_at "
+        "FROM blog_posts WHERE published=1 ORDER BY created_at DESC LIMIT 3"
+    ) or []
+
+
+@ttl_cache(ttl_seconds=600)
 def get_product_detail(product_id, preselect=None):
+    """Get product details. Cached for 10 minutes. Clears on product update."""
     product = db.query_one(f"{PRODUCTS_SELECT} WHERE p.id = ?", [product_id])
     if not product:
         return None, [], [], [], []
@@ -493,7 +503,9 @@ def get_product_detail(product_id, preselect=None):
 
 
 @ttl_cache(ttl_seconds=120)
+@ttl_cache(ttl_seconds=600)
 def get_related_products(category_slug, exclude_id, limit=4):
+    """Get related products from same category. Cached for 10 minutes."""
     # First, try products from the same category
     results = db.query(
         f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 AND c.slug = ? AND p.id != ? "

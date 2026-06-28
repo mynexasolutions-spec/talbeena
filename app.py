@@ -13,6 +13,7 @@ from helpers import register_jinja
 import db
 from routes.auth import oauth
 from email_utils import mail
+from flask_compress import Compress
 
 
 def create_app():
@@ -53,6 +54,7 @@ def create_app():
     csrf.init_app(app)
     limiter.init_app(app)
     oauth.init_app(app)
+    Compress(app)  # Enable gzip compression
     
     # Flask-Mail config
     app.config["MAIL_SERVER"]         = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -69,13 +71,20 @@ def create_app():
     # Register Jinja2 helpers and globals
     register_jinja(app)
     
-    # Cache-Control headers for static assets
+    # Cache-Control headers for static assets + Performance optimizations
     @app.after_request
     def set_cache_headers(response):
+        # Static assets: cache for 1 year
         if request.path.startswith('/static/'):
             ext = request.path.rsplit('.', 1)[-1].lower()
             if ext in ('webp', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'woff', 'woff2', 'js', 'css'):
                 response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+
+        # Add performance headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+
         return response
 
     # Session initialization - ensure session exists for CSRF token

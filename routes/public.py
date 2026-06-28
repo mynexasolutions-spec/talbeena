@@ -5,7 +5,7 @@ from helpers import resolve_image
 from queries import (
     get_products, get_categories, get_brands,
     get_product_detail, get_related_products,
-    get_homepage_products, get_featured_categories,
+    get_homepage_products, get_featured_categories, get_blog_posts,
 )
 
 bp = Blueprint("public", __name__)
@@ -29,10 +29,7 @@ def index():
 
     # Fetch latest blog posts for homepage
     try:
-        blog_posts = db.query(
-            "SELECT title, slug, excerpt, image_url, author, created_at "
-            "FROM blog_posts WHERE published=1 ORDER BY created_at DESC LIMIT 3"
-        )
+        blog_posts = get_blog_posts()
     except Exception:
         blog_posts = []
 

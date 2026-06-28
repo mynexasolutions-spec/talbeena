@@ -43,8 +43,8 @@ def _get_pool():
                     raise RuntimeError("DATABASE_URL is not set.")
                 params = _parse_url(DATABASE_URL)
                 _pool = pg_pool.ThreadedConnectionPool(
-                    minconn=2,
-                    maxconn=10,
+                    minconn=3,
+                    maxconn=20,
                     **params,
                 )
     return _pool
@@ -443,8 +443,12 @@ _MIGRATIONS = [
     "CREATE INDEX IF NOT EXISTS idx_order_items_order_id     ON order_items(order_id)",
     "CREATE INDEX IF NOT EXISTS idx_user_addresses_user_id   ON user_addresses(user_id)",
     "CREATE INDEX IF NOT EXISTS idx_categories_slug          ON categories(slug)",
+    "CREATE INDEX IF NOT EXISTS idx_categories_parent_id     ON categories(parent_id)",
     "CREATE INDEX IF NOT EXISTS idx_brands_slug              ON brands(slug)",
     "CREATE INDEX IF NOT EXISTS idx_attributes_slug          ON attributes(slug)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_published     ON blog_posts(published) WHERE published = 1",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at    ON blog_posts(created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_products_is_active_feat  ON products(is_active, is_featured)",
 
     # 10. Newsletter
     """CREATE TABLE IF NOT EXISTS newsletter_subscribers (
