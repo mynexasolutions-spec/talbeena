@@ -207,6 +207,9 @@
   }
 
   async function handlePlaceOrder() {
+    // Track checkout initiation with Facebook Pixel
+    fbq('track', 'InitiateCheckout');
+
     const payMethod = document.querySelector('input[name="payment_method"]:checked').value;
     if (payMethod === 'razorpay') {
       try {
@@ -240,11 +243,14 @@
     }
   }
 
-  // Payment option highlight
+  // Payment option highlight + Facebook Pixel tracking
   document.querySelectorAll('.payment-option').forEach(opt => {
     opt.addEventListener('click', function() {
       document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
       this.classList.add('selected');
+
+      // Track when user adds payment info
+      fbq('track', 'AddPaymentInfo');
     });
   });
 </script>

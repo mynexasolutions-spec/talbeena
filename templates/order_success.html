@@ -106,4 +106,14 @@
     <a href="{{ url_for('auth.account') }}" class="btn-back" style="background:transparent; border:1px solid var(--teal); color:var(--teal); margin-left:0.5rem;">My Orders</a>
   </div>
 </div>
+
+<!-- Facebook Pixel Purchase Tracking -->
+<script>
+  fbq('track', 'Purchase', {
+    value: {{ order.total_amount }},
+    currency: 'INR',
+    content_name: 'Order {{ order.order_number or order.id[:12] }}',
+    content_type: 'product'
+  });
+</script>
 {% endblock %}
