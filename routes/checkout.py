@@ -289,65 +289,77 @@ def checkout():
         try:
             order_id     = str(uuid.uuid4())
             order_number = f"ORD-{uuid.uuid4().hex[:12].upper()}"
-            db.execute(
-                """INSERT INTO orders
+
+            with db.transaction() as conn:
+                cur = conn.cursor()
+                cur.execute(db._pg("""INSERT INTO orders
                    (id, order_number, user_id, subtotal, shipping_amount, total_amount, status,
                     payment_method, payment_status, shipping_address_json, customer_name,
                     customer_email, customer_phone, notes, coupon_code, discount_amount)
-                   VALUES (?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?,?)""",
-                [order_id, order_number, uid, subtotal, shipping, total,
-                 payment_method, payment_status, json.dumps(shipping_addr),
-                 customer_name, customer_email, addr_phone, notes,
-                 coupon_code or "", discount_amount],
-            )
-
-            for item_key, item in cart.items():
-                unit_price = float(item.get("price", 0))
-                qty        = int(item.get("qty", 1))
-                pid        = item.get("product_id")
-                vid        = item.get("variation_id")
-
-                db.execute(
-                    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?", [qty, pid]
+                    VALUES (?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?,?)"""),
+                    [order_id, order_number, uid, subtotal, shipping, total,
+                     payment_method, payment_status, json.dumps(shipping_addr),
+                     customer_name, customer_email, addr_phone, notes,
+                     coupon_code or "", discount_amount],
                 )
-                p_row = db.query_one("SELECT stock_quantity FROM products WHERE id = ?", [pid])
-                if p_row and p_row["stock_quantity"] <= 0:
-                    db.execute(
-                        "UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = ?", [pid]
+
+                for item_key, item in cart.items():
+                    unit_price = float(item.get("price", 0))
+                    qty        = int(item.get("qty", 1))
+                    pid        = item.get("product_id")
+                    vid        = item.get("variation_id")
+
+                    cur.execute(
+                        db._pg("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?"), [qty, pid]
+                    )
+                    cur.execute(
+                        db._pg("SELECT stock_quantity FROM products WHERE id = ?"), [pid]
+                    )
+                    p_row = cur.fetchone()
+                    if p_row and p_row["stock_quantity"] <= 0:
+                        cur.execute(
+                            db._pg("UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = ?"), [pid]
+                        )
+
+                    cur.execute(
+                        db._pg("""INSERT INTO order_items
+                           (id, order_id, product_id, variation_id, quantity,
+                            unit_price, total_price, product_name_snapshot)
+                            VALUES (?,?,?,?,?,?,?,?)"""),
+                        [str(uuid.uuid4()), order_id, pid, vid or None, qty,
+                         unit_price, unit_price * qty, item.get("name", "")],
                     )
 
-                db.execute(
-                    """INSERT INTO order_items
-                       (id, order_id, product_id, variation_id, quantity,
-                        unit_price, total_price, product_name_snapshot)
-                       VALUES (?,?,?,?,?,?,?,?)""",
-                    [str(uuid.uuid4()), order_id, pid, vid or None, qty,
-                     unit_price, unit_price * qty, item.get("name", "")],
-                )
-
-            # Record coupon usage
-            if coupon:
-                db.execute(
-                    "INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (?,?,?,?)",
-                    [str(uuid.uuid4()), coupon["id"], uid, order_id],
-                )
-
-            if save_address:
-                try:
-                    is_default = 1 if len(addresses) == 0 else 0
-                    if is_default:
-                        db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
-                    db.execute(
-                        """INSERT INTO user_addresses
-                           (id, user_id, label, first_name, last_name, phone,
-                            address_line1, address_line2, city, state, pincode, country, is_default)
-                           VALUES (?,?,'Home',?,?,?,?,?,?,?,?,?,?)""",
-                        [str(uuid.uuid4()), uid, addr_first, addr_last, addr_phone,
-                         addr_line1, addr_line2, addr_city, addr_state, addr_pin,
-                         addr_country, is_default],
+                # Record coupon usage
+                if coupon:
+                    cur.execute(
+                        db._pg("INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (?,?,?,?)"),
+                        [str(uuid.uuid4()), coupon["id"], uid, order_id],
                     )
-                except Exception:
-                    pass
+
+                if save_address:
+                    try:
+                        cur.execute("SAVEPOINT save_address_sp")
+                        is_default = 1 if len(addresses) == 0 else 0
+                        if is_default:
+                            cur.execute(
+                                db._pg("UPDATE user_addresses SET is_default=0 WHERE user_id=?"), [uid]
+                            )
+                        cur.execute(
+                            db._pg("""INSERT INTO user_addresses
+                               (id, user_id, label, first_name, last_name, phone,
+                                address_line1, address_line2, city, state, pincode, country, is_default)
+                                VALUES (?,?,'Home',?,?,?,?,?,?,?,?,?,?)"""),
+                            [str(uuid.uuid4()), uid, addr_first, addr_last, addr_phone,
+                             addr_line1, addr_line2, addr_city, addr_state, addr_pin,
+                             addr_country, is_default],
+                        )
+                    except Exception:
+                        cur.execute("ROLLBACK TO SAVEPOINT save_address_sp")
+
+                cur.execute(db._pg("SELECT * FROM orders WHERE id=?"), [order_id])
+                order = db._as_dict(cur)[0]
+                cur.close()
 
             # Auto-create shipment in Bigship
             try:
@@ -461,15 +473,20 @@ def order_cancel(order_id):
             qty = int(item.get("quantity") or 0)
             if pid and qty > 0:
                 stock_changes[pid] = stock_changes.get(pid, 0) + qty
-        for pid, qty in stock_changes.items():
-            db.execute(
-                "UPDATE products SET stock_quantity = stock_quantity + ?, stock_status = 'in_stock' WHERE id = ?",
-                [qty, pid],
+
+        with db.transaction() as conn:
+            cur = conn.cursor()
+            for pid, qty in stock_changes.items():
+                cur.execute(
+                    db._pg("UPDATE products SET stock_quantity = stock_quantity + ?, stock_status = 'in_stock' WHERE id = ?"),
+                    [qty, pid],
+                )
+            cur.execute(
+                db._pg("UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=CURRENT_TIMESTAMP, cancel_reason=? WHERE id=? AND user_id=?"),
+                [cancel_reason, order_id, uid],
             )
-        db.execute(
-            "UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=CURRENT_TIMESTAMP, cancel_reason=? WHERE id=? AND user_id=?",
-            [cancel_reason, order_id, uid],
-        )
+            cur.close()
+
         flash("Order cancelled successfully.", "success")
     except Exception as e:
         flash(f"Error cancelling order: {e}", "error")

@@ -6,17 +6,25 @@ from helpers import ttl_cache
 
 _EPOCH = _dt.datetime.min
 
-# SQLite-compatible correlated subquery for variable product min price
-PRODUCTS_SELECT = """
+# Pre-aggregated variation minimum prices joined once per query instead of a
+# correlated subquery running per product row.
+_VARIATION_PRICE_JOIN = """
+    LEFT JOIN (
+        SELECT product_id, MIN(price) AS var_min_price
+        FROM product_variations
+        WHERE price > 0
+        GROUP BY product_id
+    ) vp ON vp.product_id = p.id
+"""
+
+# Effective listing price: cheapest positive variation for variable products,
+# otherwise the base product price.
+_PRODUCTS_PRICE_EXPR = "COALESCE(CASE WHEN p.type = 'variable' THEN vp.var_min_price END, p.price)"
+
+PRODUCTS_SELECT = f"""
     SELECT
         p.id, p.name, p.slug, p.sku, p.type, p.short_description, p.description,
-        COALESCE(
-            CASE WHEN p.type = 'variable' THEN (
-                SELECT MIN(pv.price) FROM product_variations pv
-                WHERE pv.product_id = p.id AND pv.price > 0
-            ) END,
-            p.price
-        ) AS price,
+        {_PRODUCTS_PRICE_EXPR} AS price,
         CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
         p.stock_quantity, p.stock_status,
         p.is_featured, p.is_active, p.created_at,
@@ -24,27 +32,23 @@ PRODUCTS_SELECT = """
         b.name  AS brand_name,    b.slug AS brand_slug,
         m.file_url AS image_url
     FROM products p
+    {_VARIATION_PRICE_JOIN}
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN brands b      ON b.id = p.brand_id
     LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
     LEFT JOIN media m ON m.id = pi.media_id
 """
 
-PRODUCTS_MINIMAL_SELECT = """
+PRODUCTS_MINIMAL_SELECT = f"""
     SELECT
         p.id, p.name, p.slug, p.sku, p.type,
-        COALESCE(
-            CASE WHEN p.type = 'variable' THEN (
-                SELECT MIN(pv.price) FROM product_variations pv
-                WHERE pv.product_id = p.id AND pv.price > 0
-            ) END,
-            p.price
-        ) AS price,
+        {_PRODUCTS_PRICE_EXPR} AS price,
         CASE WHEN p.type = 'variable' THEN NULL ELSE p.sale_price END AS sale_price,
         p.stock_status, p.is_featured, p.created_at,
         c.name AS category_name, c.slug AS category_slug,
         m.file_url AS image_url
     FROM products p
+    {_VARIATION_PRICE_JOIN}
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
     LEFT JOIN media m ON m.id = pi.media_id
@@ -230,8 +234,10 @@ def get_products(search=None, categories=(), brands=(),
     order_map = {
         "created_at_desc": "p.created_at DESC",
         "created_at_asc":  "p.created_at ASC",
-        "price_asc":       "p.price ASC",
-        "price_desc":      "p.price DESC",
+        # Sort on the aggregated listing price (min variation price for
+        # variable products) so ordering matches what shoppers see.
+        "price_asc":       "price ASC",
+        "price_desc":      "price DESC",
         "name_asc":        "p.name ASC",
     }
     order            = f"{order_map.get(sort, 'p.created_at DESC')}"
@@ -244,25 +250,34 @@ def get_products(search=None, categories=(), brands=(),
         # Expand primary variations even for limited queries
         return _expand_product_list(products)
 
-    # Fetch ALL matching products (no pagination) so we can expand variations first
-    all_products = db.query(
-        f"{PRODUCTS_SELECT} {where} ORDER BY {order}",
+    # Total matching base products via a dedicated COUNT query — no need to
+    # pull every row just to count them.
+    total = int((db.query_one(
+        f"SELECT COUNT(*) AS total FROM products p "
+        f"LEFT JOIN brands b ON b.id = p.brand_id {where}",
         params,
+    ) or {}).get("total") or 0)
+    total_pages = max(1, math.ceil(total / per_page))
+    offset      = (page - 1) * per_page
+
+    # Fetch only one page worth of base products at the SQL level
+    # (LIMIT/OFFSET), then expand variations just for that page.
+    #
+    # Behaviour nuance vs. the old fetch-everything approach: pages are now
+    # built from base products, so a variable product expands into all of its
+    # variation cards within a single page and a page may render more than
+    # `per_page` cards when several variable products land on it. Previously
+    # the expanded card list was sliced mid-product across page boundaries.
+    # `total`/`total_pages` are computed from base product counts.
+    page_products = db.query(
+        f"{PRODUCTS_SELECT} {where} ORDER BY {order} LIMIT ? OFFSET ?",
+        params + [per_page, offset],
     )
 
     if skip_expand:
-        total       = len(all_products)
-        total_pages = max(1, math.ceil(total / per_page))
-        offset      = (page - 1) * per_page
-        products    = all_products[offset:offset + per_page]
-        return products, total, total_pages
+        return page_products, total, total_pages
 
-    # Expand all variations into separate listing cards
-    expanded = _expand_product_list(all_products)
-    total       = len(expanded)
-    total_pages = max(1, math.ceil(total / per_page))
-    offset      = (page - 1) * per_page
-    products    = expanded[offset:offset + per_page]
+    products = _expand_product_list(page_products)
     return products, total, total_pages
 
 

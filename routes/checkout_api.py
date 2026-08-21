@@ -269,82 +269,88 @@ async def checkout_post(
         order_id = str(uuid.uuid4())
         order_number = f"ORD-{uuid.uuid4().hex[:12].upper()}"
 
-        db.execute(
-            """INSERT INTO orders
+        with db.transaction() as conn:
+            cur = conn.cursor()
+            cur.execute(db._pg("""INSERT INTO orders
                (id, order_number, user_id, subtotal, shipping_amount, total_amount, status,
                 payment_method, payment_status, shipping_address_json, customer_name,
                 customer_email, customer_phone, notes, coupon_code, discount_amount)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            [
-                order_id, order_number, uid, subtotal, shipping, total, "pending",
-                payment_method, payment_status, json.dumps(shipping_addr),
-                customer_name, customer_email, addr_phone, notes,
-                coupon_code or "", discount_amount,
-            ],
-        )
-
-        # Add order items and update stock
-        for item_key, item in cart.items():
-            unit_price = float(item.get("price", 0))
-            qty = int(item.get("qty", 1))
-            pid = item.get("product_id")
-            vid = item.get("variation_id")
-
-            db.execute(
-                "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?",
-                [qty, pid],
-            )
-
-            p_row = db.query_one("SELECT stock_quantity FROM products WHERE id = ?", [pid])
-            if p_row and p_row.get("stock_quantity", 0) <= 0:
-                db.execute(
-                    "UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = ?",
-                    [pid],
-                )
-
-            db.execute(
-                """INSERT INTO order_items
-                   (id, order_id, product_id, variation_id, quantity,
-                    unit_price, total_price, product_name_snapshot)
-                   VALUES (?,?,?,?,?,?,?,?)""",
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""),
                 [
-                    str(uuid.uuid4()), order_id, pid, vid or None, qty,
-                    unit_price, unit_price * qty, item.get("name", ""),
+                    order_id, order_number, uid, subtotal, shipping, total, "pending",
+                    payment_method, payment_status, json.dumps(shipping_addr),
+                    customer_name, customer_email, addr_phone, notes,
+                    coupon_code or "", discount_amount,
                 ],
             )
 
-        # Record coupon usage
-        if coupon:
-            db.execute(
-                "INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (?,?,?,?)",
-                [str(uuid.uuid4()), coupon["id"], uid, order_id],
-            )
+            # Add order items and update stock
+            for item_key, item in cart.items():
+                unit_price = float(item.get("price", 0))
+                qty = int(item.get("qty", 1))
+                pid = item.get("product_id")
+                vid = item.get("variation_id")
 
-        # Save address if requested
-        if save_address == "on":
-            try:
-                is_default = 1 if len(addresses) == 0 else 0
-                if is_default:
-                    db.execute("UPDATE user_addresses SET is_default=0 WHERE user_id=?", [uid])
+                cur.execute(
+                    db._pg("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?"),
+                    [qty, pid],
+                )
 
-                db.execute(
-                    """INSERT INTO user_addresses
-                       (id, user_id, label, first_name, last_name, phone,
-                        address_line1, address_line2, city, state, pincode, country, is_default)
-                       VALUES (?,?,'Home',?,?,?,?,?,?,?,?,?,?)""",
+                cur.execute(db._pg("SELECT stock_quantity FROM products WHERE id = ?"), [pid])
+                p_row = cur.fetchone()
+                if p_row and p_row.get("stock_quantity", 0) <= 0:
+                    cur.execute(
+                        db._pg("UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = ?"),
+                        [pid],
+                    )
+
+                cur.execute(
+                    db._pg("""INSERT INTO order_items
+                       (id, order_id, product_id, variation_id, quantity,
+                        unit_price, total_price, product_name_snapshot)
+                        VALUES (?,?,?,?,?,?,?,?)"""),
                     [
-                        str(uuid.uuid4()), uid, addr_first_name, addr_last_name, addr_phone,
-                        addr_line1, addr_line2, addr_city, addr_state, addr_pincode,
-                        addr_country, is_default,
+                        str(uuid.uuid4()), order_id, pid, vid or None, qty,
+                        unit_price, unit_price * qty, item.get("name", ""),
                     ],
                 )
-            except Exception:
-                pass
+
+            # Record coupon usage
+            if coupon:
+                cur.execute(
+                    db._pg("INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (?,?,?,?)"),
+                    [str(uuid.uuid4()), coupon["id"], uid, order_id],
+                )
+
+            # Save address if requested (best-effort; must not fail the order)
+            if save_address == "on":
+                try:
+                    cur.execute("SAVEPOINT save_address_sp")
+                    is_default = 1 if len(addresses) == 0 else 0
+                    if is_default:
+                        cur.execute(db._pg("UPDATE user_addresses SET is_default=0 WHERE user_id=?"), [uid])
+
+                    cur.execute(
+                        db._pg("""INSERT INTO user_addresses
+                           (id, user_id, label, first_name, last_name, phone,
+                            address_line1, address_line2, city, state, pincode, country, is_default)
+                            VALUES (?,?,'Home',?,?,?,?,?,?,?,?,?,?)"""),
+                        [
+                            str(uuid.uuid4()), uid, addr_first_name, addr_last_name, addr_phone,
+                            addr_line1, addr_line2, addr_city, addr_state, addr_pincode,
+                            addr_country, is_default,
+                        ],
+                    )
+                except Exception:
+                    cur.execute("ROLLBACK TO SAVEPOINT save_address_sp")
+
+            cur.execute(db._pg("SELECT * FROM orders WHERE id=?"), [order_id])
+            order = db._as_dict(cur)[0]
+            cur.close()
 
         # Create Bigship shipment
         try:
             from bigship.routes import create_shipment_in_bigship
-            order = db.query_one("SELECT * FROM orders WHERE id=?", [order_id])
             shipment_result = create_shipment_in_bigship(order)
             if not shipment_result.get("success"):
                 print(f"Warning: Failed to create Bigship shipment: {shipment_result.get('error')}")

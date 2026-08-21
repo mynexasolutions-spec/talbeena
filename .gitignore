@@ -15,3 +15,4 @@ build/
 Thumbs.db
 *.pem
 deploy-guide/
+.playwright-mcp/ 

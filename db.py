@@ -4,6 +4,7 @@ Uses psycopg2 with a ThreadedConnectionPool for efficient connection reuse.
 """
 import os
 import threading
+from contextlib import contextmanager
 from dotenv import load_dotenv
 import psycopg2
 import psycopg2.extras
@@ -79,10 +80,16 @@ def query(sql, params=None):
     conn = get_conn()
     try:
         cur = conn.cursor()
-        cur.execute(_pg(sql), params or ())
-        result = _as_dict(cur)
-        cur.close()
-        return result
+        try:
+            cur.execute(_pg(sql), params or ())
+            result = _as_dict(cur)
+            conn.commit()
+            return result
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            cur.close()
     finally:
         _release(conn)
 
@@ -91,10 +98,41 @@ def query_one(sql, params=None):
     conn = get_conn()
     try:
         cur = conn.cursor()
-        cur.execute(_pg(sql), params or ())
-        rows = _as_dict(cur)
-        cur.close()
-        return rows[0] if rows else None
+        try:
+            cur.execute(_pg(sql), params or ())
+            rows = _as_dict(cur)
+            conn.commit()
+            return rows[0] if rows else None
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            cur.close()
+    finally:
+        _release(conn)
+
+
+@contextmanager
+def transaction():
+    """Yield a pooled connection for atomic multi-statement writes.
+
+    Usage:
+        with db.transaction() as conn:
+            cur = conn.cursor()
+            cur.execute(db._pg(sql), params)
+            ...
+            cur.close()
+
+    Commits when the block completes, rolls back and re-raises on any
+    exception, and always returns the connection to the pool.
+    """
+    conn = get_conn()
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         _release(conn)
 
@@ -449,6 +487,21 @@ _MIGRATIONS = [
     "CREATE INDEX IF NOT EXISTS idx_blog_posts_published     ON blog_posts(published) WHERE published = 1",
     "CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at    ON blog_posts(created_at DESC)",
     "CREATE INDEX IF NOT EXISTS idx_products_is_active_feat  ON products(is_active, is_featured)",
+
+    # Composite indexes for common shop/order/review/attribute/coupon queries
+    "CREATE INDEX IF NOT EXISTS idx_products_active_category   ON products(is_active, category_id)",
+    "CREATE INDEX IF NOT EXISTS idx_products_active_created    ON products(is_active, created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_products_active_price      ON products(is_active, price)",
+    "CREATE INDEX IF NOT EXISTS idx_orders_user_created        ON orders(user_id, created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_orders_status_created      ON orders(status, created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_product_reviews_prod_appr  ON product_reviews(product_id, is_approved)",
+    "CREATE INDEX IF NOT EXISTS idx_attribute_values_attr      ON attribute_values(attribute_id)",
+    "CREATE INDEX IF NOT EXISTS idx_product_attributes_pa      ON product_attributes(product_id, attribute_id)",
+    "CREATE INDEX IF NOT EXISTS idx_pav_product_attrval        ON product_attribute_values(product_id, attribute_value_id)",
+    "CREATE INDEX IF NOT EXISTS idx_coupon_usages_coupon_user  ON coupon_usages(coupon_id, user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_coupons_is_active          ON coupons(is_active)",
+    "CREATE INDEX IF NOT EXISTS idx_product_variations_pid_st  ON product_variations(product_id, stock_status)",
+    "CREATE INDEX IF NOT EXISTS idx_vav_attribute_value        ON variation_attribute_values(attribute_value_id)",
 
     # 10. Newsletter
     """CREATE TABLE IF NOT EXISTS newsletter_subscribers (

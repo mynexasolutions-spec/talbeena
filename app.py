@@ -13,11 +13,22 @@ from helpers import register_jinja
 import db
 from routes.auth import oauth
 from email_utils import mail
+from flask_compress import Compress
 
 
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY", "dev-key-change-in-production")
+
+    # Response compression (brotli/gzip/deflate based on Accept-Encoding)
+    app.config["COMPRESS_MIMETYPES"] = [
+        "text/html", "text/css", "text/plain", "text/xml",
+        "application/json", "application/javascript",
+        "application/xml", "image/svg+xml",
+    ]
+    app.config["COMPRESS_LEVEL"] = 6
+    app.config["COMPRESS_MIN_SIZE"] = 500
+    Compress(app)
     
     # Payload limit: 16MB
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -122,14 +133,6 @@ def create_app():
     @app.errorhandler(500)
     def server_error(e):
         return render_template("errors/500.html"), 500
-
-    @app.teardown_appcontext
-    def close_db_connection(exception):
-        """Close database connection pool on app shutdown."""
-        try:
-            db.close_pool()
-        except Exception:
-            pass
 
     return app
 
