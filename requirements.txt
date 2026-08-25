@@ -21,3 +21,10 @@ email-validator==2.1.0
 slowapi==0.1.9
 aiosmtplib==3.0.1
 Flask-Mail==0.9.1
+Flask
+Flask-WTF
+Flask-Limiter
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Compress
+
