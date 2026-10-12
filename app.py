@@ -79,7 +79,18 @@ def create_app():
     
     # Register Jinja2 helpers and globals
     register_jinja(app)
-    
+
+    # Cache-busting: append file mtime to static URLs (?v=...) so the 1-year
+    # immutable cache below is invalidated whenever a static file changes
+    @app.url_defaults
+    def static_cache_buster(endpoint, values):
+        if endpoint == "static" and "filename" in values:
+            try:
+                path = os.path.join(app.static_folder, values["filename"])
+                values["v"] = int(os.stat(path).st_mtime)
+            except OSError:
+                pass
+
     # Cache-Control headers for static assets + Performance optimizations
     @app.after_request
     def set_cache_headers(response):

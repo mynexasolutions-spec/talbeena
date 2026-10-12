@@ -132,20 +132,20 @@
   text-decoration: underline;
 }
 
-.divider {
+.auth-divider {
   display: flex;
   align-items: center;
   margin: 2rem 0;
   gap: 1rem;
 }
 
-.divider-line {
+.auth-divider-line {
   flex: 1;
   height: 2px;
   background: linear-gradient(to right, var(--border), var(--gold-pale));
 }
 
-.divider-text {
+.auth-divider-text {
   color: var(--gold);
   font-size: 0.9rem;
   font-weight: 700;
